@@ -1,0 +1,12 @@
+FROM nginx:alpine
+
+# Удаляем дефолтную страницу Nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Копируем собранный проект (dist) в Nginx
+COPY dist/ /usr/share/nginx/html/
+
+# Открываем 80 порт
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

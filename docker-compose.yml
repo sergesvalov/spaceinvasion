@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  spaceinvasion-web:
+    image: 192.168.10.222:5050/spaceinvasion-web:latest
+    container_name: spaceinvasion-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    # [PLACEHOLDER] В будущем сюда можно добавить сервисы для HTTPS, 
+    # например nginx-proxy + acme-companion или cloudflared:
+    # 
+    # cloudflared:
+    #   image: cloudflare/cloudflared:latest
+    #   command: tunnel run
+    #   ...

@@ -49,7 +49,7 @@ pipeline {
             }
         }
 
-        stage('Package Telegram Bot') {
+        stage('Package Telegram Bot & Build Web Image') {
             when {
                 expression { params.BUILD_TELEGRAM }
             }
@@ -59,6 +59,12 @@ pipeline {
                     withBuilder {
                         sh "cd dist && zip -r ../spaceinvasion-telegram.zip *"
                     }
+
+                    echo "Сборка Docker-образа для Raspberry Pi (Web App)..."
+                    sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest -f Dockerfile.web ."
+                    
+                    echo "Пушим веб-образ в локальный реестр..."
+                    sh "docker push ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest"
                 }
             }
         }
