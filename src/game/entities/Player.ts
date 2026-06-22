@@ -58,6 +58,11 @@ export class Player extends Phaser.GameObjects.Container {
     this.form = this.form === 'fighter' ? 'mecha' : 'fighter';
     AnalyticsService.getInstance().formSwitch(this.form);
 
+    // Haptic feedback for Telegram WebApp
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+
     if (this.form === 'fighter') {
       this.drawFighter();
     } else {

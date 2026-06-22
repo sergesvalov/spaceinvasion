@@ -1,8 +1,39 @@
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        initDataUnsafe?: {
+          user?: {
+            id: number;
+            username?: string;
+          };
+        };
+        HapticFeedback: {
+          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+          notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+        };
+        ready: () => void;
+        expand: () => void;
+      };
+    };
+  }
+}
+
 export class AnalyticsService {
   private static instance: AnalyticsService;
+  private telegramUserId?: string;
 
   private constructor() {
-    // Private constructor for singleton
+    // Try to get Telegram User ID
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      this.telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+    }
+    
+    // Expand Telegram WebApp to full screen
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
   }
 
   public static getInstance(): AnalyticsService {
@@ -13,16 +44,19 @@ export class AnalyticsService {
   }
 
   public logEvent(eventName: string, params?: Record<string, any>): void {
-    console.log(`[Analytics] ${eventName}`, params || '');
-    // Future: Integration with Yandex Metrica, Firebase, or Telegram
+    const enrichedParams = {
+      ...params,
+      telegramUserId: this.telegramUserId
+    };
+    console.log(`[Analytics] ${eventName}`, enrichedParams);
   }
 
-  public sessionStart(userId?: string): void {
-    this.logEvent('session_start', { userId });
+  public sessionStart(): void {
+    this.logEvent('session_start');
   }
 
-  public sessionEnd(userId?: string): void {
-    this.logEvent('session_end', { userId });
+  public sessionEnd(): void {
+    this.logEvent('session_end');
   }
 
   public levelStart(levelId: string): void {

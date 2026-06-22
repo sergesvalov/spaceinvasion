@@ -16,6 +16,27 @@ export class BootScene extends Phaser.Scene {
     graphics.clear();
 
     graphics.destroy();
+
+    // Enemy texture
+    const enemyGraphics = this.add.graphics();
+    enemyGraphics.fillStyle(0xff0000, 1);
+    enemyGraphics.fillTriangle(20, 40, 0, 0, 40, 0);
+    enemyGraphics.generateTexture('enemy', 40, 40);
+    enemyGraphics.destroy();
+
+    // Enemy Projectile texture (circle)
+    const epGraphics = this.add.graphics();
+    epGraphics.fillStyle(0xff00ff, 1);
+    epGraphics.fillCircle(5, 5, 5);
+    epGraphics.generateTexture('enemy-projectile', 10, 10);
+    epGraphics.destroy();
+
+    // Particle texture
+    const partGraphics = this.add.graphics();
+    partGraphics.fillStyle(0xffcc00, 1);
+    partGraphics.fillRect(0, 0, 4, 4);
+    partGraphics.generateTexture('particle', 4, 4);
+    partGraphics.destroy();
   }
 
   create() {
