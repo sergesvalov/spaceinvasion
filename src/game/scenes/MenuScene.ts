@@ -24,22 +24,27 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Play Button
-    Button.create(this, width / 2, height * 0.45, 'PLAY', () => {
+    Button.create(this, width / 2, height * 0.4, 'PLAY', () => {
       this.scene.start('GameScene');
     });
 
     // Garage Button
-    Button.create(this, width / 2, height * 0.55, 'GARAGE', () => {
+    Button.create(this, width / 2, height * 0.5, 'GARAGE', () => {
       this.scene.start('GarageScene');
     });
 
+    // Shop Button
+    Button.create(this, width / 2, height * 0.6, 'SHOP', () => {
+      this.scene.start('ShopScene');
+    });
+
     // Settings Button
-    Button.create(this, width / 2, height * 0.65, 'SETTINGS', () => {
+    Button.create(this, width / 2, height * 0.7, 'SETTINGS', () => {
       this.settingsContainer.setVisible(!this.settingsContainer.visible);
     });
 
     // Exit Button
-    Button.create(this, width / 2, height * 0.75, 'EXIT', () => {
+    Button.create(this, width / 2, height * 0.8, 'EXIT', () => {
       if (window.Telegram?.WebApp) {
         (window.Telegram.WebApp as any).close();
       } else {
