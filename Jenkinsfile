@@ -5,6 +5,7 @@ pipeline {
         booleanParam(name: 'BUILD_ANDROID', defaultValue: true, description: 'Собрать версию для Android (APK)')
         booleanParam(name: 'BUILD_TELEGRAM', defaultValue: true, description: 'Собрать веб-версию для Telegram (ZIP)')
         booleanParam(name: 'BUILD_PC', defaultValue: true, description: 'Собрать standalone-версию для ПК (ZIP + .bat)')
+        booleanParam(name: 'BUILD_MAC', defaultValue: true, description: 'Собрать standalone-версию для Mac (ZIP + .command)')
     }
 
     environment {
@@ -37,7 +38,7 @@ pipeline {
 
         stage('Build Web App') {
             when {
-                expression { params.BUILD_TELEGRAM || params.BUILD_ANDROID || params.BUILD_PC }
+                expression { params.BUILD_TELEGRAM || params.BUILD_ANDROID || params.BUILD_PC || params.BUILD_MAC }
             }
             steps {
                 script {
@@ -60,6 +61,22 @@ pipeline {
                     withBuilder {
                         sh "cp PlayGame.bat dist/"
                         sh "cd dist && zip -r ../spaceinvasion-pc.zip *"
+                    }
+                }
+            }
+        }
+
+        stage('Package Mac Version') {
+            when {
+                expression { params.BUILD_MAC }
+            }
+            steps {
+                script {
+                    echo "Архивируем Mac-версию..."
+                    withBuilder {
+                        sh "cp PlayGame.command dist/"
+                        sh "chmod +x dist/PlayGame.command"
+                        sh "cd dist && zip -r ../spaceinvasion-mac.zip *"
                     }
                 }
             }
@@ -116,9 +133,10 @@ pipeline {
     post {
         success {
             archiveArtifacts artifacts: 'spaceinvasion-pc.zip', fingerprint: true, allowEmptyArchive: true
+            archiveArtifacts artifacts: 'spaceinvasion-mac.zip', fingerprint: true, allowEmptyArchive: true
             archiveArtifacts artifacts: 'spaceinvasion-telegram.zip', fingerprint: true, allowEmptyArchive: true
             archiveArtifacts artifacts: 'android/app/build/outputs/apk/release/*.apk', fingerprint: true, allowEmptyArchive: true
-            echo "Successfully built Space Invasion Web & Android APK & PC Version! 🎉"
+            echo "Successfully built Space Invasion Web & Android APK & PC & Mac Versions! 🎉"
         }
         failure {
             echo "Failed to build the game. Check logs for errors."
