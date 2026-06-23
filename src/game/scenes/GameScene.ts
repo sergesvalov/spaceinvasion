@@ -4,6 +4,7 @@ import { Projectile } from '../entities/Projectile';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Boss } from '../entities/Boss';
+import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
@@ -18,12 +19,14 @@ export class GameScene extends Phaser.Scene {
   private projectiles!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
+  private antimatterContainers!: Phaser.Physics.Arcade.Group;
   private boss!: Boss;
   
   private isPlaying: boolean = false;
   
   private score: number = 0;
   private health: number = 3;
+  private antimatter: number = 0;
   
   private hudManager!: HUDManager;
   private inputManager!: InputManager;
@@ -67,6 +70,12 @@ export class GameScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
+    this.antimatterContainers = this.physics.add.group({
+      classType: AntimatterContainer,
+      maxSize: 50,
+      runChildUpdate: true
+    });
+
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
@@ -85,12 +94,17 @@ export class GameScene extends Phaser.Scene {
       this.projectiles,
       this.enemies,
       this.enemyProjectiles,
+      this.antimatterContainers,
       {
         onEnemyDestroyed: (points) => {
           this.score += points;
-          this.hudManager.update(this.score, this.health);
+          this.hudManager.update(this.score, this.health, this.antimatter);
         },
         onBossDestroyed: () => this.handleVictory(),
+        onAntimatterCollected: () => {
+          this.antimatter += 1;
+          this.hudManager.update(this.score, this.health, this.antimatter);
+        },
         onPlayerHit: () => this.handlePlayerDamage(),
         getIsPlaying: () => this.isPlaying
       }
@@ -124,7 +138,7 @@ export class GameScene extends Phaser.Scene {
     const state = GameState.getInstance();
     state.setHp(this.health);
 
-    this.hudManager.update(this.score, this.health);
+    this.hudManager.update(this.score, this.health, this.antimatter);
     
     // Camera shake
     this.cameras.main.shake(200, 0.01);

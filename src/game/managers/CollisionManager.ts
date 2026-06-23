@@ -3,11 +3,13 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Boss } from '../entities/Boss';
 import { BaseProjectile } from '../entities/BaseProjectile';
+import { AntimatterContainer } from '../entities/AntimatterContainer';
 
 export interface CollisionCallbacks {
   onEnemyDestroyed: (points: number) => void;
   onBossDestroyed: () => void;
   onPlayerHit: () => void;
+  onAntimatterCollected: () => void;
   getIsPlaying: () => boolean;
 }
 
@@ -18,6 +20,7 @@ export class CollisionManager {
   private projectiles: Phaser.Physics.Arcade.Group;
   private enemies: Phaser.Physics.Arcade.Group;
   private enemyProjectiles: Phaser.Physics.Arcade.Group;
+  private antimatterContainers: Phaser.Physics.Arcade.Group;
   private callbacks: CollisionCallbacks;
 
   constructor(
@@ -27,6 +30,7 @@ export class CollisionManager {
     projectiles: Phaser.Physics.Arcade.Group,
     enemies: Phaser.Physics.Arcade.Group,
     enemyProjectiles: Phaser.Physics.Arcade.Group,
+    antimatterContainers: Phaser.Physics.Arcade.Group,
     callbacks: CollisionCallbacks
   ) {
     this.scene = scene;
@@ -35,6 +39,7 @@ export class CollisionManager {
     this.projectiles = projectiles;
     this.enemies = enemies;
     this.enemyProjectiles = enemyProjectiles;
+    this.antimatterContainers = antimatterContainers;
     this.callbacks = callbacks;
   }
 
@@ -57,6 +62,14 @@ export class CollisionManager {
           e.setActive(false);
           e.setVisible(false);
           this.callbacks.onEnemyDestroyed(100);
+
+          // 15% chance to drop antimatter
+          if (Phaser.Math.FloatBetween(0, 1) <= 0.15) {
+            const container = this.antimatterContainers.get() as AntimatterContainer;
+            if (container) {
+              container.spawn(e.x, e.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
+            }
+          }
         }
       }
     });
@@ -77,6 +90,17 @@ export class CollisionManager {
           this.createExplosion(bossObj.x, bossObj.y);
           bossObj.setActive(false);
           bossObj.setVisible(false);
+          
+          // Boss drops 10 antimatter containers
+          for (let i = 0; i < 10; i++) {
+            const container = this.antimatterContainers.get() as AntimatterContainer;
+            if (container) {
+              const vx = Phaser.Math.Between(-100, 100);
+              const vy = Phaser.Math.Between(-50, 50);
+              container.spawn(bossObj.x, bossObj.y, vx, vy);
+            }
+          }
+
           this.callbacks.onBossDestroyed();
         }
       }
@@ -108,6 +132,16 @@ export class CollisionManager {
       const b = (obj1 === this.player ? obj2 : obj1) as Boss;
       if (b.active && this.callbacks.getIsPlaying()) {
         this.callbacks.onPlayerHit();
+      }
+    });
+
+    // Player vs AntimatterContainer
+    this.scene.physics.add.overlap(this.player, this.antimatterContainers, (obj1, obj2) => {
+      const container = (obj1 === this.player ? obj2 : obj1) as AntimatterContainer;
+      if (container.active && this.callbacks.getIsPlaying()) {
+        container.setActive(false);
+        container.setVisible(false);
+        this.callbacks.onAntimatterCollected();
       }
     });
   }
