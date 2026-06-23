@@ -39,6 +39,9 @@ export class BootScene extends Phaser.Scene {
     partGraphics.destroy();
     // Load pew sound
     this.load.audio('pew', 'pew.wav');
+
+    // Load ship texture
+    this.load.image('ship', 'ship.png');
   }
 
   create() {

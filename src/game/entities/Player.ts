@@ -5,7 +5,7 @@ export type PlayerForm = 'fighter' | 'mecha';
 
 export class Player extends Phaser.GameObjects.Container {
   private form: PlayerForm = 'fighter';
-  private visual: Phaser.GameObjects.Graphics;
+  private sprite: Phaser.GameObjects.Sprite;
   private lastFired: number = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -22,17 +22,17 @@ export class Player extends Phaser.GameObjects.Container {
       body.setOffset(-15, -15);
     }
 
-    this.visual = scene.add.graphics();
-    this.add(this.visual);
+    this.sprite = scene.add.sprite(0, 0, 'ship');
+    // Scale down the generated image as it might be too large
+    this.sprite.setScale(0.2); 
+    this.add(this.sprite);
     
-    this.drawFighter();
+    this.setFighterForm();
   }
 
-  private drawFighter() {
-    this.visual.clear();
-    this.visual.fillStyle(0x00aaff, 1);
-    // Draw a simple triangle for fighter
-    this.visual.fillTriangle(0, -20, -15, 15, 15, 15);
+  private setFighterForm() {
+    // Later: this.sprite.play('fighter_idle');
+    this.sprite.setTint(0xffffff); // Normal color
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -41,16 +41,14 @@ export class Player extends Phaser.GameObjects.Container {
     }
   }
 
-  private drawMecha() {
-    this.visual.clear();
-    this.visual.fillStyle(0xffaa00, 1);
-    // Draw a blockier shape for mecha
-    this.visual.fillRect(-15, -15, 30, 30);
+  private setMechaForm() {
+    // Later: this.sprite.play('transform_to_mecha');
+    this.sprite.setTint(0xffaa00); // Temporary tint to show Mecha form
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(30, 30);
-      body.setOffset(-15, -15);
+      body.setSize(40, 40);
+      body.setOffset(-20, -20);
     }
   }
 
@@ -64,9 +62,9 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     if (this.form === 'fighter') {
-      this.drawFighter();
+      this.setFighterForm();
     } else {
-      this.drawMecha();
+      this.setMechaForm();
     }
   }
 
