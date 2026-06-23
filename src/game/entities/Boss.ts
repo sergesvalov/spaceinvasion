@@ -22,6 +22,9 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
+    // Scale down the large generated image to an appropriate boss size
+    this.setScale(0.25);
+    
     this.enemyProjectiles = enemyProjectiles;
     this.onSpawnKamikaze = onSpawnKamikaze;
 

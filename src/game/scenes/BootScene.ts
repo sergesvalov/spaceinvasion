@@ -26,21 +26,7 @@ export class BootScene extends Phaser.Scene {
     epGraphics.generateTexture('enemy-projectile', 10, 10);
     epGraphics.destroy();
 
-    // Boss texture (placeholder: large red-black polygon)
-    const bossGraphics = this.add.graphics();
-    bossGraphics.fillStyle(0x000000, 1);
-    bossGraphics.lineStyle(4, 0xff0000, 1);
-    bossGraphics.beginPath();
-    bossGraphics.moveTo(100, 0);
-    bossGraphics.lineTo(200, 50);
-    bossGraphics.lineTo(150, 150);
-    bossGraphics.lineTo(50, 150);
-    bossGraphics.lineTo(0, 50);
-    bossGraphics.closePath();
-    bossGraphics.fillPath();
-    bossGraphics.strokePath();
-    bossGraphics.generateTexture('boss', 200, 150);
-    bossGraphics.destroy();
+    // Boss texture is loaded below
 
     // Particle texture
     const partGraphics = this.add.graphics();
@@ -51,9 +37,10 @@ export class BootScene extends Phaser.Scene {
     // Load pew sound
     this.load.audio('pew', 'pew.wav');
 
-    // Load ship and enemy textures
+    // Load ship, enemy, and boss textures
     this.load.image('ship', 'ship.png');
     this.load.image('enemy', 'enemy.png');
+    this.load.image('boss', 'boss.png');
     
     // Load garage textures
     this.load.image('hangar', 'hangar.png');
