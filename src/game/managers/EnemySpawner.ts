@@ -18,11 +18,13 @@ export class EnemySpawner {
     this.enemyProjectiles = enemyProjectiles;
   }
 
-  public update(time: number, isPlaying: boolean) {
+  public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0) {
     if (!isPlaying) return;
 
+    const spawnDelay = 2000 * spawnRateModifier;
+
     // Spawn enemies
-    if (time > this.lastEnemySpawn + 2000) {
+    if (time > this.lastEnemySpawn + spawnDelay) {
       this.lastEnemySpawn = time;
       const enemy = this.enemies.get() as Enemy;
       if (enemy) {

@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
+import { Boss } from '../entities/Boss';
 import { BaseProjectile } from '../entities/BaseProjectile';
 
 export interface CollisionCallbacks {
   onEnemyDestroyed: (points: number) => void;
+  onBossDestroyed: () => void;
   onPlayerHit: () => void;
   getIsPlaying: () => boolean;
 }
@@ -12,6 +14,7 @@ export interface CollisionCallbacks {
 export class CollisionManager {
   private scene: Phaser.Scene;
   private player: Player;
+  private boss: Boss;
   private projectiles: Phaser.Physics.Arcade.Group;
   private enemies: Phaser.Physics.Arcade.Group;
   private enemyProjectiles: Phaser.Physics.Arcade.Group;
@@ -20,6 +23,7 @@ export class CollisionManager {
   constructor(
     scene: Phaser.Scene,
     player: Player,
+    boss: Boss,
     projectiles: Phaser.Physics.Arcade.Group,
     enemies: Phaser.Physics.Arcade.Group,
     enemyProjectiles: Phaser.Physics.Arcade.Group,
@@ -27,6 +31,7 @@ export class CollisionManager {
   ) {
     this.scene = scene;
     this.player = player;
+    this.boss = boss;
     this.projectiles = projectiles;
     this.enemies = enemies;
     this.enemyProjectiles = enemyProjectiles;
@@ -56,6 +61,27 @@ export class CollisionManager {
       }
     });
 
+    // Player Projectile vs Boss
+    this.scene.physics.add.overlap(this.projectiles, this.boss, (proj, b) => {
+      const p = proj as BaseProjectile;
+      const bossObj = b as Boss;
+      
+      if (p.active && bossObj.active) {
+        p.setActive(false);
+        p.setVisible(false);
+        
+        const damage = this.player.getForm() === 'mecha' ? 1.5 : 1;
+        const destroyed = bossObj.takeDamage(damage);
+        
+        if (destroyed) {
+          this.createExplosion(bossObj.x, bossObj.y);
+          bossObj.setActive(false);
+          bossObj.setVisible(false);
+          this.callbacks.onBossDestroyed();
+        }
+      }
+    });
+
     // Enemy Projectile vs Player
     this.scene.physics.add.overlap(this.enemyProjectiles, this.player, (obj1, obj2) => {
       const p = (obj1 === this.player ? obj2 : obj1) as BaseProjectile;
@@ -73,6 +99,14 @@ export class CollisionManager {
         this.createExplosion(e.x, e.y);
         e.setActive(false);
         e.setVisible(false);
+        this.callbacks.onPlayerHit();
+      }
+    });
+
+    // Boss vs Player
+    this.scene.physics.add.overlap(this.boss, this.player, (obj1, obj2) => {
+      const b = (obj1 === this.player ? obj2 : obj1) as Boss;
+      if (b.active && this.callbacks.getIsPlaying()) {
         this.callbacks.onPlayerHit();
       }
     });

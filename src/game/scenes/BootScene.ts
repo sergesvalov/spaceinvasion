@@ -26,6 +26,22 @@ export class BootScene extends Phaser.Scene {
     epGraphics.generateTexture('enemy-projectile', 10, 10);
     epGraphics.destroy();
 
+    // Boss texture (placeholder: large red-black polygon)
+    const bossGraphics = this.add.graphics();
+    bossGraphics.fillStyle(0x000000, 1);
+    bossGraphics.lineStyle(4, 0xff0000, 1);
+    bossGraphics.beginPath();
+    bossGraphics.moveTo(100, 0);
+    bossGraphics.lineTo(200, 50);
+    bossGraphics.lineTo(150, 150);
+    bossGraphics.lineTo(50, 150);
+    bossGraphics.lineTo(0, 50);
+    bossGraphics.closePath();
+    bossGraphics.fillPath();
+    bossGraphics.strokePath();
+    bossGraphics.generateTexture('boss', 200, 150);
+    bossGraphics.destroy();
+
     // Particle texture
     const partGraphics = this.add.graphics();
     partGraphics.fillStyle(0xffcc00, 1);
@@ -48,12 +64,25 @@ export class BootScene extends Phaser.Scene {
     this.load.image('story_2', 'story/story_2.png');
     this.load.image('story_3', 'story/story_3.png');
     this.load.image('story_4', 'story/story_4.png');
+
+    // Load Earth backgrounds
+    this.load.image('bg_city', 'bg/city.png');
+    this.load.image('bg_suburbs', 'bg/suburbs.png');
   }
 
   create() {
     const { width, height } = this.scale;
     if (!this.textures.exists('starfield')) {
       this.createStarfieldTexture(width, height);
+    }
+    
+    // Placeholder for mountains
+    if (!this.textures.exists('bg_mountains')) {
+      const g = this.add.graphics();
+      g.fillStyle(0x2d4c1e, 1); // Dark green mountain-like color
+      g.fillRect(0, 0, width, height);
+      g.generateTexture('bg_mountains', width, height);
+      g.destroy();
     }
     
     this.scene.start('MenuScene');
