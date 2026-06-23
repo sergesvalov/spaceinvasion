@@ -4,8 +4,8 @@ FROM node:20-bullseye
 RUN apt-get update && apt-get install -y openjdk-17-jdk wget unzip zip && rm -rf /var/lib/apt/lists/*
 
 # Настройка Android SDK
-ENV ANDROID_HOME /opt/android-sdk
-ENV PATH ${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
+ENV ANDROID_HOME="/opt/android-sdk"
+ENV PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
 RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O android-tools.zip && \
@@ -15,22 +15,22 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
 
 # Принятие лицензий и установка компонентов SDK
 RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
 
 # Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM)
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
     curl -s https://raw.githubusercontent.com/Commit451/android-arm-build-tools/main/install.sh | bash
 
 # Заставляем Gradle использовать нативный aapt2 вместо скачивания x86_64 версии из Maven
-RUN mkdir -p /root/.gradle && echo "android.aapt2FromMavenOverride=/opt/android-sdk/build-tools/33.0.2/aapt2" >> /root/.gradle/gradle.properties
+RUN mkdir -p /root/.gradle && echo "android.aapt2FromMavenOverride=/opt/android-sdk/build-tools/37.0.0/aapt2" >> /root/.gradle/gradle.properties
 
 # Установка Gradle (Глобально)
-ENV GRADLE_VERSION 8.5
+ENV GRADLE_VERSION="8.5"
 RUN wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -O gradle.zip && \
     unzip -q gradle.zip -d /opt && \
     rm gradle.zip && \
     mv /opt/gradle-${GRADLE_VERSION} /opt/gradle
-ENV PATH ${PATH}:/opt/gradle/bin
+ENV PATH="${PATH}:/opt/gradle/bin"
 
 # Настройка рабочей директории
 WORKDIR /app
