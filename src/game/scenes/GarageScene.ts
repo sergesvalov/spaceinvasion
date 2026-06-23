@@ -25,8 +25,6 @@ export class GarageScene extends Phaser.Scene {
     // Ship
     const ship = this.add.image(width / 2, height / 2 + 50, 'ship_side');
     ship.setScale(0.3); // Adjust as needed
-    // Use screen blend mode so the black background becomes transparent
-    ship.setBlendMode(Phaser.BlendModes.SCREEN);
 
     // Title
     this.add.text(width / 2, 50, 'GARAGE', {

@@ -17,8 +17,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     
     this.setScale(0.052);
-    // SCREEN blend mode correctly removes the black background
-    this.setBlendMode(Phaser.BlendModes.SCREEN);
     
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },

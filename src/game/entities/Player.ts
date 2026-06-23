@@ -24,9 +24,8 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
-    // Scale is increased by 30% from 0.04 to 0.052. SCREEN blend mode makes the black background transparent.
-    this.sprite.setScale(0.052); 
-    this.sprite.setBlendMode(Phaser.BlendModes.SCREEN);
+    // Scale is increased by 30% from 0.04 to 0.052. True alpha transparency is now in the image.
+    this.sprite.setScale(0.052);
     this.add(this.sprite);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
