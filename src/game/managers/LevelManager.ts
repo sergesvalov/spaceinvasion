@@ -15,6 +15,9 @@ export class LevelManager {
   
   private isLevelComplete: boolean = false;
   private onBossPhaseCallback: () => void;
+  private fogOverlay!: Phaser.GameObjects.Rectangle;
+  private cloudsEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private transitionTriggered: boolean = false;
 
   constructor(scene: Phaser.Scene, phases: LevelPhase[], onBossPhase: () => void) {
     this.scene = scene;
@@ -40,6 +43,27 @@ export class LevelManager {
       
       this.backgrounds.push(bg);
     });
+
+    // Fog overlay
+    this.fogOverlay = this.scene.add.rectangle(width / 2, height / 2, width, height, 0xeeeeee);
+    this.fogOverlay.setDepth(-40); // Behind game objects but above backgrounds
+    this.fogOverlay.setAlpha(0);
+
+    // Cloud emitter for transitions
+    this.cloudsEmitter = this.scene.add.particles(0, 0, 'particle', {
+      x: { min: 0, max: width },
+      y: -50,
+      lifespan: 2000,
+      speedY: { min: 500, max: 800 },
+      speedX: { min: -50, max: 50 },
+      scale: { start: 10, end: 40 },
+      alpha: { start: 0.6, end: 0 },
+      tint: 0xffffff,
+      blendMode: 'NORMAL',
+      frequency: 10
+    });
+    this.cloudsEmitter.setDepth(-30); // Above fog overlay
+    this.cloudsEmitter.stop();
   }
 
   public startLevel(time: number) {
@@ -65,6 +89,7 @@ export class LevelManager {
       // Move to next phase
       this.currentPhaseIndex++;
       this.phaseStartTime = time;
+      this.transitionTriggered = false; // Reset for next phase
       
       if (this.currentPhaseIndex >= this.phases.length) {
         // Boss Phase!
@@ -72,15 +97,32 @@ export class LevelManager {
         this.onBossPhaseCallback();
       }
     } else {
-      // Handle crossfade if we are near the end of the phase (last 3000ms)
-      const crossfadeTime = 3000;
-      if (timeInPhase > currentPhase.duration - crossfadeTime && this.currentPhaseIndex + 1 < this.phases.length) {
-        // +1 because starfield is at index 0, so backgrounds for phases are offset by 1
-        const nextBg = this.backgrounds[this.currentPhaseIndex + 2]; 
-        if (nextBg) {
-           const alpha = (timeInPhase - (currentPhase.duration - crossfadeTime)) / crossfadeTime;
-           nextBg.setAlpha(alpha);
-        }
+      // Start transition a few seconds before phase ends
+      const transitionTime = 4000;
+      if (timeInPhase > currentPhase.duration - transitionTime && !this.transitionTriggered && this.currentPhaseIndex + 1 < this.phases.length) {
+        this.transitionTriggered = true;
+        
+        // Start clouds
+        this.cloudsEmitter.start();
+
+        // Fade in fog overlay to hide the background swap
+        this.scene.tweens.add({
+          targets: this.fogOverlay,
+          alpha: 1,
+          duration: transitionTime / 2,
+          yoyo: true, // Fade back to 0 automatically
+          onYoyo: () => {
+            // Swap backgrounds at peak fog
+            const currentBg = this.backgrounds[this.currentPhaseIndex + 1];
+            const nextBg = this.backgrounds[this.currentPhaseIndex + 2];
+            
+            if (currentBg) currentBg.setAlpha(0);
+            if (nextBg) nextBg.setAlpha(1);
+            
+            // Stop emitting new clouds, existing ones will drift off
+            this.cloudsEmitter.stop();
+          }
+        });
       }
     }
   }
