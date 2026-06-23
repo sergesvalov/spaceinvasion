@@ -21,9 +21,7 @@ export class GameScene extends Phaser.Scene {
   
   private score: number = 0;
   private health: number = 3;
-  
-  private score: number = 0;
-  private health: number = 3;
+
   
   private hudManager!: HUDManager;
   private inputManager!: InputManager;
