@@ -55,21 +55,13 @@ export class BootScene extends Phaser.Scene {
     // Load Earth backgrounds
     this.load.image('bg_city', 'bg/city.png');
     this.load.image('bg_suburbs', 'bg/suburbs.png');
+    this.load.image('bg_mountains', 'bg/mountains.png');
   }
 
   create() {
     const { width, height } = this.scale;
     if (!this.textures.exists('starfield')) {
       this.createStarfieldTexture(width, height);
-    }
-    
-    // Placeholder for mountains
-    if (!this.textures.exists('bg_mountains')) {
-      const g = this.add.graphics();
-      g.fillStyle(0x2d4c1e, 1); // Dark green mountain-like color
-      g.fillRect(0, 0, width, height);
-      g.generateTexture('bg_mountains', width, height);
-      g.destroy();
     }
     
     this.scene.start('MenuScene');
