@@ -83,6 +83,17 @@ html, body {
   text-transform: uppercase;
 }
 
+.story-image {
+  max-width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  margin-bottom: 20px;
+  border: 2px solid #00ffcc;
+  box-shadow: 0 0 15px #00ffcc;
+  border-radius: 8px;
+  display: none;
+}
+
 .story-text {
   font-family: monospace;
   font-size: 16px;
