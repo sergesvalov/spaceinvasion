@@ -143,8 +143,8 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Enemy Projectile vs Player
-    this.physics.add.overlap(this.enemyProjectiles, this.player, (ep) => {
-      const p = ep as EnemyProjectile;
+    this.physics.add.overlap(this.enemyProjectiles, this.player, (obj1, obj2) => {
+      const p = (obj1 === this.player ? obj2 : obj1) as EnemyProjectile;
       if (p.active && this.isPlaying) {
         p.setActive(false);
         p.setVisible(false);
@@ -153,8 +153,8 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Enemy vs Player
-    this.physics.add.overlap(this.enemies, this.player, (enemy) => {
-      const e = enemy as Enemy;
+    this.physics.add.overlap(this.enemies, this.player, (obj1, obj2) => {
+      const e = (obj1 === this.player ? obj2 : obj1) as Enemy;
       if (e.active && this.isPlaying) {
         this.createExplosion(e.x, e.y);
         e.setActive(false);
