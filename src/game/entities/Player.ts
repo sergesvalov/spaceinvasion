@@ -24,8 +24,9 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
-    // Scale down the generated image as it might be too large
-    this.sprite.setScale(0.2); 
+    // Scale down by 80% (0.2 -> 0.04) and set screen blend mode for transparent background
+    this.sprite.setScale(0.04); 
+    this.sprite.setBlendMode(Phaser.BlendModes.SCREEN);
     this.add(this.sprite);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
