@@ -9,7 +9,6 @@ export class AAGun extends Phaser.Physics.Arcade.Sprite {
   private boss!: Boss;
   private projectileGroup!: Phaser.Physics.Arcade.Group;
   private fireRateMs: number = 1500;
-  private scrollSpeed: number = 50; // default, will be updated to match background
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'aagun');
@@ -37,7 +36,6 @@ export class AAGun extends Phaser.Physics.Arcade.Sprite {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
-    this.scrollSpeed = scrollSpeed;
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
