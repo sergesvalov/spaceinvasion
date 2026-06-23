@@ -17,12 +17,7 @@ export class BootScene extends Phaser.Scene {
 
     graphics.destroy();
 
-    // Enemy texture
-    const enemyGraphics = this.add.graphics();
-    enemyGraphics.fillStyle(0xff0000, 1);
-    enemyGraphics.fillTriangle(20, 40, 0, 0, 40, 0);
-    enemyGraphics.generateTexture('enemy', 40, 40);
-    enemyGraphics.destroy();
+    // Enemy texture is loaded below
 
     // Enemy Projectile texture (circle)
     const epGraphics = this.add.graphics();
@@ -40,8 +35,9 @@ export class BootScene extends Phaser.Scene {
     // Load pew sound
     this.load.audio('pew', 'pew.wav');
 
-    // Load ship texture
+    // Load ship and enemy textures
     this.load.image('ship', 'ship.png');
+    this.load.image('enemy', 'enemy.png');
   }
 
   create() {

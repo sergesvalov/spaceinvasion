@@ -7,6 +7,7 @@ export class Player extends Phaser.GameObjects.Container {
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
   private lastFired: number = 0;
+  private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -26,6 +27,18 @@ export class Player extends Phaser.GameObjects.Container {
     // Scale down the generated image as it might be too large
     this.sprite.setScale(0.2); 
     this.add(this.sprite);
+
+    this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
+      speedY: { min: 200, max: 400 },
+      speedX: { min: -20, max: 20 },
+      scale: { start: 1.5, end: 0 },
+      alpha: { start: 1, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 300,
+      tint: [0x00aaff, 0x0044ff],
+      frequency: 20
+    });
+    this.exhaustEmitter.startFollow(this, 0, 30);
     
     this.setFighterForm();
   }
@@ -33,6 +46,16 @@ export class Player extends Phaser.GameObjects.Container {
   private setFighterForm() {
     // Later: this.sprite.play('fighter_idle');
     this.sprite.setTint(0xffffff); // Normal color
+    
+    if (this.exhaustEmitter) {
+      this.exhaustEmitter.setConfig({
+        speedY: { min: 200, max: 400 },
+        speedX: { min: -20, max: 20 },
+        scale: { start: 1.5, end: 0 },
+        tint: [0x00aaff, 0x0044ff]
+      });
+      this.exhaustEmitter.startFollow(this, 0, 30);
+    }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -44,6 +67,16 @@ export class Player extends Phaser.GameObjects.Container {
   private setMechaForm() {
     // Later: this.sprite.play('transform_to_mecha');
     this.sprite.setTint(0xffaa00); // Temporary tint to show Mecha form
+    
+    if (this.exhaustEmitter) {
+      this.exhaustEmitter.setConfig({
+        speedY: { min: 100, max: 200 },
+        speedX: { min: -30, max: 30 },
+        scale: { start: 2.5, end: 0 },
+        tint: [0xffaa00, 0xff4400]
+      });
+      this.exhaustEmitter.startFollow(this, 0, 40);
+    }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {

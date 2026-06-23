@@ -5,6 +5,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private timeOffset: number = 0;
   private lastFired: number = 0;
   public hp: number = 3;
+  private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'enemy');
@@ -14,12 +15,28 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (body) {
       body.setSize(40, 40);
     }
+    
+    this.setScale(0.2);
+    
+    this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
+      speedY: { min: -100, max: -200 },
+      speedX: { min: -15, max: 15 },
+      scale: { start: 1.5, end: 0 },
+      alpha: { start: 1, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 300,
+      tint: [0xff0000, 0xff5500],
+      frequency: 20
+    });
+    this.exhaustEmitter.startFollow(this, 0, -30);
+    this.exhaustEmitter.stop();
   }
 
   spawn(x: number, y: number) {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
+    this.exhaustEmitter.start();
     this.startX = x;
     this.timeOffset = Phaser.Math.Between(0, 1000);
     this.hp = 3;
@@ -45,6 +62,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (this.y > this.scene.scale.height + 50) {
       this.setActive(false);
       this.setVisible(false);
+      this.exhaustEmitter.stop();
+    }
+    
+    // Also stop emitter if destroyed by player
+    if (!this.active) {
+      this.exhaustEmitter.stop();
     }
   }
 
