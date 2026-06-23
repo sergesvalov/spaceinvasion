@@ -4,6 +4,7 @@ pipeline {
     parameters {
         booleanParam(name: 'BUILD_ANDROID', defaultValue: true, description: 'Собрать версию для Android (APK)')
         booleanParam(name: 'BUILD_TELEGRAM', defaultValue: true, description: 'Собрать веб-версию для Telegram (ZIP)')
+        booleanParam(name: 'BUILD_PC', defaultValue: true, description: 'Собрать standalone-версию для ПК (ZIP + .bat)')
     }
 
     environment {
@@ -36,7 +37,7 @@ pipeline {
 
         stage('Build Web App') {
             when {
-                expression { params.BUILD_TELEGRAM || params.BUILD_ANDROID }
+                expression { params.BUILD_TELEGRAM || params.BUILD_ANDROID || params.BUILD_PC }
             }
             steps {
                 script {
@@ -44,6 +45,21 @@ pipeline {
                     withBuilder {
                         sh "npm install"
                         sh "npm run build"
+                    }
+                }
+            }
+        }
+
+        stage('Package PC Version') {
+            when {
+                expression { params.BUILD_PC }
+            }
+            steps {
+                script {
+                    echo "Архивируем ПК-версию..."
+                    withBuilder {
+                        sh "cp PlayGame.bat dist/"
+                        sh "cd dist && zip -r ../spaceinvasion-pc.zip *"
                     }
                 }
             }
@@ -99,9 +115,10 @@ pipeline {
 
     post {
         success {
+            archiveArtifacts artifacts: 'spaceinvasion-pc.zip', fingerprint: true, allowEmptyArchive: true
             archiveArtifacts artifacts: 'spaceinvasion-telegram.zip', fingerprint: true, allowEmptyArchive: true
             archiveArtifacts artifacts: 'android/app/build/outputs/apk/release/*.apk', fingerprint: true, allowEmptyArchive: true
-            echo "Successfully built Space Invasion Web & Android APK! 🎉"
+            echo "Successfully built Space Invasion Web & Android APK & PC Version! 🎉"
         }
         failure {
             echo "Failed to build the game. Check logs for errors."

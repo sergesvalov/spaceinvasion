@@ -83,8 +83,9 @@ npx cap open android  # Открыть проект в Android Studio
 - `capacitor.config.ts` — Настройки Capacitor для встраивания веб-билда в Android.
 - `release.keystore` — Ключ для автоматической подписи релизных APK в CI/CD (используются `zipalign` и `apksigner`).
 
-При успешном завершении Jenkins пайплайна генерируются два артефакта:
-1. `spaceinvasion-release.apk` (Готовое, выровненное и подписанное нативное Android приложение).
-2. `spaceinvasion-telegram.zip` (Архив для деплоя веб-версии в Telegram бота).
+При успешном завершении Jenkins пайплайна генерируются три артефакта:
+1. `spaceinvasion-pc.zip` (ПК-версия: распакуйте и запустите `PlayGame.bat` для мгновенной локальной игры без установки NodeJS).
+2. `spaceinvasion-release.apk` (Готовое, выровненное и подписанное нативное Android приложение).
+3. `spaceinvasion-telegram.zip` (Архив для деплоя веб-версии в Telegram бота).
 
 Для развертывания веб-версии в Telegram-боте, ознакомьтесь с [Инструкцией по интеграции с Telegram Bot](TELEGRAM_BOT_GUIDE.md).
