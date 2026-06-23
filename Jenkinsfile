@@ -82,6 +82,15 @@ pipeline {
                         
                         // Сборка релизного APK
                         sh "cd android && gradle assembleRelease"
+
+                        // Выравнивание и подпись APK
+                        echo "Выравниваем и подписываем APK..."
+                        sh '''
+                            APK_DIR="android/app/build/outputs/apk/release"
+                            /opt/android-sdk/build-tools/37.0.0/zipalign -v -p 4 ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
+                            /opt/android-sdk/build-tools/37.0.0/apksigner sign --ks release.keystore --ks-pass pass:spaceinvasion --key-pass pass:spaceinvasion --out ${APK_DIR}/spaceinvasion-release.apk ${APK_DIR}/app-release-aligned.apk
+                            rm ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
+                        '''
                     }
                 }
             }
