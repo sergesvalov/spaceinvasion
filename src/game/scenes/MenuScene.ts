@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { Button } from '../ui/Button';
 
 export class MenuScene extends Phaser.Scene {
   private background!: Phaser.GameObjects.TileSprite;
@@ -23,22 +24,22 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Play Button
-    this.createButton(width / 2, height * 0.45, 'PLAY', () => {
+    Button.create(this, width / 2, height * 0.45, 'PLAY', () => {
       this.scene.start('GameScene');
     });
 
     // Garage Button
-    this.createButton(width / 2, height * 0.55, 'GARAGE', () => {
+    Button.create(this, width / 2, height * 0.55, 'GARAGE', () => {
       this.scene.start('GarageScene');
     });
 
     // Settings Button
-    this.createButton(width / 2, height * 0.65, 'SETTINGS', () => {
+    Button.create(this, width / 2, height * 0.65, 'SETTINGS', () => {
       this.settingsContainer.setVisible(!this.settingsContainer.visible);
     });
 
     // Exit Button
-    this.createButton(width / 2, height * 0.75, 'EXIT', () => {
+    Button.create(this, width / 2, height * 0.75, 'EXIT', () => {
       if (window.Telegram?.WebApp) {
         (window.Telegram.WebApp as any).close();
       } else {
@@ -50,27 +51,6 @@ export class MenuScene extends Phaser.Scene {
     this.createSettingsPanel(width, height);
   }
 
-  private createButton(x: number, y: number, text: string, onClick: () => void) {
-    const btn = this.add.text(x, y, text, {
-      fontSize: '24px',
-      color: '#00aaff',
-      backgroundColor: '#111111',
-      padding: { x: 20, y: 10 }
-    })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerover', () => btn.setStyle({ color: '#ffaa00', backgroundColor: '#333333' }))
-      .on('pointerout', () => btn.setStyle({ color: '#00aaff', backgroundColor: '#111111' }))
-      .on('pointerdown', () => {
-        // Haptic feedback
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        }
-        onClick();
-      });
-
-    return btn;
-  }
 
   private createSettingsPanel(width: number, height: number) {
     this.settingsContainer = this.add.container(width / 2, height * 0.85);

@@ -6,6 +6,8 @@ import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
+import { HUDManager } from '../managers/HUDManager';
+import { InputManager } from '../managers/InputManager';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -20,9 +22,11 @@ export class GameScene extends Phaser.Scene {
   private score: number = 0;
   private health: number = 3;
   
-  private scoreEl!: HTMLElement;
-  private healthEl!: HTMLElement;
-  private hudEl!: HTMLElement;
+  private score: number = 0;
+  private health: number = 3;
+  
+  private hudManager!: HUDManager;
+  private inputManager!: InputManager;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -34,8 +38,9 @@ export class GameScene extends Phaser.Scene {
     // Initialize health from state
     this.health = GameState.getInstance().currentHp;
 
-    // Create HTML HUD
-    this.createHUD();
+    // Create Managers
+    this.hudManager = new HUDManager();
+    this.hudManager.createHUD(this.health);
 
     const { width, height } = this.scale;
 
@@ -61,63 +66,20 @@ export class GameScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
-    this.setupInput();
+    this.inputManager = new InputManager(this, this.player);
+    this.inputManager.setupInput();
+
     this.setupCollisions();
 
     // Start briefing
     StoryManager.getInstance().showBriefing('level_1', () => {
       this.isPlaying = true;
-      if (this.hudEl) this.hudEl.style.display = 'flex';
+      this.inputManager.isActive = true;
+      this.hudManager.show();
     });
   }
 
-  private createHUD() {
-    const uiContainer = document.getElementById('ui-container');
-    if (!uiContainer) return;
 
-    this.hudEl = document.createElement('div');
-    this.hudEl.className = 'hud';
-    
-    this.scoreEl = document.createElement('div');
-    this.scoreEl.textContent = 'Score: 0';
-    
-    this.healthEl = document.createElement('div');
-    this.healthEl.textContent = `HP: ${this.health}`;
-    
-    this.hudEl.appendChild(this.scoreEl);
-    this.hudEl.appendChild(this.healthEl);
-    uiContainer.appendChild(this.hudEl);
-  }
-
-  private updateHUD() {
-    if (this.scoreEl) this.scoreEl.textContent = `Score: ${this.score}`;
-    if (this.healthEl) this.healthEl.textContent = `HP: ${this.health}`;
-  }
-
-  private setupInput() {
-    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.isDown && this.isPlaying) {
-        this.player.x = Phaser.Math.Linear(this.player.x, pointer.x, 0.5);
-        this.player.y = Phaser.Math.Linear(this.player.y, pointer.y - 50, 0.5);
-      }
-    });
-
-    let lastTapTime = 0;
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (!this.isPlaying) return;
-      if (pointer.rightButtonDown()) {
-        this.player.switchForm();
-      } else {
-        const currentTime = this.time.now;
-        if (currentTime - lastTapTime < 300) {
-          this.player.switchForm();
-        }
-        lastTapTime = currentTime;
-        this.player.x = pointer.x;
-        this.player.y = pointer.y - 50;
-      }
-    });
-  }
 
   private setupCollisions() {
     // Player Projectile vs Enemy
@@ -138,7 +100,7 @@ export class GameScene extends Phaser.Scene {
           e.setActive(false);
           e.setVisible(false);
           this.score += 100;
-          this.updateHUD();
+          this.hudManager.update(this.score, this.health);
         }
       }
     });
@@ -171,7 +133,7 @@ export class GameScene extends Phaser.Scene {
     const state = GameState.getInstance();
     state.setHp(this.health);
 
-    this.updateHUD();
+    this.hudManager.update(this.score, this.health);
     
     // Camera shake
     this.cameras.main.shake(200, 0.01);
@@ -182,6 +144,7 @@ export class GameScene extends Phaser.Scene {
 
     if (this.health <= 0) {
       this.isPlaying = false;
+      this.inputManager.isActive = false;
       AnalyticsService.getInstance().playerDeath(this.player.x, this.player.y);
       AnalyticsService.getInstance().levelFail('level_1', 'no_health');
       
@@ -191,7 +154,7 @@ export class GameScene extends Phaser.Scene {
       
       // Go back to Menu
       setTimeout(() => {
-        if (this.hudEl) this.hudEl.remove();
+        this.hudManager.destroy();
         this.scene.start('MenuScene');
       }, 2000);
     }
