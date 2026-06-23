@@ -132,4 +132,10 @@ export class LevelManager {
     const currentPhase = this.phases[this.currentPhaseIndex];
     return currentPhase ? currentPhase.spawnRateModifier : 1;
   }
+
+  public getCurrentPhaseKey(): string | null {
+    if (this.isLevelComplete) return null;
+    const currentPhase = this.phases[this.currentPhaseIndex];
+    return currentPhase ? currentPhase.textureKey : null;
+  }
 }
