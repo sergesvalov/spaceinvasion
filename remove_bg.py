@@ -29,7 +29,8 @@ files_to_process = [
     r"c:\wndr\repo\spaceinvasion\public\ship.png",
     r"c:\wndr\repo\spaceinvasion\public\ship_side.png",
     r"c:\wndr\repo\spaceinvasion\public\enemy.png",
-    r"c:\wndr\repo\spaceinvasion\public\boss.png"
+    r"c:\wndr\repo\spaceinvasion\public\boss.png",
+    r"c:\wndr\repo\spaceinvasion\public\aagun.png"
 ]
 
 for f in files_to_process:
