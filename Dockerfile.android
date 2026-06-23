@@ -1,4 +1,4 @@
-FROM node:20-bullseye
+FROM node:20-bookworm
 
 # Установка OpenJDK, zip и утилит
 RUN apt-get update && apt-get install -y openjdk-17-jdk wget unzip zip && rm -rf /var/lib/apt/lists/*
