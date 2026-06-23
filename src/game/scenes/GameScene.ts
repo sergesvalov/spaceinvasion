@@ -4,6 +4,7 @@ import { Projectile } from '../entities/Projectile';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { AnalyticsService } from '../../services/AnalyticsService';
+import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
 
 export class GameScene extends Phaser.Scene {
@@ -30,6 +31,9 @@ export class GameScene extends Phaser.Scene {
   create() {
     AnalyticsService.getInstance().levelStart('level_1');
     
+    // Initialize health from state
+    this.health = GameState.getInstance().currentHp;
+
     // Create HTML HUD
     this.createHUD();
 
@@ -78,7 +82,7 @@ export class GameScene extends Phaser.Scene {
     this.scoreEl.textContent = 'Score: 0';
     
     this.healthEl = document.createElement('div');
-    this.healthEl.textContent = 'HP: 3';
+    this.healthEl.textContent = `HP: ${this.health}`;
     
     this.hudEl.appendChild(this.scoreEl);
     this.hudEl.appendChild(this.healthEl);
@@ -163,6 +167,10 @@ export class GameScene extends Phaser.Scene {
 
   private playerTakeDamage() {
     this.health -= 1;
+    
+    const state = GameState.getInstance();
+    state.setHp(this.health);
+
     this.updateHUD();
     
     // Camera shake
@@ -177,10 +185,14 @@ export class GameScene extends Phaser.Scene {
       AnalyticsService.getInstance().playerDeath(this.player.x, this.player.y);
       AnalyticsService.getInstance().levelFail('level_1', 'no_health');
       
-      // Simple restart
+      // Reward credits and duct-tape repair
+      state.addCredits(this.score);
+      state.setHp(1); // Regenerate with 1 HP
+      
+      // Go back to Menu
       setTimeout(() => {
         if (this.hudEl) this.hudEl.remove();
-        this.scene.restart();
+        this.scene.start('MenuScene');
       }, 2000);
     }
   }

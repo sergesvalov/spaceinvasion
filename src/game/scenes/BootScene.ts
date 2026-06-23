@@ -38,6 +38,10 @@ export class BootScene extends Phaser.Scene {
     // Load ship and enemy textures
     this.load.image('ship', 'ship.png');
     this.load.image('enemy', 'enemy.png');
+    
+    // Load garage textures
+    this.load.image('hangar', 'hangar.png');
+    this.load.image('ship_side', 'ship_side.png');
   }
 
   create() {
