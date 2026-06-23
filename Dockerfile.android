@@ -15,7 +15,7 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
 
 # Принятие лицензий и установка компонентов SDK
 RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
+    yes | sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
 
 # Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM)
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
