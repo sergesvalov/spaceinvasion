@@ -5,27 +5,16 @@ import { AAGunProjectile } from './AAGunProjectile';
 
 export class AAGun extends Phaser.Physics.Arcade.Sprite {
   private lastFired: number = 0;
-  private enemyGroup: Phaser.Physics.Arcade.Group;
-  private boss: Boss;
-  private projectileGroup: Phaser.Physics.Arcade.Group;
+  private enemyGroup!: Phaser.Physics.Arcade.Group;
+  private boss!: Boss;
+  private projectileGroup!: Phaser.Physics.Arcade.Group;
   private fireRateMs: number = 1500;
   private scrollSpeed: number = 50; // default, will be updated to match background
 
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    enemyGroup: Phaser.Physics.Arcade.Group,
-    boss: Boss,
-    projectileGroup: Phaser.Physics.Arcade.Group
-  ) {
+  constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'aagun');
     scene.add.existing(this);
     scene.physics.add.existing(this);
-
-    this.enemyGroup = enemyGroup;
-    this.boss = boss;
-    this.projectileGroup = projectileGroup;
 
     // Scale down the generated asset if needed
     this.setScale(0.15); 
@@ -36,6 +25,12 @@ export class AAGun extends Phaser.Physics.Arcade.Sprite {
       body.setSize(200, 200); // adjust as needed based on scale
       body.setImmovable(true);
     }
+  }
+
+  setReferences(enemyGroup: Phaser.Physics.Arcade.Group, boss: Boss, projectileGroup: Phaser.Physics.Arcade.Group) {
+    this.enemyGroup = enemyGroup;
+    this.boss = boss;
+    this.projectileGroup = projectileGroup;
   }
 
   spawn(x: number, y: number, scrollSpeed: number) {

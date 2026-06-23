@@ -5,6 +5,8 @@ import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Boss } from '../entities/Boss';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
+import { AAGun } from '../entities/AAGun';
+import { AAGunProjectile } from '../entities/AAGunProjectile';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
@@ -20,9 +22,12 @@ export class GameScene extends Phaser.Scene {
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private antimatterContainers!: Phaser.Physics.Arcade.Group;
+  private aaProjectiles!: Phaser.Physics.Arcade.Group;
+  private aaGuns!: Phaser.Physics.Arcade.Group;
   private boss!: Boss;
   
   private isPlaying: boolean = false;
+  private lastAAGunSpawnTime: number = 0;
   
   private score: number = 0;
   private health: number = 3;
@@ -76,6 +81,18 @@ export class GameScene extends Phaser.Scene {
       runChildUpdate: true
     });
 
+    this.aaProjectiles = this.physics.add.group({
+      classType: AAGunProjectile,
+      maxSize: 100,
+      runChildUpdate: true
+    });
+
+    this.aaGuns = this.physics.add.group({
+      classType: AAGun,
+      maxSize: 10,
+      runChildUpdate: true
+    });
+
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
@@ -92,6 +109,7 @@ export class GameScene extends Phaser.Scene {
       this.player,
       this.boss,
       this.projectiles,
+      this.aaProjectiles,
       this.enemies,
       this.enemyProjectiles,
       this.antimatterContainers,
@@ -216,8 +234,27 @@ export class GameScene extends Phaser.Scene {
       this.fireProjectile();
     }
 
+    // Spawn AA Guns in City phase
+    if (this.levelManager.getCurrentPhaseKey() === 'bg_city') {
+      if (time > this.lastAAGunSpawnTime + 10000) {
+        this.lastAAGunSpawnTime = time;
+        this.spawnAAGun();
+      }
+    }
+
     const modifier = this.levelManager.getCurrentSpawnModifier();
     this.enemySpawner.update(time, this.isPlaying, modifier);
+  }
+
+  private spawnAAGun() {
+    const gun = this.aaGuns.get() as AAGun;
+    if (gun) {
+      // It needs references before it can shoot
+      gun.setReferences(this.enemies, this.boss, this.aaProjectiles);
+      // Spawn slightly offscreen top
+      const x = Phaser.Math.Between(100, this.scale.width - 100);
+      gun.spawn(x, -100, 500); // 500 is matching background scroll speed
+    }
   }
 
   private fireProjectile() {
