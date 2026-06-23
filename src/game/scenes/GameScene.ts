@@ -35,9 +35,6 @@ export class GameScene extends Phaser.Scene {
 
     const { width, height } = this.scale;
 
-    if (!this.textures.exists('starfield')) {
-       this.createStarfieldTexture(width, height);
-    }
     this.background = this.add.tileSprite(width / 2, height / 2, width, height, 'starfield');
 
     this.player = new Player(this, width / 2, height - 100);
@@ -234,6 +231,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private fireProjectile() {
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.sound.play('pew', { volume: 0.3 });
+    }
+
     const isMecha = this.player.getForm() === 'mecha';
     if (isMecha) {
       const proj1 = this.projectiles.get() as Projectile;
@@ -244,21 +245,5 @@ export class GameScene extends Phaser.Scene {
       const proj = this.projectiles.get() as Projectile;
       if (proj) proj.fire(this.player.x, this.player.y - 20, -600);
     }
-  }
-
-  private createStarfieldTexture(width: number, height: number) {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x000000, 1);
-    graphics.fillRect(0, 0, width, height);
-    
-    graphics.fillStyle(0xffffff, 0.8);
-    for (let i = 0; i < 100; i++) {
-      const x = Phaser.Math.Between(0, width);
-      const y = Phaser.Math.Between(0, height);
-      const size = Phaser.Math.FloatBetween(1, 3);
-      graphics.fillRect(x, y, size, size);
-    }
-    graphics.generateTexture('starfield', width, height);
-    graphics.destroy();
   }
 }

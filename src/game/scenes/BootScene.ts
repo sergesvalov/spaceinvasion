@@ -37,9 +37,32 @@ export class BootScene extends Phaser.Scene {
     partGraphics.fillRect(0, 0, 4, 4);
     partGraphics.generateTexture('particle', 4, 4);
     partGraphics.destroy();
+    // Load pew sound
+    this.load.audio('pew', 'pew.wav');
   }
 
   create() {
-    this.scene.start('GameScene');
+    const { width, height } = this.scale;
+    if (!this.textures.exists('starfield')) {
+      this.createStarfieldTexture(width, height);
+    }
+    
+    this.scene.start('MenuScene');
+  }
+
+  private createStarfieldTexture(width: number, height: number) {
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0x000000, 1);
+    graphics.fillRect(0, 0, width, height);
+    
+    graphics.fillStyle(0xffffff, 0.8);
+    for (let i = 0; i < 100; i++) {
+      const x = Phaser.Math.Between(0, width);
+      const y = Phaser.Math.Between(0, height);
+      const size = Phaser.Math.FloatBetween(1, 3);
+      graphics.fillRect(x, y, size, size);
+    }
+    graphics.generateTexture('starfield', width, height);
+    graphics.destroy();
   }
 }
