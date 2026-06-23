@@ -18,6 +18,7 @@ export class CollisionManager {
   private player: Player;
   private boss: Boss;
   private projectiles: Phaser.Physics.Arcade.Group;
+  private aaProjectiles: Phaser.Physics.Arcade.Group;
   private enemies: Phaser.Physics.Arcade.Group;
   private enemyProjectiles: Phaser.Physics.Arcade.Group;
   private antimatterContainers: Phaser.Physics.Arcade.Group;
@@ -28,6 +29,7 @@ export class CollisionManager {
     player: Player,
     boss: Boss,
     projectiles: Phaser.Physics.Arcade.Group,
+    aaProjectiles: Phaser.Physics.Arcade.Group,
     enemies: Phaser.Physics.Arcade.Group,
     enemyProjectiles: Phaser.Physics.Arcade.Group,
     antimatterContainers: Phaser.Physics.Arcade.Group,
@@ -37,6 +39,7 @@ export class CollisionManager {
     this.player = player;
     this.boss = boss;
     this.projectiles = projectiles;
+    this.aaProjectiles = aaProjectiles;
     this.enemies = enemies;
     this.enemyProjectiles = enemyProjectiles;
     this.antimatterContainers = antimatterContainers;
@@ -101,6 +104,38 @@ export class CollisionManager {
             }
           }
 
+          this.callbacks.onBossDestroyed();
+        }
+      }
+    });
+
+    this.scene.physics.add.overlap(this.aaProjectiles, this.enemies, (proj, enemy) => {
+      const p = proj as BaseProjectile;
+      const e = enemy as Enemy;
+      if (p.active && e.active) {
+        p.setActive(false);
+        p.setVisible(false);
+        const destroyed = e.takeDamage(5); // AA projectiles deal more damage
+        if (destroyed) {
+          this.createExplosion(e.x, e.y);
+          e.setActive(false);
+          e.setVisible(false);
+          this.callbacks.onEnemyDestroyed(100);
+        }
+      }
+    });
+
+    this.scene.physics.add.overlap(this.aaProjectiles, this.boss, (proj, b) => {
+      const p = proj as BaseProjectile;
+      const bossObj = b as Boss;
+      if (p.active && bossObj.active) {
+        p.setActive(false);
+        p.setVisible(false);
+        const destroyed = bossObj.takeDamage(5);
+        if (destroyed) {
+          this.createExplosion(bossObj.x, bossObj.y);
+          bossObj.setActive(false);
+          bossObj.setVisible(false);
           this.callbacks.onBossDestroyed();
         }
       }
