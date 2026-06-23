@@ -8,6 +8,8 @@ import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
 import { HUDManager } from '../managers/HUDManager';
 import { InputManager } from '../managers/InputManager';
+import { CollisionManager } from '../managers/CollisionManager';
+import { EnemySpawner } from '../managers/EnemySpawner';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -16,15 +18,15 @@ export class GameScene extends Phaser.Scene {
   private enemies!: Phaser.Physics.Arcade.Group;
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   
-  private lastEnemySpawn: number = 0;
   private isPlaying: boolean = false;
   
   private score: number = 0;
   private health: number = 3;
-
   
   private hudManager!: HUDManager;
   private inputManager!: InputManager;
+  private collisionManager!: CollisionManager;
+  private enemySpawner!: EnemySpawner;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -67,7 +69,24 @@ export class GameScene extends Phaser.Scene {
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
-    this.setupCollisions();
+    this.enemySpawner = new EnemySpawner(this, this.enemies, this.enemyProjectiles);
+
+    this.collisionManager = new CollisionManager(
+      this,
+      this.player,
+      this.projectiles,
+      this.enemies,
+      this.enemyProjectiles,
+      {
+        onEnemyDestroyed: (points) => {
+          this.score += points;
+          this.hudManager.update(this.score, this.health);
+        },
+        onPlayerHit: () => this.handlePlayerDamage(),
+        getIsPlaying: () => this.isPlaying
+      }
+    );
+    this.collisionManager.setupCollisions();
 
     // Start briefing
     StoryManager.getInstance().showBriefing('level_1', () => {
@@ -77,55 +96,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-
-
-  private setupCollisions() {
-    // Player Projectile vs Enemy
-    this.physics.add.overlap(this.projectiles, this.enemies, (proj, enemy) => {
-      const p = proj as Projectile;
-      const e = enemy as Enemy;
-      
-      if (p.active && e.active) {
-        p.setActive(false);
-        p.setVisible(false);
-        
-        // Damage multiplier based on form? Mecha deals more damage
-        const damage = this.player.getForm() === 'mecha' ? 1.5 : 1;
-        const destroyed = e.takeDamage(damage);
-        
-        if (destroyed) {
-          this.createExplosion(e.x, e.y);
-          e.setActive(false);
-          e.setVisible(false);
-          this.score += 100;
-          this.hudManager.update(this.score, this.health);
-        }
-      }
-    });
-
-    // Enemy Projectile vs Player
-    this.physics.add.overlap(this.enemyProjectiles, this.player, (obj1, obj2) => {
-      const p = (obj1 === this.player ? obj2 : obj1) as EnemyProjectile;
-      if (p.active && this.isPlaying) {
-        p.setActive(false);
-        p.setVisible(false);
-        this.playerTakeDamage();
-      }
-    });
-
-    // Enemy vs Player
-    this.physics.add.overlap(this.enemies, this.player, (obj1, obj2) => {
-      const e = (obj1 === this.player ? obj2 : obj1) as Enemy;
-      if (e.active && this.isPlaying) {
-        this.createExplosion(e.x, e.y);
-        e.setActive(false);
-        e.setVisible(false);
-        this.playerTakeDamage();
-      }
-    });
-  }
-
-  private playerTakeDamage() {
+  private handlePlayerDamage() {
     this.health -= 1;
     
     const state = GameState.getInstance();
@@ -158,19 +129,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private createExplosion(x: number, y: number) {
-    const emitter = this.add.particles(x, y, 'particle', {
-      speed: { min: 50, max: 200 },
-      angle: { min: 0, max: 360 },
-      scale: { start: 1, end: 0 },
-      blendMode: 'ADD',
-      lifespan: 300,
-      quantity: 20
-    });
-    // Emitter self-destroys after playing once
-    emitter.explode(20);
-  }
-
   update(time: number, delta: number) {
     this.background.tilePositionY -= 0.5 * delta;
 
@@ -180,27 +138,7 @@ export class GameScene extends Phaser.Scene {
       this.fireProjectile();
     }
 
-    // Spawn enemies
-    if (time > this.lastEnemySpawn + 2000) {
-      this.lastEnemySpawn = time;
-      const enemy = this.enemies.get() as Enemy;
-      if (enemy) {
-        const startX = Phaser.Math.Between(50, this.scale.width - 50);
-        enemy.spawn(startX, -50);
-      }
-    }
-
-    // Enemy firing
-    this.enemies.children.iterate((child) => {
-      const enemy = child as Enemy;
-      if (enemy.active && enemy.canFire(time) && enemy.y > 0) {
-        const ep = this.enemyProjectiles.get() as EnemyProjectile;
-        if (ep) {
-          ep.fire(enemy.x, enemy.y + 20, 300);
-        }
-      }
-      return true;
-    });
+    this.enemySpawner.update(time, this.isPlaying);
   }
 
   private fireProjectile() {
