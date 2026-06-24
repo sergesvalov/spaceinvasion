@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { AnalyticsService } from '../../services/AnalyticsService';
+import { GameConfig } from '../config/GameConfig';
 
 export type PlayerForm = 'fighter' | 'mecha';
 
@@ -106,7 +107,7 @@ export class Player extends Phaser.GameObjects.Container {
   }
   
   public canFire(time: number): boolean {
-    const fireRate = this.form === 'fighter' ? 150 : 300;
+    const fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
     if (time > this.lastFired + fireRate) {
       this.lastFired = time;
       return true;

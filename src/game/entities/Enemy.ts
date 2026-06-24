@@ -1,16 +1,16 @@
 import Phaser from 'phaser';
+import { BaseEntity } from './BaseEntity';
+import { GameConfig } from '../config/GameConfig';
 
-export class Enemy extends Phaser.Physics.Arcade.Sprite {
+export class Enemy extends BaseEntity {
   private startX: number = 0;
   private timeOffset: number = 0;
   private lastFired: number = 0;
-  public hp: number = 3;
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'enemy');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
+    
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.setSize(40, 40);
@@ -39,18 +39,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.exhaustEmitter.start();
     this.startX = x;
     this.timeOffset = Phaser.Math.Between(0, 1000);
-    this.hp = 3;
+    this.hp = GameConfig.Enemy.HP;
+    this.clearTint();
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
       body.setVelocityY(100);
     }
-  }
-
-  takeDamage(amount: number): boolean {
-    this.hp -= amount;
-    return this.hp <= 0;
   }
 
   preUpdate(time: number, delta: number) {

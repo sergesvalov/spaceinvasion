@@ -15,6 +15,7 @@ import { InputManager } from '../managers/InputManager';
 import { CollisionManager } from '../managers/CollisionManager';
 import { EnemySpawner } from '../managers/EnemySpawner';
 import { LevelManager } from '../managers/LevelManager';
+import { GameConfig } from '../config/GameConfig';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -264,14 +265,16 @@ export class GameScene extends Phaser.Scene {
     }
 
     const isMecha = this.player.getForm() === 'mecha';
+    const damage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
+
     if (isMecha) {
       const proj1 = this.projectiles.get() as Projectile;
       const proj2 = this.projectiles.get() as Projectile;
-      if (proj1) proj1.fire(this.player.x - 10, this.player.y, -400);
-      if (proj2) proj2.fire(this.player.x + 10, this.player.y, -400);
+      if (proj1) proj1.fire(this.player.x - 10, this.player.y, -400, damage);
+      if (proj2) proj2.fire(this.player.x + 10, this.player.y, -400, damage);
     } else {
       const proj = this.projectiles.get() as Projectile;
-      if (proj) proj.fire(this.player.x, this.player.y - 20, -600);
+      if (proj) proj.fire(this.player.x, this.player.y - 20, -600, damage);
     }
   }
 }

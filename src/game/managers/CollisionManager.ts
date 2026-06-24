@@ -4,6 +4,7 @@ import { Enemy } from '../entities/Enemy';
 import { Boss } from '../entities/Boss';
 import { BaseProjectile } from '../entities/BaseProjectile';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
+import { GameConfig } from '../config/GameConfig';
 
 export interface CollisionCallbacks {
   onEnemyDestroyed: (points: number) => void;
@@ -56,18 +57,12 @@ export class CollisionManager {
         p.setActive(false);
         p.setVisible(false);
         
-        // Damage multiplier based on form? Mecha deals more damage
-        const damage = this.player.getForm() === 'mecha' ? 1.5 : 1;
-        const destroyed = e.takeDamage(damage);
+        const destroyed = e.takeDamage(p.damage);
         
         if (destroyed) {
-          this.createExplosion(e.x, e.y);
-          e.setActive(false);
-          e.setVisible(false);
-          this.callbacks.onEnemyDestroyed(100);
+          this.callbacks.onEnemyDestroyed(GameConfig.Enemy.Points);
 
-          // 15% chance to drop antimatter
-          if (Phaser.Math.FloatBetween(0, 1) <= 0.15) {
+          if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
             const container = this.antimatterContainers.get() as AntimatterContainer;
             if (container) {
               container.spawn(e.x, e.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
@@ -86,16 +81,10 @@ export class CollisionManager {
         p.setActive(false);
         p.setVisible(false);
         
-        const damage = this.player.getForm() === 'mecha' ? 1.5 : 1;
-        const destroyed = bossObj.takeDamage(damage);
+        const destroyed = bossObj.takeDamage(p.damage);
         
         if (destroyed) {
-          this.createExplosion(bossObj.x, bossObj.y);
-          bossObj.setActive(false);
-          bossObj.setVisible(false);
-          
-          // Boss drops 10 antimatter containers
-          for (let i = 0; i < 10; i++) {
+          for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
             const container = this.antimatterContainers.get() as AntimatterContainer;
             if (container) {
               const vx = Phaser.Math.Between(-100, 100);
@@ -115,12 +104,9 @@ export class CollisionManager {
       if (p.active && e.active) {
         p.setActive(false);
         p.setVisible(false);
-        const destroyed = e.takeDamage(5); // AA projectiles deal more damage
+        const destroyed = e.takeDamage(p.damage);
         if (destroyed) {
-          this.createExplosion(e.x, e.y);
-          e.setActive(false);
-          e.setVisible(false);
-          this.callbacks.onEnemyDestroyed(100);
+          this.callbacks.onEnemyDestroyed(GameConfig.Enemy.Points);
         }
       }
     });
@@ -131,11 +117,8 @@ export class CollisionManager {
       if (p.active && bossObj.active) {
         p.setActive(false);
         p.setVisible(false);
-        const destroyed = bossObj.takeDamage(5);
+        const destroyed = bossObj.takeDamage(p.damage);
         if (destroyed) {
-          this.createExplosion(bossObj.x, bossObj.y);
-          bossObj.setActive(false);
-          bossObj.setVisible(false);
           this.callbacks.onBossDestroyed();
         }
       }

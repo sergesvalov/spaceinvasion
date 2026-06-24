@@ -49,8 +49,32 @@ html, body {
   font-weight: bold;
   text-shadow: 1px 1px 2px black;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   display: none; /* Hidden during briefing */
+}
+
+.hud-stats {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.health-bar-container {
+  width: 100%;
+  height: 12px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+}
+
+.health-bar-fill {
+  height: 100%;
+  width: 100%;
+  background-color: #00ff00;
+  transition: width 0.3s ease-out, background-color 0.3s ease-out, box-shadow 0.3s ease-out;
 }
 
 .story-overlay {

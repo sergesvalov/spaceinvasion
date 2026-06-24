@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { EnemyProjectile } from './EnemyProjectile';
+import { BaseEntity } from './BaseEntity';
+import { GameConfig } from '../config/GameConfig';
 
-export class Boss extends Phaser.Physics.Arcade.Sprite {
-  public hp: number = 100;
+export class Boss extends BaseEntity {
   private startX: number = 0;
   private timeOffset: number = 0;
   private lastFiredBullet: number = 0;
@@ -19,8 +20,6 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     onSpawnKamikaze: (x: number, y: number) => void
   ) {
     super(scene, x, y, 'boss');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
     
     // Scale down the large generated image to an appropriate boss size
     this.setScale(0.25);
@@ -41,7 +40,8 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     this.setVisible(true);
     this.startX = x;
     this.timeOffset = Phaser.Math.Between(0, 1000);
-    this.hp = 100;
+    this.hp = GameConfig.Boss.HP;
+    this.clearTint();
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -49,18 +49,6 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
       // Moves slowly down until it reaches top of screen
       body.setVelocityY(20);
     }
-  }
-
-  takeDamage(amount: number): boolean {
-    this.hp -= amount;
-    
-    // Tint red momentarily
-    this.setTint(0xff0000);
-    this.scene.time.delayedCall(100, () => {
-      if (this.active) this.clearTint();
-    });
-
-    return this.hp <= 0;
   }
 
   preUpdate(time: number, delta: number) {

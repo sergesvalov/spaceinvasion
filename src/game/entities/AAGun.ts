@@ -2,18 +2,18 @@ import Phaser from 'phaser';
 import { Enemy } from './Enemy';
 import { Boss } from './Boss';
 import { AAGunProjectile } from './AAGunProjectile';
+import { BaseEntity } from './BaseEntity';
+import { GameConfig } from '../config/GameConfig';
 
-export class AAGun extends Phaser.Physics.Arcade.Sprite {
+export class AAGun extends BaseEntity {
   private lastFired: number = 0;
   private enemyGroup!: Phaser.Physics.Arcade.Group;
   private boss!: Boss;
   private projectileGroup!: Phaser.Physics.Arcade.Group;
-  private fireRateMs: number = 1500;
+  private fireRateMs: number = GameConfig.AAGun.FireRate;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'aagun');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
 
     // Scale down the generated asset if needed
     this.setScale(0.15); 
@@ -90,7 +90,7 @@ export class AAGun extends Phaser.Physics.Arcade.Sprite {
       
       const proj = this.projectileGroup.get() as AAGunProjectile;
       if (proj) {
-        proj.fire(this.x, this.y - 20, 0); // Fire upwards initially, then correct velocity
+        proj.fire(this.x, this.y - 20, 0, GameConfig.AAGun.Damage); // Fire upwards initially, then correct velocity
         
         // Calculate velocity vector
         const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
