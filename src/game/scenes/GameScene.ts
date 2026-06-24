@@ -46,7 +46,8 @@ export class GameScene extends Phaser.Scene {
   create() {
     AnalyticsService.getInstance().levelStart('level_1');
     
-    // Initialize health from state
+    // Always ensure player starts with maximum health for the level
+    GameState.getInstance().setHp(GameState.getInstance().maxHp);
     this.health = GameState.getInstance().currentHp;
 
     // Create Managers
@@ -173,7 +174,7 @@ export class GameScene extends Phaser.Scene {
       
       // Reward credits and duct-tape repair
       state.addCredits(this.score);
-      state.setHp(1); // Regenerate with 1 HP
+      state.setHp(state.maxHp); // Regenerate with full HP
       
       // Go back to Menu
       setTimeout(() => {
