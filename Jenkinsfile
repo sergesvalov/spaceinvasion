@@ -113,6 +113,9 @@ pipeline {
                         // Если папка android отсутствует, cap add сгенерирует её. Иначе cap sync обновит ассеты.
                         sh "npx cap add android || npx cap sync android"
                         
+                        // Генерация иконок для Android
+                        sh "npx @capacitor/assets generate --android"
+                        
                         // Сборка релизного APK
                         sh "cd android && gradle assembleRelease"
 
