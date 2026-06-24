@@ -26,7 +26,7 @@ export class Player extends Phaser.GameObjects.Container {
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
     // Scale is increased by 30% from 0.04 to 0.052. True alpha transparency is now in the image.
-    this.sprite.setScale(0.052);
+    this.sprite.setScale(0.0624);
     this.add(this.sprite);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
@@ -39,13 +39,12 @@ export class Player extends Phaser.GameObjects.Container {
       tint: [0x00aaff, 0x0044ff],
       frequency: 20
     });
-    this.exhaustEmitter.startFollow(this, 0, 30);
+    this.exhaustEmitter.startFollow(this, 0, 36);
     
     this.setFighterForm();
   }
 
   private setFighterForm() {
-    // Later: this.sprite.play('fighter_idle');
     this.sprite.setTint(0xffffff); // Normal color
     
     if (this.exhaustEmitter) {
@@ -55,18 +54,17 @@ export class Player extends Phaser.GameObjects.Container {
         scale: { start: 1.5, end: 0 },
         tint: [0x00aaff, 0x0044ff]
       });
-      this.exhaustEmitter.startFollow(this, 0, 30);
+      this.exhaustEmitter.startFollow(this, 0, 36);
     }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(30, 35);
-      body.setOffset(-15, -20);
+      body.setSize(36, 42);
+      body.setOffset(-18, -24);
     }
   }
 
   private setMechaForm() {
-    // Later: this.sprite.play('transform_to_mecha');
     this.sprite.setTint(0xffaa00); // Temporary tint to show Mecha form
     
     if (this.exhaustEmitter) {
@@ -76,13 +74,13 @@ export class Player extends Phaser.GameObjects.Container {
         scale: { start: 2.5, end: 0 },
         tint: [0xffaa00, 0xff4400]
       });
-      this.exhaustEmitter.startFollow(this, 0, 40);
+      this.exhaustEmitter.startFollow(this, 0, 48);
     }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(40, 40);
-      body.setOffset(-20, -20);
+      body.setSize(48, 48);
+      body.setOffset(-24, -24);
     }
   }
 

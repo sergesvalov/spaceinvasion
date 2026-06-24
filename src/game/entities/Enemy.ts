@@ -13,10 +13,10 @@ export class Enemy extends BaseEntity {
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(40, 40);
+      body.setSize(48, 48);
     }
     
-    this.setScale(0.052);
+    this.setScale(0.0624);
     
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },

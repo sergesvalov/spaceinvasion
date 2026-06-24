@@ -22,14 +22,14 @@ export class Boss extends BaseEntity {
     super(scene, x, y, 'boss');
     
     // Scale down the large generated image to an appropriate boss size
-    this.setScale(0.25);
+    this.setScale(0.3);
     
     this.enemyProjectiles = enemyProjectiles;
     this.onSpawnKamikaze = onSpawnKamikaze;
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(180, 130);
+      body.setSize(216, 156);
       body.setImmovable(true);
     }
   }
