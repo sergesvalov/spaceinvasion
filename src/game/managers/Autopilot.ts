@@ -63,14 +63,18 @@ export class Autopilot {
     let desiredX = this.scene.scale.width / 2;
     let desiredY = this.scene.scale.height - 150; // Stay near bottom
 
+    let speed = 0.1;
+
     // Repulsion from threats
     threats.forEach(t => {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y);
-      if (dist < 60) {
+      if (dist < 150) {
         // Run away!
         const angle = Phaser.Math.Angle.Between(t.x, t.y, this.player.x, this.player.y);
-        desiredX += Math.cos(angle) * 100;
-        desiredY += Math.sin(angle) * 100;
+        const force = (150 - dist) * 5; // The closer it is, the harder we push
+        desiredX += Math.cos(angle) * force;
+        desiredY += Math.sin(angle) * force;
+        speed = 0.5; // Move much faster when dodging
       }
     });
 
@@ -79,7 +83,7 @@ export class Autopilot {
     desiredY = Phaser.Math.Clamp(desiredY, 50, this.scene.scale.height - 50);
 
     // Smooth movement
-    this.player.x += (desiredX - this.player.x) * 0.1;
-    this.player.y += (desiredY - this.player.y) * 0.1;
+    this.player.x += (desiredX - this.player.x) * speed;
+    this.player.y += (desiredY - this.player.y) * speed;
   }
 }
