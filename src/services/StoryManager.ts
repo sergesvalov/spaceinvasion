@@ -120,6 +120,12 @@ export class StoryManager {
     console.log(`[StoryManager] Showing briefing for level: ${levelId}`);
     AnalyticsService.getInstance().logEvent('story_briefing_shown', { levelId });
     
+    // В режиме автотеста сразу пропускаем все диалоги
+    if ((window as any).__E2E_TEST_MODE__) {
+      onComplete();
+      return;
+    }
+    
     this.currentSlides = LORE_DATA[levelId] || [{ title: 'UNKNOWN', text: 'No data.' }];
     this.currentSlideIndex = 0;
     this.resolveBriefing = onComplete;

@@ -66,11 +66,11 @@ export class Autopilot {
     // Repulsion from threats
     threats.forEach(t => {
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y);
-      if (dist < 150) {
+      if (dist < 60) {
         // Run away!
         const angle = Phaser.Math.Angle.Between(t.x, t.y, this.player.x, this.player.y);
-        desiredX += Math.cos(angle) * 200;
-        desiredY += Math.sin(angle) * 200;
+        desiredX += Math.cos(angle) * 100;
+        desiredY += Math.sin(angle) * 100;
       }
     });
 
