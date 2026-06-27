@@ -8,9 +8,17 @@ export class AAGunProjectile extends BaseProjectile {
     // Provide a default texture if missing
     if (!scene.textures.exists('aagun-projectile')) {
       const graphics = scene.add.graphics();
-      graphics.fillStyle(0xffff00, 1); // Yellow bullet
-      graphics.fillCircle(5, 5, 5);
-      graphics.generateTexture('aagun-projectile', 10, 10);
+      // Outer glow (orange)
+      graphics.fillStyle(0xff8800, 0.4);
+      graphics.fillCircle(15, 15, 15);
+      // Inner shell (red)
+      graphics.fillStyle(0xff2200, 0.8);
+      graphics.fillCircle(15, 15, 10);
+      // Core (yellow/white)
+      graphics.fillStyle(0xffffaa, 1);
+      graphics.fillCircle(15, 15, 5);
+      
+      graphics.generateTexture('aagun-projectile', 30, 30);
       graphics.destroy();
       this.setTexture('aagun-projectile');
     }
