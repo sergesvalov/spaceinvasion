@@ -68,8 +68,8 @@ export class GameController {
   private handleTransformRequest() {
     if (this.player.getForm() === 'mecha') return; // Already transformed
     
-    if (this.antimatter >= 10) {
-      this.antimatter -= 10;
+    if (this.antimatter >= 5) {
+      this.antimatter -= 5;
       this.hudManager.update(this.score, this.health, this.antimatter);
       
       this.player.transformToMecha();
@@ -100,6 +100,7 @@ export class GameController {
 
   private handleAntimatterCollected() {
     this.antimatter += 1;
+    GameState.getInstance().addAntimatter(1);
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
 

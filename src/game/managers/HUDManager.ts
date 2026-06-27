@@ -45,7 +45,7 @@ export class HUDManager {
     if (this.scoreEl) this.scoreEl.textContent = `Score: ${score}`;
     if (this.antimatterEl) {
       this.antimatterEl.textContent = `Antimatter: ${antimatter}`;
-      if (antimatter >= 10) {
+      if (antimatter >= 5) {
         this.antimatterEl.style.color = '#ffdd00';
         this.antimatterEl.style.textShadow = '0 0 10px #ffaa00';
         this.antimatterEl.innerHTML = `Antimatter: ${antimatter} <span style="font-size: 0.8em; color: #ffaa00;">[DOUBLE-TAP TO TRANSFORM]</span>`;

@@ -52,24 +52,19 @@ export class MenuScene extends Phaser.Scene {
       this.scene.start('GarageScene');
     });
 
-    // Shop Button
-    Button.create(this, width / 2, height * 0.6, 'SHOP', () => {
-      this.scene.start('ShopScene');
-    });
-
     // Settings Button
-    Button.create(this, width / 2, height * 0.7, 'SETTINGS', () => {
+    Button.create(this, width / 2, height * 0.6, 'SETTINGS', () => {
       this.settingsContainer.setVisible(!this.settingsContainer.visible);
     });
 
     // AI Test Button
-    Button.create(this, width / 2, height * 0.8, 'AI TEST', () => {
+    Button.create(this, width / 2, height * 0.7, 'AI TEST', () => {
       (window as any).__AI_DEMO_MODE__ = true;
       (window as any).__START_GAME__();
     });
 
     // Exit Button
-    Button.create(this, width / 2, height * 0.9, 'EXIT', async () => {
+    Button.create(this, width / 2, height * 0.8, 'EXIT', async () => {
       // Telegram WebApp
       if ((window as any).Telegram?.WebApp?.initData) {
         (window as any).Telegram.WebApp.close();

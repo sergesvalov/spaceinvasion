@@ -6,6 +6,7 @@ export class GameState {
   private _maxHp: number = 3;
   private _baseWeaponLevel: number = 1;
   private _weaponLevel: number = 1;
+  private _antimatter: number = 0;
 
   private constructor() {
     this.loadState();
@@ -35,6 +36,9 @@ export class GameState {
     const savedBaseWeaponLevel = localStorage.getItem('si_base_weapon_level');
     if (savedBaseWeaponLevel) this._baseWeaponLevel = parseInt(savedBaseWeaponLevel, 10);
     this._weaponLevel = this._baseWeaponLevel;
+
+    const savedAntimatter = localStorage.getItem('si_antimatter');
+    if (savedAntimatter) this._antimatter = parseInt(savedAntimatter, 10);
   }
 
   private saveState() {
@@ -42,6 +46,7 @@ export class GameState {
     localStorage.setItem('si_hp', this._currentHp.toString());
     localStorage.setItem('si_max_hp', this._maxHp.toString());
     localStorage.setItem('si_base_weapon_level', this._baseWeaponLevel.toString());
+    localStorage.setItem('si_antimatter', this._antimatter.toString());
   }
 
   public get credits(): number {
@@ -56,6 +61,24 @@ export class GameState {
   public spendCredits(amount: number): boolean {
     if (this._credits >= amount) {
       this._credits -= amount;
+      this.saveState();
+      return true;
+    }
+    return false;
+  }
+
+  public get antimatter(): number {
+    return this._antimatter;
+  }
+
+  public addAntimatter(amount: number) {
+    this._antimatter += amount;
+    this.saveState();
+  }
+
+  public spendAntimatter(amount: number): boolean {
+    if (this._antimatter >= amount) {
+      this._antimatter -= amount;
       this.saveState();
       return true;
     }

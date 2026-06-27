@@ -4,6 +4,7 @@ import { GameState } from '../../services/GameState';
 export class GarageScene extends Phaser.Scene {
   private creditsText!: Phaser.GameObjects.Text;
   private hpText!: Phaser.GameObjects.Text;
+  private antimatterText!: Phaser.GameObjects.Text;
   private repairBtnText!: Phaser.GameObjects.Text;
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   
@@ -33,6 +34,7 @@ export class GarageScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Stats
+    this.antimatterText = this.add.text(width / 2, 20, '', { fontSize: '24px', color: '#ffaa00' }).setOrigin(0.5);
     this.creditsText = this.add.text(width / 2, 120, '', { fontSize: '28px', color: '#ffff00' }).setOrigin(0.5);
     this.hpText = this.add.text(width / 2, 160, '', { fontSize: '28px', color: '#ff0044' }).setOrigin(0.5);
 
@@ -103,6 +105,7 @@ export class GarageScene extends Phaser.Scene {
   private updateUI() {
     const state = GameState.getInstance();
     
+    this.antimatterText.setText(`ANTIMATTER: ${state.antimatter}`);
     this.creditsText.setText(`CREDITS: ${state.credits}`);
     this.hpText.setText(`SHIP HP: ${state.currentHp} / ${state.maxHp}`);
 
