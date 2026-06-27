@@ -28,12 +28,20 @@ export class BootScene extends Phaser.Scene {
 
     // Boss texture is loaded below
 
-    // Particle texture
+    // Particle texture (square)
     const partGraphics = this.add.graphics();
-    partGraphics.fillStyle(0xffcc00, 1);
+    partGraphics.fillStyle(0xffffff, 1);
     partGraphics.fillRect(0, 0, 4, 4);
     partGraphics.generateTexture('particle', 4, 4);
     partGraphics.destroy();
+
+    // Cloud particle texture (circle)
+    const cloudGraphics = this.add.graphics();
+    cloudGraphics.fillStyle(0xffffff, 1);
+    cloudGraphics.fillCircle(10, 10, 10);
+    cloudGraphics.generateTexture('cloud_particle', 20, 20);
+    cloudGraphics.destroy();
+
     // Load pew sound
     this.load.audio('pew', 'pew.wav');
 

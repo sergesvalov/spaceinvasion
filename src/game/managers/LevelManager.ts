@@ -50,17 +50,17 @@ export class LevelManager {
     this.fogOverlay.setAlpha(0);
 
     // Cloud emitter for transitions
-    this.cloudsEmitter = this.scene.add.particles(0, 0, 'particle', {
+    this.cloudsEmitter = this.scene.add.particles(0, 0, 'cloud_particle', {
       x: { min: 0, max: width },
       y: -50,
-      lifespan: 2000,
-      speedY: { min: 500, max: 800 },
+      lifespan: 2500,
+      speedY: { min: 400, max: 700 },
       speedX: { min: -50, max: 50 },
-      scale: { start: 10, end: 40 },
-      alpha: { start: 0.6, end: 0 },
-      tint: 0xffffff,
+      scale: { start: 2, end: 10 },
+      alpha: { start: 0.5, end: 0 },
+      tint: 0xdddddd,
       blendMode: 'NORMAL',
-      frequency: 10
+      frequency: 30
     });
     this.cloudsEmitter.setDepth(-30); // Above fog overlay
     this.cloudsEmitter.stop();
