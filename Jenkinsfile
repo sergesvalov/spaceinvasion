@@ -45,8 +45,11 @@ pipeline {
                 script {
                     echo "Сборка тестового Docker-образа и прогон Playwright тестов..."
                     sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest -f Dockerfile.test ."
-                    // Run the container and clean it up afterwards
-                    sh "docker run --rm ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest"
+                    
+                    withTestBuilder {
+                        sh "npm install"
+                        sh "npm run test:e2e"
+                    }
                 }
             }
         }
@@ -164,6 +167,12 @@ pipeline {
 
 def withBuilder(Closure body) {
     docker.image("${env.BUILDER_IMAGE}:latest").inside('-u root') {
+        body()
+    }
+}
+
+def withTestBuilder(Closure body) {
+    docker.image("${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest").inside('-u root') {
         body()
     }
 }

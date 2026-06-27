@@ -19,17 +19,12 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package*.json ./
+# Указываем кастомную директорию для браузеров, чтобы избежать проблем с маунтами Jenkins
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# Install npm dependencies
-RUN npm install
+# Install Playwright CLI globally to have access to the install command
+RUN npm install -g playwright@1.42.1
 
 # Install Playwright browser binaries
 RUN npx playwright install --with-deps chromium
 
-# Copy the rest of the application
-COPY . .
-
-# Run the e2e tests
-CMD ["npm", "run", "test:e2e"]
