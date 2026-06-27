@@ -55,7 +55,11 @@ export class StoryManager {
     this.overlayEl.appendChild(this.hintEl);
     uiContainer.appendChild(this.overlayEl);
 
-    this.overlayEl.addEventListener('pointerdown', () => this.handleTap());
+    this.overlayEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.handleTap();
+    });
   }
 
   public showBriefing(levelId: string, onComplete: () => void): void {

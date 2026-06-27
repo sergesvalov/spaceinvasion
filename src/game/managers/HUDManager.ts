@@ -55,6 +55,7 @@ export class HUDManager {
     this.shieldBtnEl.style.display = 'none';
 
     this.shieldBtnEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
       e.preventDefault(); // Prevent double triggering on mobile
       EventBus.emit('shield_request');
     });
