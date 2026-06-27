@@ -118,7 +118,7 @@ export class CollisionManager {
         p.setVisible(false);
         this.createExplosion(p.x, p.y);
         
-        if (this.player.getForm() !== 'mecha') {
+        if (!this.player.isShielded()) {
           EventBus.emit('player_hit');
         }
       }
@@ -134,7 +134,7 @@ export class CollisionManager {
         
         if (this.player.getForm() === 'mecha') {
           EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
-        } else {
+        } else if (!this.player.isShielded()) {
           EventBus.emit('player_hit');
         }
       }
@@ -144,7 +144,7 @@ export class CollisionManager {
     this.scene.physics.add.overlap(this.boss, this.player, (obj1, obj2) => {
       const b = (obj1 === this.player ? obj2 : obj1) as Boss;
       if (b.active && this.isPlayingGetter()) {
-        if (this.player.getForm() !== 'mecha') {
+        if (!this.player.isShielded()) {
           EventBus.emit('player_hit');
         }
       }

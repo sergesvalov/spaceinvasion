@@ -35,5 +35,12 @@ export class InputManager {
         this.player.y = pointer.y - 50;
       }
     });
+
+    const spaceBar = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    spaceBar?.on('down', () => {
+      if (this.isActive) {
+        EventBus.emit('shield_request');
+      }
+    });
   }
 }

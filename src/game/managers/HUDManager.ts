@@ -1,4 +1,5 @@
 import { GameState } from '../../services/GameState';
+import { EventBus } from '../../services/EventBus';
 
 export class HUDManager {
   private hudEl!: HTMLElement;
@@ -6,6 +7,7 @@ export class HUDManager {
   private antimatterEl!: HTMLElement;
   private healthContainerEl!: HTMLElement;
   private healthFillEl!: HTMLElement;
+  private shieldBtnEl!: HTMLElement;
 
   public createHUD(initialHealth: number) {
     const uiContainer = document.getElementById('ui-container');
@@ -36,6 +38,29 @@ export class HUDManager {
     
     this.hudEl.appendChild(statsContainer);
     this.hudEl.appendChild(this.healthContainerEl);
+
+    this.shieldBtnEl = document.createElement('div');
+    this.shieldBtnEl.className = 'hud-shield-btn';
+    this.shieldBtnEl.style.position = 'absolute';
+    this.shieldBtnEl.style.bottom = '80px'; // Above potential ad banners or other UI
+    this.shieldBtnEl.style.right = '20px';
+    this.shieldBtnEl.style.padding = '15px 25px';
+    this.shieldBtnEl.style.backgroundColor = 'rgba(0, 136, 255, 0.6)';
+    this.shieldBtnEl.style.color = '#fff';
+    this.shieldBtnEl.style.borderRadius = '8px';
+    this.shieldBtnEl.style.cursor = 'pointer';
+    this.shieldBtnEl.style.fontWeight = 'bold';
+    this.shieldBtnEl.style.fontSize = '20px';
+    this.shieldBtnEl.style.border = '2px solid #00ccff';
+    this.shieldBtnEl.style.display = 'none';
+
+    this.shieldBtnEl.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); // Prevent double triggering on mobile
+      EventBus.emit('shield_request');
+    });
+
+    this.hudEl.appendChild(this.shieldBtnEl);
+
     uiContainer.appendChild(this.hudEl);
     
     this.update(0, initialHealth, 0);
@@ -70,6 +95,12 @@ export class HUDManager {
         this.healthFillEl.style.backgroundColor = '#ff0000';
         this.healthFillEl.style.boxShadow = '0 0 10px #ff0000';
       }
+    }
+
+    if (this.shieldBtnEl) {
+      const shields = GameState.getInstance().shields;
+      this.shieldBtnEl.textContent = `🛡️ SHIELD (${shields})`;
+      this.shieldBtnEl.style.display = shields > 0 ? 'block' : 'none';
     }
   }
 

@@ -7,6 +7,7 @@ export class GameState {
   private _baseWeaponLevel: number = 1;
   private _weaponLevel: number = 1;
   private _antimatter: number = 0;
+  private _shields: number = 0;
 
   private constructor() {
     this.loadState();
@@ -39,6 +40,9 @@ export class GameState {
 
     const savedAntimatter = localStorage.getItem('si_antimatter');
     if (savedAntimatter) this._antimatter = parseInt(savedAntimatter, 10);
+
+    const savedShields = localStorage.getItem('si_shields');
+    if (savedShields) this._shields = parseInt(savedShields, 10);
   }
 
   private saveState() {
@@ -47,6 +51,7 @@ export class GameState {
     localStorage.setItem('si_max_hp', this._maxHp.toString());
     localStorage.setItem('si_base_weapon_level', this._baseWeaponLevel.toString());
     localStorage.setItem('si_antimatter', this._antimatter.toString());
+    localStorage.setItem('si_shields', this._shields.toString());
   }
 
   public get credits(): number {
@@ -79,6 +84,24 @@ export class GameState {
   public spendAntimatter(amount: number): boolean {
     if (this._antimatter >= amount) {
       this._antimatter -= amount;
+      this.saveState();
+      return true;
+    }
+    return false;
+  }
+
+  public get shields(): number {
+    return this._shields;
+  }
+
+  public addShield(amount: number) {
+    this._shields += amount;
+    this.saveState();
+  }
+
+  public useShield(): boolean {
+    if (this._shields > 0) {
+      this._shields -= 1;
       this.saveState();
       return true;
     }

@@ -5,10 +5,13 @@ export class GarageScene extends Phaser.Scene {
   private creditsText!: Phaser.GameObjects.Text;
   private hpText!: Phaser.GameObjects.Text;
   private antimatterText!: Phaser.GameObjects.Text;
+  private shieldsText!: Phaser.GameObjects.Text;
   private repairBtnText!: Phaser.GameObjects.Text;
+  private buyShieldBtnText!: Phaser.GameObjects.Text;
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   
   private REPAIR_COST = 500;
+  private SHIELD_COST = 2;
 
   constructor() {
     super({ key: 'GarageScene' });
@@ -37,6 +40,7 @@ export class GarageScene extends Phaser.Scene {
     this.antimatterText = this.add.text(width / 2, 20, '', { fontSize: '24px', color: '#ffaa00' }).setOrigin(0.5);
     this.creditsText = this.add.text(width / 2, 120, '', { fontSize: '28px', color: '#ffff00' }).setOrigin(0.5);
     this.hpText = this.add.text(width / 2, 160, '', { fontSize: '28px', color: '#ff0044' }).setOrigin(0.5);
+    this.shieldsText = this.add.text(width / 2, 200, '', { fontSize: '28px', color: '#00ccff' }).setOrigin(0.5);
 
     // Back Button
     const backBtn = this.add.text(width / 2, height - 50, '[ BACK TO MENU ]', {
@@ -61,6 +65,18 @@ export class GarageScene extends Phaser.Scene {
     this.repairBtnText.on('pointerdown', () => this.handleRepair());
     this.repairBtnText.on('pointerover', () => this.repairBtnText.setBackgroundColor('#006600'));
     this.repairBtnText.on('pointerout', () => this.repairBtnText.setBackgroundColor('#004400'));
+
+    // Buy Shield Button
+    this.buyShieldBtnText = this.add.text(width / 2, height - 200, '', {
+      fontSize: '26px',
+      color: '#00ccff',
+      backgroundColor: '#004466',
+      padding: { x: 20, y: 15 }
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    this.buyShieldBtnText.on('pointerdown', () => this.handleBuyShield());
+    this.buyShieldBtnText.on('pointerover', () => this.buyShieldBtnText.setBackgroundColor('#006688'));
+    this.buyShieldBtnText.on('pointerout', () => this.buyShieldBtnText.setBackgroundColor('#004466'));
 
     // Sparks Emitter for damage
     this.sparksEmitter = this.add.particles(width / 2, height / 2, 'particle', {
@@ -102,12 +118,36 @@ export class GarageScene extends Phaser.Scene {
     }
   }
 
+  private handleBuyShield() {
+    const state = GameState.getInstance();
+    if (state.antimatter >= this.SHIELD_COST) {
+      state.spendAntimatter(this.SHIELD_COST);
+      state.addShield(1);
+      
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+
+      this.updateUI();
+    } else {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+      }
+      this.cameras.main.flash(200, 255, 0, 0);
+    }
+  }
+
   private updateUI() {
     const state = GameState.getInstance();
     
     this.antimatterText.setText(`ANTIMATTER: ${state.antimatter}`);
     this.creditsText.setText(`CREDITS: ${state.credits}`);
     this.hpText.setText(`SHIP HP: ${state.currentHp} / ${state.maxHp}`);
+    this.shieldsText.setText(`SHIELDS: ${state.shields}`);
+
+    this.buyShieldBtnText.setText(`BUY SHIELD (COST: ${this.SHIELD_COST} AM)`);
+    this.buyShieldBtnText.setColor(state.antimatter >= this.SHIELD_COST ? '#00ffff' : '#ff0000');
+    this.buyShieldBtnText.setBackgroundColor('#004466');
 
     if (state.currentHp >= state.maxHp) {
       this.repairBtnText.setText('FULLY REPAIRED');

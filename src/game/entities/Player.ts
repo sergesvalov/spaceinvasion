@@ -14,6 +14,9 @@ export class Player extends Phaser.GameObjects.Container {
   private shieldGraphics: Phaser.GameObjects.Graphics;
   private lastFired: number = 0;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+  
+  private purchasedShieldActive: boolean = false;
+  private purchasedShieldGraphics!: Phaser.GameObjects.Graphics;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -42,6 +45,14 @@ export class Player extends Phaser.GameObjects.Container {
     this.shieldGraphics.fillCircle(0, 0, 50);
     this.shieldGraphics.setVisible(false);
     this.add(this.shieldGraphics);
+
+    this.purchasedShieldGraphics = scene.add.graphics();
+    this.purchasedShieldGraphics.lineStyle(4, 0x0088ff, 0.8);
+    this.purchasedShieldGraphics.fillStyle(0x0088ff, 0.2);
+    this.purchasedShieldGraphics.strokeCircle(0, 0, 60);
+    this.purchasedShieldGraphics.fillCircle(0, 0, 60);
+    this.purchasedShieldGraphics.setVisible(false);
+    this.add(this.purchasedShieldGraphics);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: 200, max: 400 },
@@ -137,6 +148,32 @@ export class Player extends Phaser.GameObjects.Container {
 
   public getForm(): PlayerForm {
     return this.form;
+  }
+  
+  public activatePurchasedShield() {
+    if (this.purchasedShieldActive) return;
+    
+    this.purchasedShieldActive = true;
+    this.purchasedShieldGraphics.setVisible(true);
+    
+    this.scene.tweens.add({
+      targets: this.purchasedShieldGraphics,
+      alpha: 0.5,
+      duration: 500,
+      yoyo: true,
+      repeat: -1
+    });
+
+    this.scene.time.delayedCall(15000, () => {
+      this.purchasedShieldActive = false;
+      this.scene.tweens.killTweensOf(this.purchasedShieldGraphics);
+      this.purchasedShieldGraphics.setVisible(false);
+      this.purchasedShieldGraphics.alpha = 1;
+    });
+  }
+
+  public isShielded(): boolean {
+    return this.purchasedShieldActive || this.form === 'mecha';
   }
   
   public canFire(time: number): boolean {

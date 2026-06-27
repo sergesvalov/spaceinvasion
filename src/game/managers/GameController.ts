@@ -49,6 +49,7 @@ export class GameController {
     EventBus.on('player_hit', () => this.handlePlayerDamage());
     EventBus.on('powerup_collected', (type: string) => this.handlePowerUpCollected(type));
     EventBus.on('transform_request', () => this.handleTransformRequest());
+    EventBus.on('shield_request', () => this.handleShieldRequest());
   }
 
   public destroy() {
@@ -58,11 +59,28 @@ export class GameController {
     EventBus.off('player_hit');
     EventBus.off('powerup_collected');
     EventBus.off('transform_request');
+    EventBus.off('shield_request');
   }
 
   public handleBossPhase(width: number) {
     console.log('[GameController] Boss phase started!');
     this.boss.spawn(width / 2, -100);
+  }
+
+  private handleShieldRequest() {
+    const state = GameState.getInstance();
+    if (!this.player.isShielded() && state.useShield()) {
+      this.player.activatePurchasedShield();
+      this.hudManager.update(this.score, this.health, this.antimatter);
+      
+      if (localStorage.getItem('soundEnabled') !== 'false') {
+        this.scene.sound.play('pew', { volume: 0.5, rate: 0.8 }); // Maybe another sound?
+      }
+    } else if (state.shields === 0) {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+      }
+    }
   }
 
   private handleTransformRequest() {
