@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.4",
     "@capacitor/cli": "^5.7.0",
+    "@playwright/test": "^1.42.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },

@@ -12,6 +12,7 @@ import { LevelManager } from '../managers/LevelManager';
 import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
 import { GameController } from '../managers/GameController';
+import { Autopilot } from '../managers/Autopilot';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -26,6 +27,7 @@ export class GameScene extends Phaser.Scene {
   private entitySpawner!: EntitySpawner;
   private levelManager!: LevelManager;
   private gameController!: GameController;
+  private autopilot!: Autopilot;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -68,6 +70,11 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss);
+    
+    this.autopilot = new Autopilot(this, this.player, this.entityManager, this.boss);
+    if ((window as any).__E2E_TEST_MODE__) {
+      this.autopilot.enable();
+    }
 
     this.collisionManager = new CollisionManager(
       this,
@@ -100,6 +107,7 @@ export class GameScene extends Phaser.Scene {
 
   update(time: number, delta: number) {
     this.levelManager.update(time, delta);
+    this.autopilot.update(time, delta);
 
     if (!this.gameController.getIsPlaying()) return;
 

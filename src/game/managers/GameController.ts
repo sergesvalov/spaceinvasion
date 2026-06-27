@@ -146,6 +146,7 @@ export class GameController {
       }
       this.isPlaying = false;
       this.inputManager.isActive = false;
+      (window as any).__GAME_RESULT__ = 'DEFEAT';
       this.player.explode();
 
       AnalyticsService.getInstance().playerDeath(this.player.x, this.player.y);
@@ -173,6 +174,7 @@ export class GameController {
   private handleVictory() {
     this.isPlaying = false;
     this.inputManager.isActive = false;
+    (window as any).__GAME_RESULT__ = 'VICTORY';
     
     this.entityManager.enemies.children.iterate((c) => {
       const e = c as Enemy;

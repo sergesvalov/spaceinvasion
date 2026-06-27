@@ -2,6 +2,7 @@ pipeline {
     agent { label 'built-in' }
 
     parameters {
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Запустить E2E тесты на проходимость (Playwright)')
         booleanParam(name: 'BUILD_ANDROID', defaultValue: true, description: 'Собрать версию для Android (APK)')
         booleanParam(name: 'BUILD_TELEGRAM', defaultValue: true, description: 'Собрать веб-версию для Telegram (ZIP)')
         booleanParam(name: 'BUILD_PC', defaultValue: true, description: 'Собрать standalone-версию для ПК (ZIP + .bat)')
@@ -32,6 +33,20 @@ pipeline {
                     
                     echo "Пушим сборочный образ в локальный реестр..."
                     sh "docker push ${BUILDER_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage('Run E2E Playability Tests') {
+            when {
+                expression { params.RUN_TESTS }
+            }
+            steps {
+                script {
+                    echo "Сборка тестового Docker-образа и прогон Playwright тестов..."
+                    sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest -f Dockerfile.test ."
+                    // Run the container and clean it up afterwards
+                    sh "docker run --rm ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest"
                 }
             }
         }
