@@ -58,9 +58,9 @@ export class Autopilot {
     });
 
     // Move logic: Find a safe spot
-    // Very simple AI: Just stay under the boss to shoot it, but dodge bullets horizontally
+    // Very simple AI: Just stay in the center to shoot the boss, but dodge bullets horizontally
     
-    let desiredX = this.boss.active ? this.boss.x : this.scene.scale.width / 2;
+    let desiredX = this.scene.scale.width / 2;
     let desiredY = this.scene.scale.height - 150; // Stay near bottom
 
     // Repulsion from threats
