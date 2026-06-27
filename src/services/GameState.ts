@@ -4,6 +4,7 @@ export class GameState {
   private _credits: number = 0;
   private _currentHp: number = 3;
   private _maxHp: number = 3;
+  private _baseWeaponLevel: number = 1;
   private _weaponLevel: number = 1;
 
   private constructor() {
@@ -31,15 +32,16 @@ export class GameState {
       this._currentHp = this._maxHp;
     }
 
-    const savedWeaponLevel = localStorage.getItem('si_weapon_level');
-    if (savedWeaponLevel) this._weaponLevel = parseInt(savedWeaponLevel, 10);
+    const savedBaseWeaponLevel = localStorage.getItem('si_base_weapon_level');
+    if (savedBaseWeaponLevel) this._baseWeaponLevel = parseInt(savedBaseWeaponLevel, 10);
+    this._weaponLevel = this._baseWeaponLevel;
   }
 
   private saveState() {
     localStorage.setItem('si_credits', this._credits.toString());
     localStorage.setItem('si_hp', this._currentHp.toString());
     localStorage.setItem('si_max_hp', this._maxHp.toString());
-    localStorage.setItem('si_weapon_level', this._weaponLevel.toString());
+    localStorage.setItem('si_base_weapon_level', this._baseWeaponLevel.toString());
   }
 
   public get credits(): number {
@@ -90,7 +92,10 @@ export class GameState {
   public upgradeWeapon() {
     if (this._weaponLevel < 4) {
       this._weaponLevel += 1;
-      this.saveState();
     }
+  }
+
+  public resetWeaponLevel() {
+    this._weaponLevel = this._baseWeaponLevel;
   }
 }

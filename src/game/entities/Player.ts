@@ -143,7 +143,7 @@ export class Player extends Phaser.GameObjects.Container {
     let fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
     
     if (this.weaponLevel >= 2) {
-      fireRate *= 0.6; // 40% faster fire rate for upgraded weapons
+      fireRate *= 0.5; // 50% faster fire rate (twice as fast) for upgraded weapons
     }
 
     if (time > this.lastFired + fireRate) {

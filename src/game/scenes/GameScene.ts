@@ -39,7 +39,9 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     AnalyticsService.getInstance().levelStart(`level_${this.currentLevel}`);
-    
+    if (this.currentLevel === 1) {
+      GameState.getInstance().resetWeaponLevel();
+    }
     GameState.getInstance().setHp(GameState.getInstance().maxHp);
 
     this.hudManager = new HUDManager();
