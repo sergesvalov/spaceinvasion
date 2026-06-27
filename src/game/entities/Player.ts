@@ -9,6 +9,7 @@ export class Player extends Phaser.GameObjects.Container {
   public weaponLevel: number = 1;
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
+  private shieldGraphics: Phaser.GameObjects.Graphics;
   private lastFired: number = 0;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
 
@@ -27,9 +28,16 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
-    // Scale is increased by 30% from 0.04 to 0.052. True alpha transparency is now in the image.
     this.sprite.setScale(0.0624);
     this.add(this.sprite);
+
+    this.shieldGraphics = scene.add.graphics();
+    this.shieldGraphics.lineStyle(4, 0x00ffcc, 0.8);
+    this.shieldGraphics.fillStyle(0x00ffcc, 0.2);
+    this.shieldGraphics.strokeCircle(0, 0, 45);
+    this.shieldGraphics.fillCircle(0, 0, 45);
+    this.shieldGraphics.setVisible(false);
+    this.add(this.shieldGraphics);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: 200, max: 400 },
@@ -86,20 +94,37 @@ export class Player extends Phaser.GameObjects.Container {
     }
   }
 
-  public switchForm() {
-    this.form = this.form === 'fighter' ? 'mecha' : 'fighter';
-    AnalyticsService.getInstance().formSwitch(this.form);
+  public transformToMecha() {
+    if (this.form === 'mecha') return;
+    this.form = 'mecha';
+    AnalyticsService.getInstance().formSwitch('mecha');
 
-    // Haptic feedback for Telegram WebApp
     if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
     }
 
-    if (this.form === 'fighter') {
-      this.setFighterForm();
-    } else {
-      this.setMechaForm();
-    }
+    this.setMechaForm();
+    this.shieldGraphics.setVisible(true);
+    
+    // Pulse animation for shield
+    this.scene.tweens.add({
+      targets: this.shieldGraphics,
+      alpha: 0.5,
+      duration: 500,
+      yoyo: true,
+      repeat: -1
+    });
+  }
+
+  public revertToFighter() {
+    if (this.form === 'fighter') return;
+    this.form = 'fighter';
+    AnalyticsService.getInstance().formSwitch('fighter');
+
+    this.setFighterForm();
+    this.shieldGraphics.setVisible(false);
+    this.scene.tweens.killTweensOf(this.shieldGraphics);
+    this.shieldGraphics.alpha = 1;
   }
 
   public getForm(): PlayerForm {

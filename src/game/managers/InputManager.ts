@@ -23,11 +23,11 @@ export class InputManager {
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (!this.isActive) return;
       if (pointer.rightButtonDown()) {
-        this.player.switchForm();
+        this.scene.events.emit('transform_request');
       } else {
         const currentTime = this.scene.time.now;
         if (currentTime - this.lastTapTime < 300) {
-          this.player.switchForm();
+          this.scene.events.emit('transform_request');
         }
         this.lastTapTime = currentTime;
         this.player.x = pointer.x;

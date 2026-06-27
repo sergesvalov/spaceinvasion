@@ -43,7 +43,17 @@ export class HUDManager {
 
   public update(score: number, health: number, antimatter: number = 0) {
     if (this.scoreEl) this.scoreEl.textContent = `Score: ${score}`;
-    if (this.antimatterEl) this.antimatterEl.textContent = `Antimatter: ${antimatter}`;
+    if (this.antimatterEl) {
+      this.antimatterEl.textContent = `Antimatter: ${antimatter}`;
+      if (antimatter >= 10) {
+        this.antimatterEl.style.color = '#ffdd00';
+        this.antimatterEl.style.textShadow = '0 0 10px #ffaa00';
+        this.antimatterEl.innerHTML = `Antimatter: ${antimatter} <span style="font-size: 0.8em; color: #ffaa00;">[DOUBLE-TAP TO TRANSFORM]</span>`;
+      } else {
+        this.antimatterEl.style.color = '';
+        this.antimatterEl.style.textShadow = '';
+      }
+    }
     
     if (this.healthFillEl) {
       const maxHp = GameState.getInstance().maxHp;

@@ -99,6 +99,32 @@ export class GameScene extends Phaser.Scene {
     this.events.on('antimatter_collected', () => this.handleAntimatterCollected());
     this.events.on('player_hit', () => this.handlePlayerDamage());
     this.events.on('powerup_collected', (type: string) => this.handlePowerUpCollected(type));
+    this.events.on('transform_request', () => this.handleTransformRequest());
+  }
+
+  private handleTransformRequest() {
+    if (this.player.getForm() === 'mecha') return; // Already transformed
+    
+    if (this.antimatter >= 10) {
+      this.antimatter -= 10;
+      this.hudManager.update(this.score, this.health, this.antimatter);
+      
+      this.player.transformToMecha();
+      
+      // Play sound if available
+      if (localStorage.getItem('soundEnabled') !== 'false') {
+        this.sound.play('pew', { volume: 0.5, rate: 0.5 }); // Deep sound
+      }
+
+      // Revert after 15 seconds
+      this.time.delayedCall(15000, () => {
+        if (this.isPlaying) {
+          this.player.revertToFighter();
+        }
+      });
+    } else {
+      // Optional: Play an error sound or visual feedback that antimatter is not enough
+    }
   }
 
   private handleEnemyDestroyed(points: number) {
