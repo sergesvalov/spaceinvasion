@@ -147,6 +147,16 @@ export class CollisionManager {
         this.scene.events.emit('antimatter_collected');
       }
     });
+
+    // Player vs PowerUp
+    this.scene.physics.add.overlap(this.player, this.entityManager.powerUps, (obj1, obj2) => {
+      const powerUp = (obj1 === this.player ? obj2 : obj1) as any;
+      if (powerUp.active && this.isPlayingGetter()) {
+        powerUp.setActive(false);
+        powerUp.setVisible(false);
+        this.scene.events.emit('powerup_collected', powerUp.type);
+      }
+    });
   }
 
   private createExplosion(x: number, y: number) {

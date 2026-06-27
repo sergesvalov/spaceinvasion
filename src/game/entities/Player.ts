@@ -5,6 +5,7 @@ import { GameConfig } from '../config/GameConfig';
 export type PlayerForm = 'fighter' | 'mecha';
 
 export class Player extends Phaser.GameObjects.Container {
+  public weaponLevel: number = 1;
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
   private lastFired: number = 0;
@@ -105,7 +106,12 @@ export class Player extends Phaser.GameObjects.Container {
   }
   
   public canFire(time: number): boolean {
-    const fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
+    let fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
+    
+    if (this.weaponLevel >= 2) {
+      fireRate *= 0.6; // 40% faster fire rate for upgraded weapons
+    }
+
     if (time > this.lastFired + fireRate) {
       this.lastFired = time;
       return true;

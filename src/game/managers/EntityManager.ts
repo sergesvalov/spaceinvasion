@@ -5,6 +5,7 @@ import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { AAGunProjectile } from '../entities/AAGunProjectile';
 import { AAGun } from '../entities/AAGun';
+import { PowerUp } from '../entities/PowerUp';
 
 export class EntityManager {
   public projectiles: Phaser.Physics.Arcade.Group;
@@ -13,6 +14,7 @@ export class EntityManager {
   public antimatterContainers: Phaser.Physics.Arcade.Group;
   public aaProjectiles: Phaser.Physics.Arcade.Group;
   public aaGuns: Phaser.Physics.Arcade.Group;
+  public powerUps: Phaser.Physics.Arcade.Group;
 
   constructor(private scene: Phaser.Scene) {
     this.projectiles = this.scene.physics.add.group({
@@ -50,6 +52,12 @@ export class EntityManager {
       maxSize: 10,
       runChildUpdate: true
     });
+
+    this.powerUps = this.scene.physics.add.group({
+      classType: PowerUp,
+      maxSize: 10,
+      runChildUpdate: true
+    });
   }
 
   public getProjectile(): Projectile | null {
@@ -74,5 +82,9 @@ export class EntityManager {
 
   public getAAGun(): AAGun | null {
     return this.aaGuns.get() as AAGun | null;
+  }
+
+  public getPowerUp(): PowerUp | null {
+    return this.powerUps.get() as PowerUp | null;
   }
 }

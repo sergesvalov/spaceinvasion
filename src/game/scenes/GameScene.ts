@@ -31,6 +31,8 @@ export class GameScene extends Phaser.Scene {
   private collisionManager!: CollisionManager;
   private enemySpawner!: EnemySpawner;
   private levelManager!: LevelManager;
+  private gameSpeedModifier: number = 1;
+  private lastPowerUpSpawnTime: number = 0;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -92,6 +94,25 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.events.on('player_hit', () => this.handlePlayerDamage());
+
+    // Handle powerup collected
+    this.events.on('powerup_collected', (type: string) => {
+      const state = GameState.getInstance();
+      if (type === 'health') {
+        this.health = Math.min(this.health + 1, state.maxHp);
+        state.setHp(this.health);
+        this.hudManager.updateHealth(this.health);
+        // Play positive sound (can reuse something)
+        if (localStorage.getItem('soundEnabled') !== 'false') {
+          this.sound.play('pew', { volume: 0.5, rate: 2 });
+        }
+      } else if (type === 'weapon') {
+        this.player.weaponLevel = Math.min(this.player.weaponLevel + 1, 4);
+        if (localStorage.getItem('soundEnabled') !== 'false') {
+          this.sound.play('pew', { volume: 0.5, rate: 1.5 });
+        }
+      }
+    });
 
     // Setup Level Progression
     const levelPhases = this.currentLevel === 1 ? [
@@ -231,8 +252,23 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    // Spawn powerups randomly (every ~15 seconds on average)
+    if (time > this.lastPowerUpSpawnTime + Phaser.Math.Between(10000, 20000)) {
+      this.lastPowerUpSpawnTime = time;
+      this.spawnPowerUp();
+    }
+
     const modifier = this.levelManager.getCurrentSpawnModifier();
     this.enemySpawner.update(time, this.isPlaying, modifier);
+  }
+
+  private spawnPowerUp() {
+    const powerUp = this.entityManager.getPowerUp();
+    if (powerUp) {
+      const x = Phaser.Math.Between(50, this.scale.width - 50);
+      const type = Phaser.Math.FloatBetween(0, 1) > 0.5 ? 'health' : 'weapon';
+      powerUp.spawn(x, -50, type);
+    }
   }
 
   private spawnAAGun() {
@@ -253,15 +289,38 @@ export class GameScene extends Phaser.Scene {
 
     const isMecha = this.player.getForm() === 'mecha';
     const damage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
+    const speed = isMecha ? -400 : -600;
 
-    if (isMecha) {
+    let lines = 1;
+    if (isMecha || this.player.weaponLevel >= 3) {
+      lines = 2;
+    }
+
+    if (lines === 2) {
       const proj1 = this.entityManager.getProjectile();
       const proj2 = this.entityManager.getProjectile();
-      if (proj1) proj1.fire(this.player.x - 10, this.player.y, -400, damage);
-      if (proj2) proj2.fire(this.player.x + 10, this.player.y, -400, damage);
+      if (proj1) proj1.fire(this.player.x - 10, this.player.y, speed, damage);
+      if (proj2) proj2.fire(this.player.x + 10, this.player.y, speed, damage);
     } else {
       const proj = this.entityManager.getProjectile();
-      if (proj) proj.fire(this.player.x, this.player.y - 20, -600, damage);
+      if (proj) proj.fire(this.player.x, this.player.y - 20, speed, damage);
+    }
+
+    if (this.player.weaponLevel >= 4) {
+      const projLeft = this.entityManager.getProjectile();
+      const projRight = this.entityManager.getProjectile();
+      const diagSpeed = speed * 0.707;
+      
+      if (projLeft) {
+        projLeft.fire(this.player.x - 15, this.player.y, diagSpeed, damage);
+        const bodyLeft = projLeft.body as Phaser.Physics.Arcade.Body;
+        if (bodyLeft) bodyLeft.setVelocityX(speed * 0.707); // speed is negative, so this goes left
+      }
+      if (projRight) {
+        projRight.fire(this.player.x + 15, this.player.y, diagSpeed, damage);
+        const bodyRight = projRight.body as Phaser.Physics.Arcade.Body;
+        if (bodyRight) bodyRight.setVelocityX(-speed * 0.707); // goes right
+      }
     }
   }
 }
