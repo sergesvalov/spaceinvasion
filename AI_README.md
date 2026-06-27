@@ -66,6 +66,10 @@ This document is designed to help any AI agent (or developer) quickly understand
 6. **Mecha Transformation**:
    - Costs 5 Antimatter (handled in `GameController.ts`).
    - Activated by double-tapping the screen or right-clicking.
+   - **Shockwave**: Emits `mecha_shockwave` event upon transform to clear nearby projectiles and damage enemies.
+   - **Hyper Beam**: Replaces standard base weapon. Projectiles get `piercing = true` and stretch vertically to act as a continuous laser.
+   - **Missile Swarm**: `Player.ts` auto-fires 5 homing projectiles every 2 seconds (`fireSwarm`).
+   - **Melee Slash**: Proximity detector in `updateMelee` triggers a short-range sword slash if enemies are <150px away.
 7. **Combat Logic & Arsenal Strategies**:
    - **Base Weapons (`GameState._equippedWeapon`)**: 
      - **Plasma**: Fast, standard fire rate. 
