@@ -116,7 +116,7 @@ export class GameScene extends Phaser.Scene {
     if (type === 'health') {
       this.health = Math.min(this.health + 1, state.maxHp);
       state.setHp(this.health);
-      this.hudManager.updateHealth(this.health);
+      this.hudManager.update(this.score, this.health, this.antimatter);
       if (localStorage.getItem('soundEnabled') !== 'false') {
         this.sound.play('pew', { volume: 0.5, rate: 2 });
       }
