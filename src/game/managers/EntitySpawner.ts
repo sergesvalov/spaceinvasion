@@ -2,23 +2,20 @@ import Phaser from 'phaser';
 import { Enemy } from '../entities/Enemy';
 import { EntityManager } from './EntityManager';
 
-import { Boss } from '../entities/Boss';
 import { Player } from '../entities/Player';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
   private entityManager: EntityManager;
-  private boss: Boss;
   private player: Player;
   
   private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
   private lastPowerUpSpawn: number = 0;
 
-  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss, player: Player) {
+  constructor(scene: Phaser.Scene, entityManager: EntityManager, player: Player) {
     this.scene = scene;
     this.entityManager = entityManager;
-    this.boss = boss;
     this.player = player;
   }
 

@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
       this.currentLevel
     );
 
-    this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss, this.player);
+    this.entitySpawner = new EntitySpawner(this, this.entityManager, this.player);
     
     this.autopilot = new Autopilot(this, this.player, this.entityManager, this.boss);
     const w = window as any;
