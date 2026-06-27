@@ -44,11 +44,23 @@ export class MenuScene extends Phaser.Scene {
     });
 
     // Exit Button
-    Button.create(this, width / 2, height * 0.8, 'EXIT', () => {
-      if (window.Telegram?.WebApp) {
-        (window.Telegram.WebApp as any).close();
-      } else {
-        alert('Exit game not supported in this environment');
+    Button.create(this, width / 2, height * 0.8, 'EXIT', async () => {
+      // Telegram WebApp
+      if (window.Telegram?.WebApp?.initData) {
+        window.Telegram.WebApp.close();
+      } 
+      // Capacitor (Android/iOS)
+      else if (window.Capacitor?.isNativePlatform()) {
+        try {
+          const { App } = await import('@capacitor/app');
+          await App.exitApp();
+        } catch (e) {
+          console.error('Failed to exit Capacitor app', e);
+        }
+      } 
+      // Browser Fallback
+      else {
+        window.close();
       }
     });
 
