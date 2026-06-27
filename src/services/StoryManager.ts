@@ -120,9 +120,10 @@ export class StoryManager {
     console.log(`[StoryManager] Showing briefing for level: ${levelId}`);
     AnalyticsService.getInstance().logEvent('story_briefing_shown', { levelId });
     
-    // В режиме автотеста сразу пропускаем все диалоги
-    if ((window as any).__E2E_TEST_MODE__) {
-      onComplete();
+    // Skip in E2E or AI Demo
+    const w = window as any;
+    if (w.__E2E_TEST_MODE__ || w.__AI_DEMO_MODE__) {
+      if (onComplete) onComplete();
       return;
     }
     

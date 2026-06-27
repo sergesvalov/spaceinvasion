@@ -64,7 +64,7 @@ export class MenuScene extends Phaser.Scene {
 
     // AI Test Button
     Button.create(this, width / 2, height * 0.8, 'AI TEST', () => {
-      (window as any).__E2E_TEST_MODE__ = true;
+      (window as any).__AI_DEMO_MODE__ = true;
       (window as any).__START_GAME__();
     });
 

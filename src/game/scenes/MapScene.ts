@@ -139,7 +139,8 @@ export class MapScene extends Phaser.Scene {
       });
     };
 
-    if (!(window as any).__E2E_TEST_MODE__) {
+    const w = window as any;
+    if (!w.__E2E_TEST_MODE__ && !w.__AI_DEMO_MODE__) {
       this.time.delayedCall(4000, proceed);
       this.input.once('pointerdown', proceed);
     } else {
