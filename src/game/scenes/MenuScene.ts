@@ -62,8 +62,14 @@ export class MenuScene extends Phaser.Scene {
       this.settingsContainer.setVisible(!this.settingsContainer.visible);
     });
 
+    // AI Test Button
+    Button.create(this, width / 2, height * 0.8, 'AI TEST', () => {
+      (window as any).__E2E_TEST_MODE__ = true;
+      (window as any).__START_GAME__();
+    });
+
     // Exit Button
-    Button.create(this, width / 2, height * 0.8, 'EXIT', async () => {
+    Button.create(this, width / 2, height * 0.9, 'EXIT', async () => {
       // Telegram WebApp
       if ((window as any).Telegram?.WebApp?.initData) {
         (window as any).Telegram.WebApp.close();
@@ -89,7 +95,7 @@ export class MenuScene extends Phaser.Scene {
 
 
   private createSettingsPanel(width: number, height: number) {
-    this.settingsContainer = this.add.container(width / 2, height * 0.85);
+    this.settingsContainer = this.add.container(width / 2, height * 0.95);
     this.settingsContainer.setVisible(false);
 
     const bg = this.add.graphics();
