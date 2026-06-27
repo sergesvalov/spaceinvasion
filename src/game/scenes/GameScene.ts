@@ -17,7 +17,6 @@ import { Autopilot } from '../managers/Autopilot';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
-  private drone?: Drone;
   private boss!: Boss;
   private entityManager!: EntityManager;
   
@@ -55,7 +54,7 @@ export class GameScene extends Phaser.Scene {
     this.entityManager = new EntityManager(this);
 
     if (GameState.getInstance().hasDrone) {
-      this.drone = new Drone(this, this.player, this.entityManager);
+      new Drone(this, this.player, this.entityManager);
     }
 
     this.inputManager = new InputManager(this, this.player);
