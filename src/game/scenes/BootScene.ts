@@ -39,6 +39,7 @@ export class BootScene extends Phaser.Scene {
 
     // Load ship, enemy, and boss textures
     this.load.image('ship', 'ship.png');
+    this.load.image('mecha', 'mecha.png');
     this.load.image('enemy', 'enemy.png');
     this.load.image('boss', 'boss.png');
     this.load.image('aagun', 'aagun.png');

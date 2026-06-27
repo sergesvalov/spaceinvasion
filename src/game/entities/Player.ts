@@ -55,7 +55,9 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   private setFighterForm() {
+    this.sprite.setTexture('ship');
     this.sprite.setTint(0xffffff); // Normal color
+    this.sprite.setScale(0.0624);
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
@@ -75,7 +77,9 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   private setMechaForm() {
-    this.sprite.setTint(0xffaa00); // Temporary tint to show Mecha form
+    this.sprite.setTexture('mecha');
+    this.sprite.setTint(0xffffff);
+    this.sprite.setScale(0.12); // Mecha sprite might need slightly different scale, 0.12 roughly fits 512x512
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
