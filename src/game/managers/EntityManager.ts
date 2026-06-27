@@ -19,7 +19,7 @@ export class EntityManager {
   constructor(private scene: Phaser.Scene) {
     this.projectiles = this.scene.physics.add.group({
       classType: Projectile,
-      maxSize: 50,
+      maxSize: 150,
       runChildUpdate: true
     });
 
