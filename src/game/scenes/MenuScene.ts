@@ -25,12 +25,26 @@ export class MenuScene extends Phaser.Scene {
 
     // Play Button
     Button.create(this, width / 2, height * 0.4, 'PLAY', () => {
-      this.scene.start('GameScene');
+      import('../../services/StoryManager').then(({ StoryManager }) => {
+        StoryManager.getInstance().showBriefing('level_1', () => {
+          this.cameras.main.fadeOut(1000, 0, 0, 0);
+          this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.start('MapScene', { level: 1 });
+          });
+        });
+      });
     });
 
     // Экспортируем функцию для E2E тестов
     (window as any).__START_GAME__ = () => {
-      this.scene.start('GameScene');
+      import('../../services/StoryManager').then(({ StoryManager }) => {
+        StoryManager.getInstance().showBriefing('level_1', () => {
+          this.cameras.main.fadeOut(10, 0, 0, 0); // Fast fade for tests
+          this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.start('MapScene', { level: 1 });
+          });
+        });
+      });
     };
 
     // Garage Button

@@ -211,7 +211,10 @@ export class GameController {
       this.destroy();
       if (this.currentLevel === 1) {
         StoryManager.getInstance().showBriefing('level_1_victory', () => {
-          this.scene.scene.start('GameScene', { level: 2 });
+          this.scene.cameras.main.fadeOut(1000, 0, 0, 0);
+          this.scene.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.scene.start('MapScene', { level: 2 });
+          });
         });
       } else {
         this.scene.scene.start('MenuScene');

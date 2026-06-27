@@ -10,51 +10,51 @@ const LORE_DATA: Record<string, StorySlide[]> = {
   'level_1': [
     {
       title: 'INCOMING TRANSMISSION',
-      text: '2084 год. Земля наслаждалась миром. Безмятежные побережья и мирные города даже не подозревали об угрозе, таящейся в глубинах космоса.',
+      text: '2084 год.| Земля наслаждалась миром.| Безмятежные побережья и мирные города даже не подозревали об угрозе,| таящейся в глубинах космоса.',
       image: 'story/story_1.png'
     },
     {
       title: 'INCOMING TRANSMISSION',
-      text: 'Они пришли без предупреждения. Безжалостный инопланетный флот обрушился на наши орбитальные рубежи, стирая в пыль передовые линии обороны.',
+      text: 'Они пришли без предупреждения.| Безжалостный инопланетный флот обрушился на наши орбитальные рубежи,| стирая в пыль передовые линии обороны.',
       image: 'story/story_2.png'
     },
     {
       title: 'INCOMING TRANSMISSION',
-      text: 'База "Омега" — наш последний оплот. Твой экспериментальный истребитель-трансформер заряжен и ждет на полосе. Это технологическое чудо — наша единственная надежда.',
+      text: 'База "Омега" — наш последний оплот.| Твой экспериментальный истребитель-трансформер заряжен и ждет на полосе.| Это технологическое чудо —| наша единственная надежда.',
       image: 'story/story_3.png'
     },
     {
       title: 'INCOMING TRANSMISSION',
-      text: 'Небеса пылают! Враг прорвал атмосферу и атакует базу! Пилот, судьба человечества в твоих руках. Взлетай и заставь их поплатиться!',
+      text: 'Небеса пылают!| Враг прорвал атмосферу и атакует базу!| Пилот,| судьба человечества в твоих руках.| Взлетай и заставь их поплатиться!',
       image: 'story/story_4.png'
     }
   ],
   'level_1_victory': [
     {
       title: 'VICTORY... OR SO WE THOUGHT',
-      text: 'Вражеский флагман уничтожен. Обломки гигантского материнского корабля пылают в верхних слоях атмосферы, озаряя небо.',
+      text: 'Вражеский флагман уничтожен.| Обломки гигантского материнского корабля пылают в верхних слоях атмосферы,| озаряя небо.',
       image: 'story/victory_1.png'
     },
     {
       title: 'INCOMING TRANSMISSION',
-      text: 'Но радость была недолгой. Радары зафиксировали массовые проколы пространства. Тысячи инопланетных кораблей появились прямо над крупнейшими городами Земли.',
+      text: 'Но радость была недолгой.| Радары зафиксировали массовые проколы пространства.| Тысячи инопланетных кораблей появились прямо над крупнейшими городами Земли.',
       image: 'story/victory_2.png'
     },
     {
       title: 'EMERGENCY PROTOCOL',
-      text: 'Наши силы истощены, но мы всё ещё стоим. Пилот, нам срочно нужна твоя помощь в других секторах. Настоящая война только начинается...',
+      text: 'Наши силы истощены,| но мы всё ещё стоим.| Пилот,| нам срочно нужна твоя помощь в других секторах.| Настоящая война только начинается...',
       image: 'story/victory_3.png'
     }
   ],
   'level_2': [
     {
       title: 'SECTOR 7: NEO TOKYO',
-      text: 'Главный мегаполис Земли находится под массированной атакой. Вражеские эскадрильи заполонили небеса, уничтожая всё на своем пути.',
-      image: 'story/victory_2.png' // re-use the image with the city skies
+      text: 'Главный мегаполис Земли находится под массированной атакой.| Вражеские эскадрильи заполонили небеса,| уничтожая всё на своем пути.',
+      image: 'story/victory_2.png'
     },
     {
       title: 'MISSION BRIEFING',
-      text: 'Твоя задача — прорвать блокаду над Нео-Токио и уничтожить главнокомандующего вражеским флотом. Удачи, пилот.',
+      text: 'Твоя задача — прорвать блокаду над Нео-Токио и уничтожить главнокомандующего вражеским флотом.| Удачи,| пилот.',
       image: 'story/story_4.png'
     }
   ]
@@ -155,22 +155,39 @@ export class StoryManager {
     this.isTyping = true;
     let charIndex = 0;
     
-    if (this.typeInterval) clearInterval(this.typeInterval);
+    if (this.typeInterval) clearTimeout(this.typeInterval);
     
-    this.typeInterval = window.setInterval(() => {
+    const typeNextChar = () => {
+      if (!this.isTyping) return;
       if (charIndex < this.currentFullText.length) {
-        this.textEl.textContent += this.currentFullText.charAt(charIndex);
+        const char = this.currentFullText.charAt(charIndex);
         charIndex++;
+        
+        let delay = 30; // base speed
+        
+        if (char === '|') {
+          // It's a dramatic pause, don't append it to text
+          delay = 500;
+        } else {
+          this.textEl.textContent += char;
+          
+          if (char === '.' || char === '!' || char === '?') delay = 300;
+          else if (char === ',') delay = 150;
+        }
+        
+        this.typeInterval = window.setTimeout(typeNextChar, delay);
       } else {
         this.completeTyping();
       }
-    }, 30);
+    };
+    
+    typeNextChar();
   }
 
   private completeTyping() {
-    if (this.typeInterval) clearInterval(this.typeInterval);
+    if (this.typeInterval) clearTimeout(this.typeInterval);
     this.isTyping = false;
-    this.textEl.textContent = this.currentFullText;
+    this.textEl.textContent = this.currentFullText.replace(/\|/g, '');
   }
 
   private handleTap() {
@@ -185,10 +202,13 @@ export class StoryManager {
       } else {
         // Close briefing
         this.overlayEl.classList.remove('active');
-        if (this.resolveBriefing) {
-          this.resolveBriefing();
-          this.resolveBriefing = undefined;
-        }
+        // Wait for CSS transition (0.5s) to complete before resolving
+        setTimeout(() => {
+          if (this.resolveBriefing) {
+            this.resolveBriefing();
+            this.resolveBriefing = undefined;
+          }
+        }, 500);
       }
     }
   }

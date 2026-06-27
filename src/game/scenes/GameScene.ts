@@ -96,13 +96,10 @@ export class GameScene extends Phaser.Scene {
     );
     this.levelManager.setupBackgrounds();
 
-    const storyId = `level_${this.currentLevel}`;
-    StoryManager.getInstance().showBriefing(storyId, () => {
-      this.gameController.setIsPlaying(true);
-      this.inputManager.isActive = true;
-      this.hudManager.show();
-      this.levelManager.startLevel(this.time.now);
-    });
+    this.gameController.setIsPlaying(true);
+    this.inputManager.isActive = true;
+    this.hudManager.show();
+    this.levelManager.startLevel(this.time.now);
   }
 
   update(time: number, delta: number) {
