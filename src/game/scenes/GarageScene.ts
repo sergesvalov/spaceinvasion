@@ -18,7 +18,10 @@ export class GarageScene extends Phaser.Scene {
 
     // Background
     const bg = this.add.image(width / 2, height / 2, 'hangar');
-    bg.setDisplaySize(width, height);
+    const scaleX = width / bg.width;
+    const scaleY = height / bg.height;
+    const scale = Math.max(scaleX, scaleY);
+    bg.setScale(scale).setScrollFactor(0);
     // Darken background slightly to make UI pop
     bg.setTint(0x888888);
 
