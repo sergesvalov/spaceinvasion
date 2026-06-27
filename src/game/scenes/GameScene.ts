@@ -191,7 +191,10 @@ export class GameScene extends Phaser.Scene {
       this.events.off('boss_destroyed');
       this.events.off('antimatter_collected');
       this.events.off('player_hit');
-      this.scene.start('MenuScene');
+      
+      StoryManager.getInstance().showBriefing('level_1_victory', () => {
+        this.scene.start('MenuScene');
+      });
     }, 4000);
   }
 
