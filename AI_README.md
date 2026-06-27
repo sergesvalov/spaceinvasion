@@ -20,18 +20,19 @@ This document is designed to help any AI agent (or developer) quickly understand
 - **`GarageScene`**: Serves as the game's "Shop". Players can spend Credits to repair their ship and spend Antimatter to buy consumable Shields.
 
 ### 2. Entities (`src/game/entities/`)
-- **`Player`**: The main ship. Has two forms: standard Fighter and Mecha (activated via double tap/right-click). Mecha form has different physics and damage output. Also handles the purchasable shield visual logic.
+- **`Player`**: The main ship. Has two forms: standard Fighter and Mecha. Mecha form has different physics and damage output. Also handles the purchasable shield visual logic and temp weapon overrides (Spread, Homing).
+- **`Drone`**: Companion entity that follows the player and auto-fires at the nearest enemy.
 - **`Boss` & `Enemy`**: Hostile entities. Bosses spawn at specific level phases.
 - **`AAGun`**: Friendly anti-aircraft turrets that spawn on Earth backgrounds and shoot upwards.
-- **Projectiles**: `Projectile` (player), `EnemyProjectile`, `AAGunProjectile`.
-- **Collectibles**: `AntimatterContainer` (dropped by enemies/bosses), `PowerUp` (health or weapon upgrades).
+- **Projectiles**: `Projectile` (player, supports 'plasma', 'ion', 'wave', 'homing' types), `EnemyProjectile`, `AAGunProjectile`.
+- **Collectibles**: `AntimatterContainer` (dropped by enemies/bosses), `PowerUp` (health, weapon, spread, or homing).
 
 ### 3. Managers (`src/game/managers/`)
 - **`GameController`**: The central brain of a game session. Listens to `EventBus` and orchestrates score, health, antimatter logic, and win/loss conditions.
 - **`EntityManager`**: Holds Phaser Physics Groups for pooling (projectiles, enemies, drops). *Note: Player projectile pool is set to 150 to support high fire rates.*
 - **`EntitySpawner`**: Handles spawning enemies, powerups, and AAGuns based on timers and modifiers.
 - **`CollisionManager`**: Defines overlapping logic for all physical objects (bullets vs ships, player vs collectibles). Uses `EventBus` to notify `GameController`.
-- **`HUDManager`**: Manipulates the HTML DOM overlay for UI (Score, HP bar, Antimatter count, Shield button).
+- **`HUDManager`**: Manipulates the HTML DOM overlay for UI (Score, HP bar, Antimatter count, Shield button, Bomb button).
 - **`LevelManager`**: Handles background scrolling phases and triggers boss spawns.
 - **`InputManager`**: Handles pointer movement, double taps, and keyboard shortcuts (e.g., Spacebar for shield).
 
@@ -42,6 +43,9 @@ This document is designed to help any AI agent (or developer) quickly understand
   - `_baseWeaponLevel`: Permanent weapon upgrade level.
   - `_currentHp` / `_maxHp`: Ship health.
   - `_shields`: Inventory of consumable shields.
+  - `_bombs`: Inventory of consumable screen-clearing bombs.
+  - `_equippedWeapon`: Base weapon class ('plasma', 'ion', 'wave').
+  - `_hasDrone`: Boolean flag for the companion drone.
 - **`EventBus`**: Phaser Event Emitter used to decouple Collision/Input logic from the GameController (e.g., `enemy_destroyed`, `shield_request`).
 - **`StoryManager`**: Handles the narrative briefings via a DOM overlay. Reads data from `src/data/StoryData.ts`.
 - **`AnalyticsService`**: Mock analytics tracker.
