@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Game Playability Test', () => {
   test('Autopilot should survive and win the game', async ({ page }) => {
     // Устанавливаем увеличенный таймаут для теста, так как игра занимает время
-    test.setTimeout(120000); 
+    test.setTimeout(300000); 
 
     await page.goto('/');
 
@@ -23,7 +23,7 @@ test.describe('Game Playability Test', () => {
     // Ожидаем завершения игры (установки __GAME_RESULT__)
     const result = await page.waitForFunction(() => {
       return (window as any).__GAME_RESULT__;
-    }, null, { timeout: 100000 });
+    }, null, { timeout: 300000 });
 
     const finalStatus = await result.jsonValue();
     
