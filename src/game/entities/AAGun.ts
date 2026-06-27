@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { Player } from './Player';
+import { Enemy } from './Enemy';
+import { Boss } from './Boss';
 import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
@@ -7,7 +8,7 @@ import { EntityManager } from '../managers/EntityManager';
 export class AAGun extends BaseEntity {
   private lastFired: number = 0;
   private entityManager!: EntityManager;
-  private player!: Player;
+  private boss!: Boss;
   private fireRateMs: number = GameConfig.AAGun.FireRate;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -24,9 +25,9 @@ export class AAGun extends BaseEntity {
     }
   }
 
-  setReferences(entityManager: EntityManager, player: Player) {
+  setReferences(entityManager: EntityManager, boss: Boss) {
     this.entityManager = entityManager;
-    this.player = player;
+    this.boss = boss;
   }
 
   spawn(x: number, y: number, scrollSpeed: number, time: number) {
@@ -60,13 +61,27 @@ export class AAGun extends BaseEntity {
   }
 
   private fireAtNearestEnemy(time: number) {
-    // AAGun is hostile, so it targets the player
+    let nearestDist = Number.MAX_VALUE;
     let target: Phaser.GameObjects.Sprite | null = null;
 
-    if (this.player && this.player.active) {
-      const dist = Phaser.Math.Distance.Between(this.x, this.y, this.player.x, this.player.y);
-      if (dist < 800) { // Max range
-        target = this.player as unknown as Phaser.GameObjects.Sprite;
+    // Check enemies
+    this.entityManager.enemies.getChildren().forEach((child) => {
+      const enemy = child as Enemy;
+      if (enemy.active) {
+        const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
+        if (dist < nearestDist && dist < 800) { // Max range
+          nearestDist = dist;
+          target = enemy;
+        }
+      }
+    });
+
+    // Check boss
+    if (this.boss && this.boss.active) {
+      const dist = Phaser.Math.Distance.Between(this.x, this.y, this.boss.x, this.boss.y);
+      if (dist < nearestDist && dist < 800) {
+        nearestDist = dist;
+        target = this.boss;
       }
     }
 
