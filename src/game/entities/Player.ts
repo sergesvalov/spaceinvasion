@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameConfig } from '../config/GameConfig';
+import { EntityManager } from '../managers/EntityManager';
 
 export type PlayerForm = 'fighter' | 'mecha';
 
@@ -162,5 +163,47 @@ export class Player extends Phaser.GameObjects.Container {
       quantity: 30
     });
     debris.explode(30);
+  }
+
+  public fire(entityManager: EntityManager) {
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.scene.sound.play('pew', { volume: 0.3 });
+    }
+
+    const isMecha = this.getForm() === 'mecha';
+    const damage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
+    const speed = isMecha ? -400 : -600;
+
+    let lines = 1;
+    if (isMecha || this.weaponLevel >= 3) {
+      lines = 2;
+    }
+
+    if (lines === 2) {
+      const proj1 = entityManager.getProjectile();
+      const proj2 = entityManager.getProjectile();
+      if (proj1) proj1.fire(this.x - 10, this.y, speed, damage);
+      if (proj2) proj2.fire(this.x + 10, this.y, speed, damage);
+    } else {
+      const proj = entityManager.getProjectile();
+      if (proj) proj.fire(this.x, this.y - 20, speed, damage);
+    }
+
+    if (this.weaponLevel >= 4) {
+      const projLeft = entityManager.getProjectile();
+      const projRight = entityManager.getProjectile();
+      const diagSpeed = speed * 0.707;
+      
+      if (projLeft) {
+        projLeft.fire(this.x - 15, this.y, diagSpeed, damage);
+        const bodyLeft = projLeft.body as Phaser.Physics.Arcade.Body;
+        if (bodyLeft) bodyLeft.setVelocityX(speed * 0.707); // speed is negative, goes left
+      }
+      if (projRight) {
+        projRight.fire(this.x + 15, this.y, diagSpeed, damage);
+        const bodyRight = projRight.body as Phaser.Physics.Arcade.Body;
+        if (bodyRight) bodyRight.setVelocityX(-speed * 0.707); // goes right
+      }
+    }
   }
 }

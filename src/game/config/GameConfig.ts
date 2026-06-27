@@ -22,5 +22,16 @@ export const GameConfig = {
     FireRate: 1500,
     Damage: 5,
     MaxRange: 800,
+  },
+  Levels: {
+    1: [
+      { textureKey: 'bg_city', duration: 20000, spawnRateModifier: 1.0 },
+      { textureKey: 'bg_suburbs', duration: 20000, spawnRateModifier: 0.8 },
+      { textureKey: 'bg_mountains', duration: 20000, spawnRateModifier: 0.5 }
+    ],
+    2: [
+      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.7 },
+      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.4 }
+    ]
   }
 };
