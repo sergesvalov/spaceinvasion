@@ -112,4 +112,49 @@ export class Player extends Phaser.GameObjects.Container {
     }
     return false;
   }
+
+  public explode() {
+    this.setVisible(false);
+    this.exhaustEmitter.stop();
+    
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (body) {
+      body.setEnable(false);
+    }
+
+    // Main fiery explosion
+    const emitter = this.scene.add.particles(this.x, this.y, 'particle', {
+      speed: { min: 100, max: 500 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 3, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 800,
+      tint: [0xffaa00, 0xff0000, 0xffff00, 0xffffff],
+      quantity: 100
+    });
+    emitter.explode(100);
+
+    // Shockwave ring
+    const shockwave = this.scene.add.particles(this.x, this.y, 'particle', {
+      speed: 600,
+      scale: { start: 0, end: 15 },
+      alpha: { start: 0.8, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 400,
+      tint: 0xffdd00,
+      quantity: 1
+    });
+    shockwave.explode(1);
+
+    // Debris
+    const debris = this.scene.add.particles(this.x, this.y, 'particle', {
+      speed: { min: 50, max: 300 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1, end: 0 },
+      lifespan: 1500,
+      tint: 0x555555,
+      quantity: 30
+    });
+    debris.explode(30);
+  }
 }

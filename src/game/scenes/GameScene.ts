@@ -127,6 +127,9 @@ export class GameScene extends Phaser.Scene {
     if (this.health <= 0) {
       this.isPlaying = false;
       this.inputManager.isActive = false;
+      
+      this.player.explode();
+
       AnalyticsService.getInstance().playerDeath(this.player.x, this.player.y);
       AnalyticsService.getInstance().levelFail('level_1', 'no_health');
       
