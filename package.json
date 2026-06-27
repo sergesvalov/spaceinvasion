@@ -12,7 +12,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.4",
     "@capacitor/cli": "^5.7.0",
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "1.42.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },
