@@ -42,8 +42,9 @@ export class BootScene extends Phaser.Scene {
     cloudGraphics.generateTexture('cloud_particle', 20, 20);
     cloudGraphics.destroy();
 
-    // Load pew sound
+    // Load sounds
     this.load.audio('pew', 'pew.wav');
+    this.load.audio('explosion', 'explosion.wav');
 
     // Load ship, enemy, and boss textures
     this.load.image('ship', 'ship.png');

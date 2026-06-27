@@ -129,6 +129,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleEnemyDestroyed(points: number) {
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.sound.play('explosion', { volume: 0.3 });
+    }
     this.score += points;
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
@@ -176,6 +179,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.health <= 0) {
+      if (localStorage.getItem('soundEnabled') !== 'false') {
+        this.sound.play('explosion', { volume: 0.8 });
+      }
       this.isPlaying = false;
       this.inputManager.isActive = false;
       this.player.explode();
