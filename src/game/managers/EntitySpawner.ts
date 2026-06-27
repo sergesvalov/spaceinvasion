@@ -65,7 +65,7 @@ export class EntitySpawner {
       if (gun) {
         gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
-        gun.spawn(x, -100, 500);
+        gun.spawn(x, -100, 500, time);
       }
     }
   }

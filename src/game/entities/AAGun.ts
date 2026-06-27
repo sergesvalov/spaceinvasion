@@ -29,10 +29,11 @@ export class AAGun extends BaseEntity {
     this.player = player;
   }
 
-  spawn(x: number, y: number, scrollSpeed: number) {
+  spawn(x: number, y: number, scrollSpeed: number, time: number) {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
+    this.lastFired = time; // Reset fire timer when spawned
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -52,7 +53,8 @@ export class AAGun extends BaseEntity {
       return;
     }
 
-    if (time > this.lastFired + this.fireRateMs) {
+    // Only fire if on screen
+    if (this.y > 0 && time > this.lastFired + this.fireRateMs) {
       this.fireAtNearestEnemy(time);
     }
   }

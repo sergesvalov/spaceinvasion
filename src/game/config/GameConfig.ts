@@ -19,7 +19,7 @@ export const GameConfig = {
     Points: 5000,
   },
   AAGun: {
-    FireRate: 1500,
+    FireRate: 800,
     Damage: 5,
     MaxRange: 800,
   },

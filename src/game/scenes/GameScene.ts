@@ -115,7 +115,8 @@ export class GameScene extends Phaser.Scene {
       this.player.fire(this.entityManager);
     }
 
-    if (this.levelManager.getCurrentPhaseKey() === 'bg_city') {
+    const currentPhase = this.levelManager.getCurrentPhaseKey();
+    if (currentPhase === 'bg_city' || currentPhase === 'bg_suburbs') {
       this.entitySpawner.spawnAAGun(time);
     }
 
