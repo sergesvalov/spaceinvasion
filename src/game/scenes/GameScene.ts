@@ -119,6 +119,12 @@ export class GameScene extends Phaser.Scene {
     if (this.player.canFire(time)) {
       this.player.fire(this.entityManager);
     }
+    
+    if (this.player.canFireSwarm(time)) {
+      this.player.fireSwarm(this.entityManager);
+    }
+    
+    this.player.updateMelee(this.entityManager, time);
 
     const currentPhase = this.levelManager.getCurrentPhaseKey();
     if (currentPhase === 'bg_city' || currentPhase === 'bg_suburbs') {

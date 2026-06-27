@@ -34,12 +34,17 @@ export class CollisionManager {
 
     // Player Projectile vs Enemy
     this.scene.physics.add.overlap(projectiles, enemies, (proj, enemy) => {
-      const p = proj as BaseProjectile;
+      const p = proj as any; // Cast to any to access piercing/hitTargets
       const e = enemy as Enemy;
       
       if (p.active && e.active) {
-        p.setActive(false);
-        p.setVisible(false);
+        if (p.piercing) {
+          if (p.hitTargets && p.hitTargets.has(e)) return;
+          if (p.hitTargets) p.hitTargets.add(e);
+        } else {
+          p.setActive(false);
+          p.setVisible(false);
+        }
         
         const destroyed = e.takeDamage(p.damage);
         
@@ -58,12 +63,17 @@ export class CollisionManager {
 
     // Player Projectile vs Boss
     this.scene.physics.add.overlap(projectiles, this.boss, (obj1, obj2) => {
-      const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
+      const p = (obj1 === this.boss ? obj2 : obj1) as any;
       const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
       
       if (p.active && bossObj.active) {
-        p.setActive(false);
-        p.setVisible(false);
+        if (p.piercing) {
+          if (p.hitTargets && p.hitTargets.has(bossObj)) return;
+          if (p.hitTargets) p.hitTargets.add(bossObj);
+        } else {
+          p.setActive(false);
+          p.setVisible(false);
+        }
         
         const destroyed = bossObj.takeDamage(p.damage);
         

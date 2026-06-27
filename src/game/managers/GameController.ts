@@ -51,6 +51,7 @@ export class GameController {
     EventBus.on('transform_request', () => this.handleTransformRequest());
     EventBus.on('shield_request', () => this.handleShieldRequest());
     EventBus.on('bomb_request', () => this.handleBombRequest());
+    EventBus.on('mecha_shockwave', (data: any) => this.handleMechaShockwave(data));
   }
 
   public destroy() {
@@ -62,6 +63,7 @@ export class GameController {
     EventBus.off('transform_request');
     EventBus.off('shield_request');
     EventBus.off('bomb_request');
+    EventBus.off('mecha_shockwave');
   }
 
   public handleBossPhase(width: number) {
@@ -126,6 +128,43 @@ export class GameController {
         window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
       }
     }
+  }
+
+  private handleMechaShockwave(data: { x: number, y: number, radius: number }) {
+    if (!this.isPlaying) return;
+    
+    this.scene.cameras.main.flash(300, 255, 200, 0);
+    this.scene.cameras.main.shake(200, 0.015);
+    
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.scene.sound.play('explosion', { volume: 0.8 });
+    }
+    
+    // Damage enemies in radius
+    this.entityManager.enemies.children.iterate((c) => {
+      const e = c as Enemy;
+      if (e.active) {
+        const dist = Phaser.Math.Distance.Between(data.x, data.y, e.x, e.y);
+        if (dist <= data.radius) {
+          e.takeDamage(100); 
+        }
+      }
+      return true;
+    });
+    
+    // Clear projectiles in radius
+    this.entityManager.enemyProjectiles.children.iterate((c) => {
+      const p = c as Phaser.Physics.Arcade.Sprite;
+      if (p.active) {
+        const dist = Phaser.Math.Distance.Between(data.x, data.y, p.x, p.y);
+        if (dist <= data.radius) {
+          p.setActive(false).setVisible(false);
+        }
+      }
+      return true;
+    });
+
+    this.hudManager.update(this.score, this.health, this.antimatter);
   }
 
   private handleTransformRequest() {

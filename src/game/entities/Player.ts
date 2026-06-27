@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EventBus } from '../../services/EventBus';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
@@ -13,6 +14,8 @@ export class Player extends Phaser.GameObjects.Container {
   private sprite: Phaser.GameObjects.Sprite;
   private shieldGraphics: Phaser.GameObjects.Graphics;
   private lastFired: number = 0;
+  private lastSwarmFired: number = 0;
+  private lastMeleeFired: number = 0;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
   
   private purchasedShieldActive: boolean = false;
@@ -136,6 +139,20 @@ export class Player extends Phaser.GameObjects.Container {
       yoyo: true,
       repeat: -1
     });
+
+    // Shockwave visual & event
+    const shockwave = this.scene.add.particles(this.x, this.y, 'particle', {
+      speed: 600,
+      scale: { start: 0, end: 15 },
+      alpha: { start: 0.8, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 400,
+      tint: 0xffaa00,
+      quantity: 1
+    });
+    shockwave.explode(1);
+
+    EventBus.emit('mecha_shockwave', { x: this.x, y: this.y, radius: 400 });
   }
 
   public revertToFighter() {
@@ -210,6 +227,93 @@ export class Player extends Phaser.GameObjects.Container {
     return false;
   }
 
+  public canFireSwarm(time: number): boolean {
+    if (this.form !== 'mecha') return false;
+    if (time > this.lastSwarmFired + 2000) {
+      this.lastSwarmFired = time;
+      return true;
+    }
+    return false;
+  }
+
+  public fireSwarm(entityManager: EntityManager) {
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.scene.sound.play('pew', { volume: 0.6, rate: 1.2 });
+    }
+
+    const angles = [-60, -30, 0, 30, 60];
+    const speed = 300;
+    
+    angles.forEach(angle => {
+      const proj = entityManager.getProjectile() as any;
+      if (proj && typeof proj.fire === 'function') {
+        const rad = Phaser.Math.DegToRad(angle - 90);
+        const vx = Math.cos(rad) * speed;
+        const vy = Math.sin(rad) * speed;
+        
+        proj.fire(this.x, this.y, vy, GameConfig.Player.DamageMecha * 0.5, 'homing');
+        const body = proj.body as Phaser.Physics.Arcade.Body;
+        if (body) {
+          body.setVelocityX(vx);
+        }
+      }
+    });
+  }
+
+  public updateMelee(entityManager: EntityManager, time: number) {
+    if (this.form !== 'mecha') return;
+    if (time < this.lastMeleeFired + 1000) return; // 1s cooldown
+
+    let nearestDist = Infinity;
+    entityManager.enemies.children.iterate((c) => {
+      const e = c as any;
+      if (e.active) {
+        const dist = Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+        }
+      }
+      return true;
+    });
+
+    if (nearestDist < 150) {
+      this.lastMeleeFired = time;
+      this.performMeleeSlash(entityManager);
+    }
+  }
+
+  private performMeleeSlash(entityManager: EntityManager) {
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.scene.sound.play('explosion', { volume: 0.5, rate: 2.0 });
+    }
+
+    const slash = this.scene.add.graphics();
+    slash.lineStyle(8, 0x00ffff, 1);
+    slash.beginPath();
+    slash.arc(this.x, this.y - 20, 100, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(360), false);
+    slash.strokePath();
+
+    this.scene.tweens.add({
+      targets: slash,
+      scaleX: 1.5,
+      scaleY: 1.5,
+      alpha: 0,
+      duration: 300,
+      onComplete: () => slash.destroy()
+    });
+
+    entityManager.enemies.children.iterate((c) => {
+      const e = c as any;
+      if (e.active) {
+        const dist = Phaser.Math.Distance.Between(this.x, this.y - 20, e.x, e.y);
+        if (dist < 150 && e.y < this.y) {
+          e.takeDamage(GameConfig.Player.DamageMecha * 5); 
+        }
+      }
+      return true;
+    });
+  }
+
   public explode() {
     this.setVisible(false);
     this.exhaustEmitter.stop();
@@ -271,12 +375,19 @@ export class Player extends Phaser.GameObjects.Container {
     let baseDamage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
     let speed = isMecha ? -400 : -600;
 
+    if (isMecha && !this.tempWeapon) {
+      weaponClass = 'beam';
+      speed = -1000; // Fast laser
+    }
+
     if (weaponClass === 'ion') {
       baseDamage *= 4;
       speed *= 0.7; // slower projectile
     } else if (weaponClass === 'wave') {
       baseDamage *= 1.5;
       speed *= 0.8;
+    } else if (weaponClass === 'beam') {
+      baseDamage *= 2; 
     }
 
     let lines = 1;

@@ -4,6 +4,8 @@ import { BaseProjectile } from './BaseProjectile';
 export class Projectile extends BaseProjectile {
   public weaponType: string = 'plasma';
   public target?: any;
+  public piercing: boolean = false;
+  public hitTargets: Set<any> = new Set();
   private startX: number = 0;
   private timeAlive: number = 0;
 
@@ -24,6 +26,8 @@ export class Projectile extends BaseProjectile {
     super.fire(x, y, velocityY, damage);
     this.weaponType = weaponType;
     this.target = undefined;
+    this.piercing = false;
+    this.hitTargets.clear();
     this.startX = x;
     this.timeAlive = 0;
 
@@ -39,6 +43,10 @@ export class Projectile extends BaseProjectile {
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
       this.setScale(1.2);
+    } else if (weaponType === 'beam') {
+      this.setTint(0xffffff);
+      this.setScale(2, 6); // Stretch to look like a beam
+      this.piercing = true;
     }
   }
 

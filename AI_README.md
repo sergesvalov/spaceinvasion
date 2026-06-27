@@ -63,9 +63,20 @@ This document is designed to help any AI agent (or developer) quickly understand
    - `baseWeaponLevel` is persistent.
    - During a run, picking up weapon power-ups increases `weaponLevel`.
    - On death (or new game start at level 1), `GameScene` calls `GameState.getInstance().resetWeaponLevel()` to strip temporary buffs.
-4. **Mecha Transformation**:
+6. **Mecha Transformation**:
    - Costs 5 Antimatter (handled in `GameController.ts`).
    - Activated by double-tapping the screen or right-clicking.
+7. **Combat Logic & Arsenal Strategies**:
+   - **Base Weapons (`GameState._equippedWeapon`)**: 
+     - **Plasma**: Fast, standard fire rate. 
+     - **Ion**: 4x damage, but much slower fire rate (modifier 2.5x slower). Best for Boss encounters.
+     - **Wave**: 1.5x damage, green oscillating trajectory.
+   - **Super Weapons (Temp PowerUps)**:
+     - The `PowerUp` entity has a chance to drop 'spread' or 'homing' items. Picking these up calls `Player.setTempWeapon()` to override the base weapon for 10 seconds.
+     - **Spread** calculates a 5-way fan using trigonometry.
+     - **Homing** finds the nearest active enemy via `EntityManager` and lerps the projectile's velocity towards it.
+   - **Bombs**: Triggered via `EventBus.emit('bomb_request')`. Clears `entityManager.enemyProjectiles` and inflicts 100 damage to all active enemies (instakilling regulars, hurting bosses).
+   - **Drones**: Added directly to `GameScene` via `Drone.ts`. They independently `preUpdate` and seek the nearest enemy to fire small plasma shots.
 
 ## 🤖 AI Agent Guidelines
 
