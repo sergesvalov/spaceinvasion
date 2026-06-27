@@ -3,7 +3,7 @@ import { Player } from '../entities/Player';
 import { Boss } from '../entities/Boss';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
-import { StoryManager } from '../../services/StoryManager';
+
 import { HUDManager } from '../managers/HUDManager';
 import { InputManager } from '../managers/InputManager';
 import { CollisionManager } from '../managers/CollisionManager';
