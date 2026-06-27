@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EventBus } from '../../services/EventBus';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Boss } from '../entities/Boss';
@@ -43,7 +44,7 @@ export class CollisionManager {
         const destroyed = e.takeDamage(p.damage);
         
         if (destroyed) {
-          this.scene.events.emit('enemy_destroyed', GameConfig.Enemy.Points);
+          EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
 
           if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
             const container = this.entityManager.getAntimatterContainer();
@@ -76,7 +77,7 @@ export class CollisionManager {
             }
           }
 
-          this.scene.events.emit('boss_destroyed');
+          EventBus.emit('boss_destroyed');
         }
       }
     });
@@ -90,7 +91,7 @@ export class CollisionManager {
         p.setVisible(false);
         const destroyed = e.takeDamage(p.damage);
         if (destroyed) {
-          this.scene.events.emit('enemy_destroyed', GameConfig.Enemy.Points);
+          EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
         }
       }
     });
@@ -104,7 +105,7 @@ export class CollisionManager {
         p.setVisible(false);
         const destroyed = bossObj.takeDamage(p.damage);
         if (destroyed) {
-          this.scene.events.emit('boss_destroyed');
+          EventBus.emit('boss_destroyed');
         }
       }
     });
@@ -118,7 +119,7 @@ export class CollisionManager {
         this.createExplosion(p.x, p.y);
         
         if (this.player.getForm() !== 'mecha') {
-          this.scene.events.emit('player_hit');
+          EventBus.emit('player_hit');
         }
       }
     });
@@ -132,9 +133,9 @@ export class CollisionManager {
         e.setVisible(false);
         
         if (this.player.getForm() === 'mecha') {
-          this.scene.events.emit('enemy_destroyed', GameConfig.Enemy.Points);
+          EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
         } else {
-          this.scene.events.emit('player_hit');
+          EventBus.emit('player_hit');
         }
       }
     });
@@ -144,7 +145,7 @@ export class CollisionManager {
       const b = (obj1 === this.player ? obj2 : obj1) as Boss;
       if (b.active && this.isPlayingGetter()) {
         if (this.player.getForm() !== 'mecha') {
-          this.scene.events.emit('player_hit');
+          EventBus.emit('player_hit');
         }
       }
     });
@@ -155,7 +156,7 @@ export class CollisionManager {
       if (container.active && this.isPlayingGetter()) {
         container.setActive(false);
         container.setVisible(false);
-        this.scene.events.emit('antimatter_collected');
+        EventBus.emit('antimatter_collected');
       }
     });
 
@@ -165,7 +166,7 @@ export class CollisionManager {
       if (powerUp.active && this.isPlayingGetter()) {
         powerUp.setActive(false);
         powerUp.setVisible(false);
-        this.scene.events.emit('powerup_collected', powerUp.type);
+        EventBus.emit('powerup_collected', powerUp.type);
       }
     });
   }

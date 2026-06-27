@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EventBus } from '../../services/EventBus';
 import { Player } from '../entities/Player';
 import { Boss } from '../entities/Boss';
 import { Enemy } from '../entities/Enemy';
@@ -38,21 +39,21 @@ export class GameController {
   }
 
   public setupEvents() {
-    this.scene.events.on('enemy_destroyed', (points: number) => this.handleEnemyDestroyed(points));
-    this.scene.events.on('boss_destroyed', () => this.handleVictory());
-    this.scene.events.on('antimatter_collected', () => this.handleAntimatterCollected());
-    this.scene.events.on('player_hit', () => this.handlePlayerDamage());
-    this.scene.events.on('powerup_collected', (type: string) => this.handlePowerUpCollected(type));
-    this.scene.events.on('transform_request', () => this.handleTransformRequest());
+    EventBus.on('enemy_destroyed', (points: number) => this.handleEnemyDestroyed(points));
+    EventBus.on('boss_destroyed', () => this.handleVictory());
+    EventBus.on('antimatter_collected', () => this.handleAntimatterCollected());
+    EventBus.on('player_hit', () => this.handlePlayerDamage());
+    EventBus.on('powerup_collected', (type: string) => this.handlePowerUpCollected(type));
+    EventBus.on('transform_request', () => this.handleTransformRequest());
   }
 
   public destroy() {
-    this.scene.events.off('enemy_destroyed');
-    this.scene.events.off('boss_destroyed');
-    this.scene.events.off('antimatter_collected');
-    this.scene.events.off('player_hit');
-    this.scene.events.off('powerup_collected');
-    this.scene.events.off('transform_request');
+    EventBus.off('enemy_destroyed');
+    EventBus.off('boss_destroyed');
+    EventBus.off('antimatter_collected');
+    EventBus.off('player_hit');
+    EventBus.off('powerup_collected');
+    EventBus.off('transform_request');
   }
 
   public handleBossPhase(width: number) {
@@ -107,7 +108,8 @@ export class GameController {
         this.scene.sound.play('pew', { volume: 0.5, rate: 2 });
       }
     } else if (type === 'weapon') {
-      this.player.weaponLevel = Math.min(this.player.weaponLevel + 1, 4);
+      state.upgradeWeapon();
+      this.player.weaponLevel = state.weaponLevel;
       if (localStorage.getItem('soundEnabled') !== 'false') {
         this.scene.sound.play('pew', { volume: 0.5, rate: 1.5 });
       }

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Player } from '../entities/Player';
+import { EventBus } from '../../services/EventBus';
 
 export class InputManager {
   private scene: Phaser.Scene;
@@ -23,11 +24,11 @@ export class InputManager {
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (!this.isActive) return;
       if (pointer.rightButtonDown()) {
-        this.scene.events.emit('transform_request');
+        EventBus.emit('transform_request');
       } else {
         const currentTime = this.scene.time.now;
         if (currentTime - this.lastTapTime < 300) {
-          this.scene.events.emit('transform_request');
+          EventBus.emit('transform_request');
         }
         this.lastTapTime = currentTime;
         this.player.x = pointer.x;

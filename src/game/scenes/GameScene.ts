@@ -111,7 +111,11 @@ export class GameScene extends Phaser.Scene {
       this.entitySpawner.spawnAAGun(time);
     }
 
-    const modifier = this.levelManager.getCurrentSpawnModifier();
-    this.entitySpawner.update(time, this.gameController.getIsPlaying(), modifier);
+    const baseModifier = this.levelManager.getCurrentSpawnModifier();
+    // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)
+    const scoreModifier = Math.max(0.3, 1 - Math.floor(this.gameController.getScore() / 1000) * 0.05);
+    const finalModifier = baseModifier * scoreModifier;
+
+    this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier);
   }
 }

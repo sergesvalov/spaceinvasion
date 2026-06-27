@@ -3,10 +3,12 @@ import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
 
+import { GameState } from '../../services/GameState';
+
 export type PlayerForm = 'fighter' | 'mecha';
 
 export class Player extends Phaser.GameObjects.Container {
-  public weaponLevel: number = 1;
+  public weaponLevel: number;
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
   private shieldGraphics: Phaser.GameObjects.Graphics;
@@ -17,6 +19,8 @@ export class Player extends Phaser.GameObjects.Container {
     super(scene, x, y);
     scene.add.existing(this);
     
+    this.weaponLevel = GameState.getInstance().weaponLevel;
+
     // We add an arcade physics body to the container
     scene.physics.add.existing(this);
     const body = this.body as Phaser.Physics.Arcade.Body;
