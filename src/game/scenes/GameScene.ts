@@ -20,6 +20,7 @@ export class GameScene extends Phaser.Scene {
   
   private isPlaying: boolean = false;
   private currentLevel: number = 1;
+  private isInvulnerable: boolean = false;
   
   private score: number = 0;
   private health: number = 3;
@@ -155,7 +156,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handlePlayerDamage() {
+    if (this.isInvulnerable) return;
     this.health -= 1;
+    this.isInvulnerable = true;
     
     const state = GameState.getInstance();
     state.setHp(this.health);
@@ -163,7 +166,10 @@ export class GameScene extends Phaser.Scene {
     
     this.cameras.main.shake(200, 0.01);
     this.cameras.main.flash(200, 255, 0, 0);
-    this.sound.play('explosion');
+    
+    if (localStorage.getItem('soundEnabled') !== 'false') {
+      this.sound.play('pew', { volume: 0.5, rate: 0.2 });
+    }
     
     if (window.Telegram?.WebApp?.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
@@ -184,6 +190,14 @@ export class GameScene extends Phaser.Scene {
         this.destroyScene();
         this.scene.start('GameOverScene');
       }, 2000);
+    } else {
+      this.player.setAlpha(0.5);
+      this.time.delayedCall(1000, () => {
+        if (this.isPlaying) {
+          this.player.setAlpha(1);
+        }
+        this.isInvulnerable = false;
+      });
     }
   }
 
