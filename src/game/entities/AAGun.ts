@@ -4,12 +4,12 @@ import { Boss } from './Boss';
 import { AAGunProjectile } from './AAGunProjectile';
 import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
+import { EntityManager } from '../managers/EntityManager';
 
 export class AAGun extends BaseEntity {
   private lastFired: number = 0;
-  private enemyGroup!: Phaser.Physics.Arcade.Group;
+  private entityManager!: EntityManager;
   private boss!: Boss;
-  private projectileGroup!: Phaser.Physics.Arcade.Group;
   private fireRateMs: number = GameConfig.AAGun.FireRate;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -26,10 +26,9 @@ export class AAGun extends BaseEntity {
     }
   }
 
-  setReferences(enemyGroup: Phaser.Physics.Arcade.Group, boss: Boss, projectileGroup: Phaser.Physics.Arcade.Group) {
-    this.enemyGroup = enemyGroup;
+  setReferences(entityManager: EntityManager, boss: Boss) {
+    this.entityManager = entityManager;
     this.boss = boss;
-    this.projectileGroup = projectileGroup;
   }
 
   spawn(x: number, y: number, scrollSpeed: number) {
@@ -65,7 +64,7 @@ export class AAGun extends BaseEntity {
     let target: Phaser.GameObjects.Sprite | null = null;
 
     // Check enemies
-    this.enemyGroup.getChildren().forEach((child) => {
+    this.entityManager.enemies.getChildren().forEach((child) => {
       const enemy = child as Enemy;
       if (enemy.active) {
         const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
@@ -77,7 +76,7 @@ export class AAGun extends BaseEntity {
     });
 
     // Check boss
-    if (this.boss.active) {
+    if (this.boss && this.boss.active) {
       const dist = Phaser.Math.Distance.Between(this.x, this.y, this.boss.x, this.boss.y);
       if (dist < nearestDist && dist < 800) {
         nearestDist = dist;
@@ -88,7 +87,7 @@ export class AAGun extends BaseEntity {
     if (target) {
       this.lastFired = time;
       
-      const proj = this.projectileGroup.get() as AAGunProjectile;
+      const proj = this.entityManager.getAAGunProjectile();
       if (proj) {
         proj.fire(this.x, this.y - 20, 0, GameConfig.AAGun.Damage); // Fire upwards initially, then correct velocity
         
@@ -102,11 +101,6 @@ export class AAGun extends BaseEntity {
         if (body) {
           body.setVelocity(vx, vy);
         }
-        
-        // Optional: play sound
-        // if (localStorage.getItem('soundEnabled') !== 'false') {
-        //   this.scene.sound.play('pew', { volume: 0.1 });
-        // }
       }
     }
   }

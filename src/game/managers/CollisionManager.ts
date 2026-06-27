@@ -5,51 +5,34 @@ import { Boss } from '../entities/Boss';
 import { BaseProjectile } from '../entities/BaseProjectile';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { GameConfig } from '../config/GameConfig';
-
-export interface CollisionCallbacks {
-  onEnemyDestroyed: (points: number) => void;
-  onBossDestroyed: () => void;
-  onPlayerHit: () => void;
-  onAntimatterCollected: () => void;
-  getIsPlaying: () => boolean;
-}
+import { EntityManager } from './EntityManager';
 
 export class CollisionManager {
   private scene: Phaser.Scene;
   private player: Player;
   private boss: Boss;
-  private projectiles: Phaser.Physics.Arcade.Group;
-  private aaProjectiles: Phaser.Physics.Arcade.Group;
-  private enemies: Phaser.Physics.Arcade.Group;
-  private enemyProjectiles: Phaser.Physics.Arcade.Group;
-  private antimatterContainers: Phaser.Physics.Arcade.Group;
-  private callbacks: CollisionCallbacks;
+  private entityManager: EntityManager;
+  private isPlayingGetter: () => boolean;
 
   constructor(
     scene: Phaser.Scene,
     player: Player,
     boss: Boss,
-    projectiles: Phaser.Physics.Arcade.Group,
-    aaProjectiles: Phaser.Physics.Arcade.Group,
-    enemies: Phaser.Physics.Arcade.Group,
-    enemyProjectiles: Phaser.Physics.Arcade.Group,
-    antimatterContainers: Phaser.Physics.Arcade.Group,
-    callbacks: CollisionCallbacks
+    entityManager: EntityManager,
+    isPlayingGetter: () => boolean
   ) {
     this.scene = scene;
     this.player = player;
     this.boss = boss;
-    this.projectiles = projectiles;
-    this.aaProjectiles = aaProjectiles;
-    this.enemies = enemies;
-    this.enemyProjectiles = enemyProjectiles;
-    this.antimatterContainers = antimatterContainers;
-    this.callbacks = callbacks;
+    this.entityManager = entityManager;
+    this.isPlayingGetter = isPlayingGetter;
   }
 
   public setupCollisions() {
+    const { projectiles, enemies, boss, aaProjectiles, enemyProjectiles, antimatterContainers } = this.entityManager;
+
     // Player Projectile vs Enemy
-    this.scene.physics.add.overlap(this.projectiles, this.enemies, (proj, enemy) => {
+    this.scene.physics.add.overlap(projectiles, enemies, (proj, enemy) => {
       const p = proj as BaseProjectile;
       const e = enemy as Enemy;
       
@@ -60,10 +43,10 @@ export class CollisionManager {
         const destroyed = e.takeDamage(p.damage);
         
         if (destroyed) {
-          this.callbacks.onEnemyDestroyed(GameConfig.Enemy.Points);
+          this.scene.events.emit('enemy_destroyed', GameConfig.Enemy.Points);
 
           if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
-            const container = this.antimatterContainers.get() as AntimatterContainer;
+            const container = this.entityManager.getAntimatterContainer();
             if (container) {
               container.spawn(e.x, e.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
             }
@@ -73,7 +56,7 @@ export class CollisionManager {
     });
 
     // Player Projectile vs Boss
-    this.scene.physics.add.overlap(this.projectiles, this.boss, (proj, b) => {
+    this.scene.physics.add.overlap(projectiles, this.boss, (proj, b) => {
       const p = proj as BaseProjectile;
       const bossObj = b as Boss;
       
@@ -85,7 +68,7 @@ export class CollisionManager {
         
         if (destroyed) {
           for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
-            const container = this.antimatterContainers.get() as AntimatterContainer;
+            const container = this.entityManager.getAntimatterContainer();
             if (container) {
               const vx = Phaser.Math.Between(-100, 100);
               const vy = Phaser.Math.Between(-50, 50);
@@ -93,12 +76,13 @@ export class CollisionManager {
             }
           }
 
-          this.callbacks.onBossDestroyed();
+          this.scene.events.emit('boss_destroyed');
         }
       }
     });
 
-    this.scene.physics.add.overlap(this.aaProjectiles, this.enemies, (proj, enemy) => {
+    // AA Projectile vs Enemy
+    this.scene.physics.add.overlap(aaProjectiles, enemies, (proj, enemy) => {
       const p = proj as BaseProjectile;
       const e = enemy as Enemy;
       if (p.active && e.active) {
@@ -106,12 +90,13 @@ export class CollisionManager {
         p.setVisible(false);
         const destroyed = e.takeDamage(p.damage);
         if (destroyed) {
-          this.callbacks.onEnemyDestroyed(GameConfig.Enemy.Points);
+          this.scene.events.emit('enemy_destroyed', GameConfig.Enemy.Points);
         }
       }
     });
 
-    this.scene.physics.add.overlap(this.aaProjectiles, this.boss, (proj, b) => {
+    // AA Projectile vs Boss
+    this.scene.physics.add.overlap(aaProjectiles, this.boss, (proj, b) => {
       const p = proj as BaseProjectile;
       const bossObj = b as Boss;
       if (p.active && bossObj.active) {
@@ -119,47 +104,47 @@ export class CollisionManager {
         p.setVisible(false);
         const destroyed = bossObj.takeDamage(p.damage);
         if (destroyed) {
-          this.callbacks.onBossDestroyed();
+          this.scene.events.emit('boss_destroyed');
         }
       }
     });
 
     // Enemy Projectile vs Player
-    this.scene.physics.add.overlap(this.enemyProjectiles, this.player, (obj1, obj2) => {
+    this.scene.physics.add.overlap(enemyProjectiles, this.player, (obj1, obj2) => {
       const p = (obj1 === this.player ? obj2 : obj1) as BaseProjectile;
-      if (p.active && this.callbacks.getIsPlaying()) {
+      if (p.active && this.isPlayingGetter()) {
         p.setActive(false);
         p.setVisible(false);
-        this.callbacks.onPlayerHit();
+        this.scene.events.emit('player_hit');
       }
     });
 
     // Enemy vs Player
-    this.scene.physics.add.overlap(this.enemies, this.player, (obj1, obj2) => {
+    this.scene.physics.add.overlap(enemies, this.player, (obj1, obj2) => {
       const e = (obj1 === this.player ? obj2 : obj1) as Enemy;
-      if (e.active && this.callbacks.getIsPlaying()) {
+      if (e.active && this.isPlayingGetter()) {
         this.createExplosion(e.x, e.y);
         e.setActive(false);
         e.setVisible(false);
-        this.callbacks.onPlayerHit();
+        this.scene.events.emit('player_hit');
       }
     });
 
     // Boss vs Player
     this.scene.physics.add.overlap(this.boss, this.player, (obj1, obj2) => {
       const b = (obj1 === this.player ? obj2 : obj1) as Boss;
-      if (b.active && this.callbacks.getIsPlaying()) {
-        this.callbacks.onPlayerHit();
+      if (b.active && this.isPlayingGetter()) {
+        this.scene.events.emit('player_hit');
       }
     });
 
     // Player vs AntimatterContainer
-    this.scene.physics.add.overlap(this.player, this.antimatterContainers, (obj1, obj2) => {
+    this.scene.physics.add.overlap(this.player, antimatterContainers, (obj1, obj2) => {
       const container = (obj1 === this.player ? obj2 : obj1) as AntimatterContainer;
-      if (container.active && this.callbacks.getIsPlaying()) {
+      if (container.active && this.isPlayingGetter()) {
         container.setActive(false);
         container.setVisible(false);
-        this.callbacks.onAntimatterCollected();
+        this.scene.events.emit('antimatter_collected');
       }
     });
   }

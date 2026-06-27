@@ -2,11 +2,8 @@ import Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Projectile } from '../entities/Projectile';
 import { Enemy } from '../entities/Enemy';
-import { EnemyProjectile } from '../entities/EnemyProjectile';
 import { Boss } from '../entities/Boss';
-import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { AAGun } from '../entities/AAGun';
-import { AAGunProjectile } from '../entities/AAGunProjectile';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
@@ -15,17 +12,13 @@ import { InputManager } from '../managers/InputManager';
 import { CollisionManager } from '../managers/CollisionManager';
 import { EnemySpawner } from '../managers/EnemySpawner';
 import { LevelManager } from '../managers/LevelManager';
+import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
-  private projectiles!: Phaser.Physics.Arcade.Group;
-  private enemies!: Phaser.Physics.Arcade.Group;
-  private enemyProjectiles!: Phaser.Physics.Arcade.Group;
-  private antimatterContainers!: Phaser.Physics.Arcade.Group;
-  private aaProjectiles!: Phaser.Physics.Arcade.Group;
-  private aaGuns!: Phaser.Physics.Arcade.Group;
   private boss!: Boss;
+  private entityManager!: EntityManager;
   
   private isPlaying: boolean = false;
   private lastAAGunSpawnTime: number = 0;
@@ -59,49 +52,16 @@ export class GameScene extends Phaser.Scene {
 
     this.player = new Player(this, width / 2, height - 100);
 
-    this.projectiles = this.physics.add.group({
-      classType: Projectile,
-      maxSize: 50,
-      runChildUpdate: true
-    });
-
-    this.enemies = this.physics.add.group({
-      classType: Enemy,
-      maxSize: 20,
-      runChildUpdate: true
-    });
-
-    this.enemyProjectiles = this.physics.add.group({
-      classType: EnemyProjectile,
-      maxSize: 50,
-      runChildUpdate: true
-    });
-
-    this.antimatterContainers = this.physics.add.group({
-      classType: AntimatterContainer,
-      maxSize: 50,
-      runChildUpdate: true
-    });
-
-    this.aaProjectiles = this.physics.add.group({
-      classType: AAGunProjectile,
-      maxSize: 100,
-      runChildUpdate: true
-    });
-
-    this.aaGuns = this.physics.add.group({
-      classType: AAGun,
-      maxSize: 10,
-      runChildUpdate: true
-    });
+    // Initialize EntityManager
+    this.entityManager = new EntityManager(this);
 
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
-    this.enemySpawner = new EnemySpawner(this, this.enemies, this.enemyProjectiles);
+    this.enemySpawner = new EnemySpawner(this, this.entityManager);
 
-    this.boss = new Boss(this, width / 2, -200, this.enemyProjectiles, (x, y) => {
-      const enemy = this.enemies.get() as Enemy;
+    this.boss = new Boss(this, width / 2, -200, this.entityManager.enemyProjectiles, (x, y) => {
+      const enemy = this.entityManager.getEnemy();
       if (enemy) enemy.spawn(x, y);
     });
     this.boss.setActive(false).setVisible(false);
@@ -110,26 +70,25 @@ export class GameScene extends Phaser.Scene {
       this,
       this.player,
       this.boss,
-      this.projectiles,
-      this.aaProjectiles,
-      this.enemies,
-      this.enemyProjectiles,
-      this.antimatterContainers,
-      {
-        onEnemyDestroyed: (points) => {
-          this.score += points;
-          this.hudManager.update(this.score, this.health, this.antimatter);
-        },
-        onBossDestroyed: () => this.handleVictory(),
-        onAntimatterCollected: () => {
-          this.antimatter += 1;
-          this.hudManager.update(this.score, this.health, this.antimatter);
-        },
-        onPlayerHit: () => this.handlePlayerDamage(),
-        getIsPlaying: () => this.isPlaying
-      }
+      this.entityManager,
+      () => this.isPlaying
     );
     this.collisionManager.setupCollisions();
+
+    // Event Listeners for Collisions
+    this.events.on('enemy_destroyed', (points: number) => {
+      this.score += points;
+      this.hudManager.update(this.score, this.health, this.antimatter);
+    });
+
+    this.events.on('boss_destroyed', () => this.handleVictory());
+
+    this.events.on('antimatter_collected', () => {
+      this.antimatter += 1;
+      this.hudManager.update(this.score, this.health, this.antimatter);
+    });
+
+    this.events.on('player_hit', () => this.handlePlayerDamage());
 
     // Setup Level Progression
     this.levelManager = new LevelManager(
@@ -180,6 +139,10 @@ export class GameScene extends Phaser.Scene {
       // Go back to Menu
       setTimeout(() => {
         this.hudManager.destroy();
+        this.events.off('enemy_destroyed');
+        this.events.off('boss_destroyed');
+        this.events.off('antimatter_collected');
+        this.events.off('player_hit');
         this.scene.start('MenuScene');
       }, 2000);
     }
@@ -194,7 +157,7 @@ export class GameScene extends Phaser.Scene {
     this.inputManager.isActive = false;
     
     // Destroy all enemies
-    this.enemies.children.iterate((c) => {
+    this.entityManager.enemies.children.iterate((c) => {
       const e = c as Enemy;
       if (e.active) {
         // Create explosion
@@ -223,6 +186,10 @@ export class GameScene extends Phaser.Scene {
 
     setTimeout(() => {
       this.hudManager.destroy();
+      this.events.off('enemy_destroyed');
+      this.events.off('boss_destroyed');
+      this.events.off('antimatter_collected');
+      this.events.off('player_hit');
       this.scene.start('MenuScene');
     }, 4000);
   }
@@ -249,10 +216,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnAAGun() {
-    const gun = this.aaGuns.get() as AAGun;
+    const gun = this.entityManager.getAAGun();
     if (gun) {
       // It needs references before it can shoot
-      gun.setReferences(this.enemies, this.boss, this.aaProjectiles);
+      gun.setReferences(this.entityManager, this.boss);
       // Spawn slightly offscreen top
       const x = Phaser.Math.Between(100, this.scale.width - 100);
       gun.spawn(x, -100, 500); // 500 is matching background scroll speed
@@ -268,12 +235,12 @@ export class GameScene extends Phaser.Scene {
     const damage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
 
     if (isMecha) {
-      const proj1 = this.projectiles.get() as Projectile;
-      const proj2 = this.projectiles.get() as Projectile;
+      const proj1 = this.entityManager.getProjectile();
+      const proj2 = this.entityManager.getProjectile();
       if (proj1) proj1.fire(this.player.x - 10, this.player.y, -400, damage);
       if (proj2) proj2.fire(this.player.x + 10, this.player.y, -400, damage);
     } else {
-      const proj = this.projectiles.get() as Projectile;
+      const proj = this.entityManager.getProjectile();
       if (proj) proj.fire(this.player.x, this.player.y - 20, -600, damage);
     }
   }
