@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-export type PowerUpType = 'health' | 'weapon';
+export type PowerUpType = 'health' | 'weapon' | 'spread' | 'homing';
 
 export class PowerUp extends Phaser.Physics.Arcade.Sprite {
   public type: PowerUpType;
@@ -24,6 +24,11 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
   spawn(x: number, y: number, type: PowerUpType) {
     this.type = type;
     this.setTexture(type === 'health' ? 'powerup_health' : 'powerup_weapon');
+    
+    this.clearTint();
+    if (type === 'spread') this.setTint(0xffaa00);
+    if (type === 'homing') this.setTint(0x00aaff);
+
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);

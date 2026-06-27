@@ -52,7 +52,12 @@ export class EntitySpawner {
       const powerUp = this.entityManager.getPowerUp();
       if (powerUp) {
         const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
-        const type = Phaser.Math.FloatBetween(0, 1) > 0.5 ? 'health' : 'weapon';
+        const rand = Phaser.Math.FloatBetween(0, 1);
+        let type: any = 'weapon';
+        if (rand < 0.2) type = 'spread';
+        else if (rand < 0.4) type = 'homing';
+        else if (rand < 0.7) type = 'health';
+        
         powerUp.spawn(x, -50, type);
       }
     }

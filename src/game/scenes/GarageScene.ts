@@ -6,12 +6,22 @@ export class GarageScene extends Phaser.Scene {
   private hpText!: Phaser.GameObjects.Text;
   private antimatterText!: Phaser.GameObjects.Text;
   private shieldsText!: Phaser.GameObjects.Text;
+  private bombsText!: Phaser.GameObjects.Text;
+  private weaponText!: Phaser.GameObjects.Text;
+  private droneText!: Phaser.GameObjects.Text;
+  
   private repairBtnText!: Phaser.GameObjects.Text;
   private buyShieldBtnText!: Phaser.GameObjects.Text;
+  private buyBombBtnText!: Phaser.GameObjects.Text;
+  private buyDroneBtnText!: Phaser.GameObjects.Text;
+  private switchWeaponBtnText!: Phaser.GameObjects.Text;
+  
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   
   private REPAIR_COST = 500;
-  private SHIELD_COST = 2;
+  private SHIELD_COST = 2; // Antimatter
+  private BOMB_COST = 1000; // Credits
+  private DRONE_COST = 5; // Antimatter
 
   constructor() {
     super({ key: 'GarageScene' });
@@ -30,21 +40,26 @@ export class GarageScene extends Phaser.Scene {
     bg.setTint(0x888888);
 
     // Title
-    this.add.text(width / 2, 60, 'GARAGE', {
-      fontSize: '56px',
+    this.add.text(width / 2, 40, 'GARAGE', {
+      fontSize: '48px',
       color: '#00ffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
     // Stats
-    this.antimatterText = this.add.text(width / 2, 20, '', { fontSize: '24px', color: '#ffaa00' }).setOrigin(0.5);
-    this.creditsText = this.add.text(width / 2, 120, '', { fontSize: '28px', color: '#ffff00' }).setOrigin(0.5);
-    this.hpText = this.add.text(width / 2, 160, '', { fontSize: '28px', color: '#ff0044' }).setOrigin(0.5);
-    this.shieldsText = this.add.text(width / 2, 200, '', { fontSize: '28px', color: '#00ccff' }).setOrigin(0.5);
+    const statsY = 80;
+    const spacing = 30;
+    this.antimatterText = this.add.text(width / 2, statsY, '', { fontSize: '20px', color: '#ffaa00' }).setOrigin(0.5);
+    this.creditsText = this.add.text(width / 2, statsY + spacing, '', { fontSize: '20px', color: '#ffff00' }).setOrigin(0.5);
+    this.hpText = this.add.text(width / 2, statsY + spacing * 2, '', { fontSize: '20px', color: '#ff0044' }).setOrigin(0.5);
+    this.shieldsText = this.add.text(width / 2, statsY + spacing * 3, '', { fontSize: '20px', color: '#00ccff' }).setOrigin(0.5);
+    this.bombsText = this.add.text(width / 2, statsY + spacing * 4, '', { fontSize: '20px', color: '#ff5500' }).setOrigin(0.5);
+    this.weaponText = this.add.text(width / 2, statsY + spacing * 5, '', { fontSize: '20px', color: '#ffffff' }).setOrigin(0.5);
+    this.droneText = this.add.text(width / 2, statsY + spacing * 6, '', { fontSize: '20px', color: '#aaffaa' }).setOrigin(0.5);
 
     // Back Button
-    const backBtn = this.add.text(width / 2, height - 50, '[ BACK TO MENU ]', {
-      fontSize: '32px',
+    const backBtn = this.add.text(width / 2, height - 30, '[ BACK TO MENU ]', {
+      fontSize: '28px',
       color: '#ffffff'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     
@@ -54,29 +69,38 @@ export class GarageScene extends Phaser.Scene {
     backBtn.on('pointerover', () => backBtn.setColor('#ffaa00'));
     backBtn.on('pointerout', () => backBtn.setColor('#ffffff'));
 
-    // Repair Button
-    this.repairBtnText = this.add.text(width / 2, height - 130, '', {
-      fontSize: '26px',
-      color: '#00ff00',
-      backgroundColor: '#004400',
-      padding: { x: 20, y: 15 }
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    // Buttons Layout
+    const btnStartX = width / 2;
+    let btnY = height - 340;
+    const btnGap = 60;
 
-    this.repairBtnText.on('pointerdown', () => this.handleRepair());
-    this.repairBtnText.on('pointerover', () => this.repairBtnText.setBackgroundColor('#006600'));
-    this.repairBtnText.on('pointerout', () => this.repairBtnText.setBackgroundColor('#004400'));
+    const createBtn = (yPos: number, defaultBg: string, hoverBg: string, onClick: () => void) => {
+      const btn = this.add.text(btnStartX, yPos, '', {
+        fontSize: '22px',
+        color: '#ffffff',
+        backgroundColor: defaultBg,
+        padding: { x: 15, y: 10 }
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Buy Shield Button
-    this.buyShieldBtnText = this.add.text(width / 2, height - 200, '', {
-      fontSize: '26px',
-      color: '#00ccff',
-      backgroundColor: '#004466',
-      padding: { x: 20, y: 15 }
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      btn.on('pointerdown', onClick);
+      btn.on('pointerover', () => btn.setBackgroundColor(hoverBg));
+      btn.on('pointerout', () => btn.setBackgroundColor(defaultBg));
+      return btn;
+    };
 
-    this.buyShieldBtnText.on('pointerdown', () => this.handleBuyShield());
-    this.buyShieldBtnText.on('pointerover', () => this.buyShieldBtnText.setBackgroundColor('#006688'));
-    this.buyShieldBtnText.on('pointerout', () => this.buyShieldBtnText.setBackgroundColor('#004466'));
+    this.switchWeaponBtnText = createBtn(btnY, '#444444', '#666666', () => this.handleSwitchWeapon());
+    btnY += btnGap;
+    
+    this.buyBombBtnText = createBtn(btnY, '#552200', '#773300', () => this.handleBuyBomb());
+    btnY += btnGap;
+
+    this.buyShieldBtnText = createBtn(btnY, '#004466', '#006688', () => this.handleBuyShield());
+    btnY += btnGap;
+
+    this.buyDroneBtnText = createBtn(btnY, '#225522', '#337733', () => this.handleBuyDrone());
+    btnY += btnGap;
+
+    this.repairBtnText = createBtn(btnY, '#004400', '#006600', () => this.handleRepair());
 
     // Sparks Emitter for damage
     this.sparksEmitter = this.add.particles(width / 2, height / 2, 'particle', {
@@ -118,21 +142,61 @@ export class GarageScene extends Phaser.Scene {
     }
   }
 
+  private handleBuyBomb() {
+    const state = GameState.getInstance();
+    if (state.credits >= this.BOMB_COST) {
+      state.spendCredits(this.BOMB_COST);
+      state.addBomb(1);
+      this.triggerHaptic('light');
+      this.updateUI();
+    } else {
+      this.triggerHaptic('error');
+      this.cameras.main.flash(200, 255, 0, 0);
+    }
+  }
+
+  private handleBuyDrone() {
+    const state = GameState.getInstance();
+    if (!state.hasDrone && state.antimatter >= this.DRONE_COST) {
+      state.spendAntimatter(this.DRONE_COST);
+      state.setHasDrone(true);
+      this.triggerHaptic('light');
+      this.updateUI();
+    } else {
+      this.triggerHaptic('error');
+      this.cameras.main.flash(200, 255, 0, 0);
+    }
+  }
+
+  private handleSwitchWeapon() {
+    const state = GameState.getInstance();
+    const weapons: Array<'plasma' | 'ion' | 'wave'> = ['plasma', 'ion', 'wave'];
+    const currentIndex = weapons.indexOf(state.equippedWeapon);
+    const nextIndex = (currentIndex + 1) % weapons.length;
+    state.setEquippedWeapon(weapons[nextIndex]);
+    this.triggerHaptic('light');
+    this.updateUI();
+  }
+
+  private triggerHaptic(type: 'light' | 'error') {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      if (type === 'light') {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      } else {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+      }
+    }
+  }
+
   private handleBuyShield() {
     const state = GameState.getInstance();
     if (state.antimatter >= this.SHIELD_COST) {
       state.spendAntimatter(this.SHIELD_COST);
       state.addShield(1);
-      
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      }
-
+      this.triggerHaptic('light');
       this.updateUI();
     } else {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
+      this.triggerHaptic('error');
       this.cameras.main.flash(200, 255, 0, 0);
     }
   }
@@ -144,6 +208,25 @@ export class GarageScene extends Phaser.Scene {
     this.creditsText.setText(`CREDITS: ${state.credits}`);
     this.hpText.setText(`SHIP HP: ${state.currentHp} / ${state.maxHp}`);
     this.shieldsText.setText(`SHIELDS: ${state.shields}`);
+    this.bombsText.setText(`BOMBS: ${state.bombs}`);
+    this.weaponText.setText(`WEAPON: ${state.equippedWeapon.toUpperCase()}`);
+    this.droneText.setText(`DRONE: ${state.hasDrone ? 'EQUIPPED' : 'NONE'}`);
+
+    this.switchWeaponBtnText.setText(`SWITCH WEAPON: ${state.equippedWeapon.toUpperCase()}`);
+    this.switchWeaponBtnText.setColor('#ffffff');
+
+    this.buyBombBtnText.setText(`BUY BOMB (COST: ${this.BOMB_COST} CR)`);
+    this.buyBombBtnText.setColor(state.credits >= this.BOMB_COST ? '#ffaa00' : '#ff0000');
+    
+    if (state.hasDrone) {
+      this.buyDroneBtnText.setText('DRONE EQUIPPED');
+      this.buyDroneBtnText.setColor('#888888');
+      this.buyDroneBtnText.setBackgroundColor('#222222');
+    } else {
+      this.buyDroneBtnText.setText(`BUY DRONE (COST: ${this.DRONE_COST} AM)`);
+      this.buyDroneBtnText.setColor(state.antimatter >= this.DRONE_COST ? '#aaffaa' : '#ff0000');
+      this.buyDroneBtnText.setBackgroundColor('#225522');
+    }
 
     this.buyShieldBtnText.setText(`BUY SHIELD (COST: ${this.SHIELD_COST} AM)`);
     this.buyShieldBtnText.setColor(state.antimatter >= this.SHIELD_COST ? '#00ffff' : '#ff0000');

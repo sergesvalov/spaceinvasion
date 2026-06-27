@@ -17,6 +17,9 @@ export class Player extends Phaser.GameObjects.Container {
   
   private purchasedShieldActive: boolean = false;
   private purchasedShieldGraphics!: Phaser.GameObjects.Graphics;
+  
+  private tempWeapon: 'spread' | 'homing' | null = null;
+  private tempWeaponTimerEvent?: Phaser.Time.TimerEvent;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -176,11 +179,28 @@ export class Player extends Phaser.GameObjects.Container {
     return this.purchasedShieldActive || this.form === 'mecha';
   }
   
+  public setTempWeapon(type: 'spread' | 'homing', duration: number) {
+    this.tempWeapon = type;
+    if (this.tempWeaponTimerEvent) {
+      this.tempWeaponTimerEvent.destroy();
+    }
+    this.tempWeaponTimerEvent = this.scene.time.delayedCall(duration, () => {
+      this.tempWeapon = null;
+    });
+  }
+  
   public canFire(time: number): boolean {
+    const state = GameState.getInstance();
     let fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
     
+    if (state.equippedWeapon === 'ion') {
+      fireRate *= 2.5; 
+    } else if (state.equippedWeapon === 'wave') {
+      fireRate *= 1.5; 
+    }
+    
     if (this.weaponLevel >= 2) {
-      fireRate *= 0.5; // 50% faster fire rate (twice as fast) for upgraded weapons
+      fireRate *= 0.5; // 50% faster fire rate for upgraded weapons
     }
 
     if (time > this.lastFired + fireRate) {
@@ -240,40 +260,83 @@ export class Player extends Phaser.GameObjects.Container {
       this.scene.sound.play('pew', { volume: 0.3 });
     }
 
+    const state = GameState.getInstance();
+    let weaponClass = state.equippedWeapon as string;
+    if (this.tempWeapon) {
+      weaponClass = this.tempWeapon;
+    }
+
     const isMecha = this.getForm() === 'mecha';
-    const damage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
-    const speed = isMecha ? -400 : -600;
+    
+    let baseDamage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
+    let speed = isMecha ? -400 : -600;
+
+    if (weaponClass === 'ion') {
+      baseDamage *= 4;
+      speed *= 0.7; // slower projectile
+    } else if (weaponClass === 'wave') {
+      baseDamage *= 1.5;
+      speed *= 0.8;
+    }
 
     let lines = 1;
     if (isMecha || this.weaponLevel >= 3) {
       lines = 2;
     }
 
+    const fireProj = (x: number, y: number, vx: number, vy: number, target?: any) => {
+      const proj = entityManager.getProjectile() as any;
+      if (proj && typeof proj.fire === 'function') {
+        proj.fire(x, y, vy, baseDamage, weaponClass);
+        const body = proj.body as Phaser.Physics.Arcade.Body;
+        if (body) body.setVelocityX(vx);
+        if (target) proj.target = target;
+      }
+    };
+
+    if (weaponClass === 'spread') {
+      const angles = [-30, -15, 0, 15, 30];
+      angles.forEach(angle => {
+        const rad = Phaser.Math.DegToRad(angle - 90);
+        const vx = Math.cos(rad) * Math.abs(speed);
+        const vy = Math.sin(rad) * Math.abs(speed);
+        fireProj(this.x, this.y - 20, vx, vy);
+      });
+      return;
+    }
+
+    if (weaponClass === 'homing') {
+      // Find nearest enemy
+      let nearestDist = Infinity;
+      let nearestEnemy: any = null;
+      entityManager.enemies.children.iterate((c) => {
+        const e = c as any;
+        if (e.active) {
+          const dist = Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y);
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            nearestEnemy = e;
+          }
+        }
+        return true;
+      });
+      // Also check boss
+      // Not easily accessible here without a boss ref, but it's okay for homing to just hit normal enemies or just fire straight if none
+      fireProj(this.x, this.y - 20, 0, speed, nearestEnemy);
+      return;
+    }
+
     if (lines === 2) {
-      const proj1 = entityManager.getProjectile();
-      const proj2 = entityManager.getProjectile();
-      if (proj1) proj1.fire(this.x - 10, this.y, speed, damage);
-      if (proj2) proj2.fire(this.x + 10, this.y, speed, damage);
+      fireProj(this.x - 10, this.y, 0, speed);
+      fireProj(this.x + 10, this.y, 0, speed);
     } else {
-      const proj = entityManager.getProjectile();
-      if (proj) proj.fire(this.x, this.y - 20, speed, damage);
+      fireProj(this.x, this.y - 20, 0, speed);
     }
 
     if (this.weaponLevel >= 4) {
-      const projLeft = entityManager.getProjectile();
-      const projRight = entityManager.getProjectile();
       const diagSpeed = speed * 0.707;
-      
-      if (projLeft) {
-        projLeft.fire(this.x - 15, this.y, diagSpeed, damage);
-        const bodyLeft = projLeft.body as Phaser.Physics.Arcade.Body;
-        if (bodyLeft) bodyLeft.setVelocityX(speed * 0.707); // speed is negative, goes left
-      }
-      if (projRight) {
-        projRight.fire(this.x + 15, this.y, diagSpeed, damage);
-        const bodyRight = projRight.body as Phaser.Physics.Arcade.Body;
-        if (bodyRight) bodyRight.setVelocityX(-speed * 0.707); // goes right
-      }
+      fireProj(this.x - 15, this.y, speed * 0.707, diagSpeed); // Left (speed is negative, so vx < 0)
+      fireProj(this.x + 15, this.y, -speed * 0.707, diagSpeed); // Right
     }
   }
 }

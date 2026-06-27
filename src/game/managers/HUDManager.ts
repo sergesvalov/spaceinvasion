@@ -8,6 +8,7 @@ export class HUDManager {
   private healthContainerEl!: HTMLElement;
   private healthFillEl!: HTMLElement;
   private shieldBtnEl!: HTMLElement;
+  private bombBtnEl!: HTMLElement;
 
   public createHUD(initialHealth: number) {
     const uiContainer = document.getElementById('ui-container');
@@ -62,6 +63,30 @@ export class HUDManager {
 
     this.hudEl.appendChild(this.shieldBtnEl);
 
+    // Bomb Button
+    this.bombBtnEl = document.createElement('div');
+    this.bombBtnEl.className = 'hud-bomb-btn';
+    this.bombBtnEl.style.position = 'absolute';
+    this.bombBtnEl.style.bottom = '140px'; 
+    this.bombBtnEl.style.right = '20px';
+    this.bombBtnEl.style.padding = '15px 25px';
+    this.bombBtnEl.style.backgroundColor = 'rgba(255, 85, 0, 0.6)';
+    this.bombBtnEl.style.color = '#fff';
+    this.bombBtnEl.style.borderRadius = '8px';
+    this.bombBtnEl.style.cursor = 'pointer';
+    this.bombBtnEl.style.fontWeight = 'bold';
+    this.bombBtnEl.style.fontSize = '20px';
+    this.bombBtnEl.style.border = '2px solid #ff5500';
+    this.bombBtnEl.style.display = 'none';
+
+    this.bombBtnEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault(); 
+      EventBus.emit('bomb_request');
+    });
+
+    this.hudEl.appendChild(this.bombBtnEl);
+
     uiContainer.appendChild(this.hudEl);
     
     this.update(0, initialHealth, 0);
@@ -102,6 +127,12 @@ export class HUDManager {
       const shields = GameState.getInstance().shields;
       this.shieldBtnEl.textContent = `🛡️ SHIELD (${shields})`;
       this.shieldBtnEl.style.display = shields > 0 ? 'block' : 'none';
+    }
+
+    if (this.bombBtnEl) {
+      const bombs = GameState.getInstance().bombs;
+      this.bombBtnEl.textContent = `💣 BOMB (${bombs})`;
+      this.bombBtnEl.style.display = bombs > 0 ? 'block' : 'none';
     }
   }
 

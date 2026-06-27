@@ -8,6 +8,9 @@ export class GameState {
   private _weaponLevel: number = 1;
   private _antimatter: number = 0;
   private _shields: number = 0;
+  private _bombs: number = 0;
+  private _equippedWeapon: 'plasma' | 'ion' | 'wave' = 'plasma';
+  private _hasDrone: boolean = false;
 
   private constructor() {
     this.loadState();
@@ -43,6 +46,17 @@ export class GameState {
 
     const savedShields = localStorage.getItem('si_shields');
     if (savedShields) this._shields = parseInt(savedShields, 10);
+
+    const savedBombs = localStorage.getItem('si_bombs');
+    if (savedBombs) this._bombs = parseInt(savedBombs, 10);
+
+    const savedWeapon = localStorage.getItem('si_equipped_weapon');
+    if (savedWeapon === 'plasma' || savedWeapon === 'ion' || savedWeapon === 'wave') {
+      this._equippedWeapon = savedWeapon;
+    }
+
+    const savedDrone = localStorage.getItem('si_has_drone');
+    if (savedDrone === 'true') this._hasDrone = true;
   }
 
   private saveState() {
@@ -52,6 +66,9 @@ export class GameState {
     localStorage.setItem('si_base_weapon_level', this._baseWeaponLevel.toString());
     localStorage.setItem('si_antimatter', this._antimatter.toString());
     localStorage.setItem('si_shields', this._shields.toString());
+    localStorage.setItem('si_bombs', this._bombs.toString());
+    localStorage.setItem('si_equipped_weapon', this._equippedWeapon);
+    localStorage.setItem('si_has_drone', this._hasDrone.toString());
   }
 
   public get credits(): number {
@@ -106,6 +123,42 @@ export class GameState {
       return true;
     }
     return false;
+  }
+
+  public get bombs(): number {
+    return this._bombs;
+  }
+
+  public addBomb(amount: number) {
+    this._bombs += amount;
+    this.saveState();
+  }
+
+  public useBomb(): boolean {
+    if (this._bombs > 0) {
+      this._bombs -= 1;
+      this.saveState();
+      return true;
+    }
+    return false;
+  }
+
+  public get equippedWeapon(): 'plasma' | 'ion' | 'wave' {
+    return this._equippedWeapon;
+  }
+
+  public setEquippedWeapon(weapon: 'plasma' | 'ion' | 'wave') {
+    this._equippedWeapon = weapon;
+    this.saveState();
+  }
+
+  public get hasDrone(): boolean {
+    return this._hasDrone;
+  }
+
+  public setHasDrone(value: boolean) {
+    this._hasDrone = value;
+    this.saveState();
   }
 
   public get currentHp(): number {
