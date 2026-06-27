@@ -64,6 +64,19 @@ This document is designed to help any AI agent (or developer) quickly understand
    - Activated by double-tapping the screen or right-clicking.
 
 ## 🤖 AI Agent Guidelines
-- **Asset Generation**: Always ensure sprites have a transparent background (alpha channel), otherwise Phaser renders white/checkerboard boxes. You can use the provided `remove_bg.mjs` Node script via `Jimp` to strip white backgrounds from AI-generated images.
+
+### 🛠️ Script Creation & Utility Tools
+- **Directory Rule**: ALL utility scripts (like image processors, data parsers, test helpers) MUST be created inside the `tools/` directory. Do not clutter the project root.
+- **Rules & Usage**: Please refer to [tools/README.md](file:///c:/wndr/repo/spaceinvasion/tools/README.md) for strict guidelines on how to write, structure, and use utility scripts in this project.
+
+### 🎨 Asset Generation Workflow (Skins & Sprites)
+When the user asks to create a new skin, enemy, weapon, or other sprite, follow this exact workflow:
+1. **Use `generate_image` Tool**: When prompting the image generation tool, *always* append instructions for a solid white background (e.g., `"The background must be pure solid white, NO checkerboard patterns, NO grids, completely solid white background."`). The tool often bakes fake transparency checkerboards if you just ask for a "transparent background".
+2. **Process the Image**: Once generated, the image will be in the `.gemini` artifacts directory. Use the included `c:\wndr\repo\spaceinvasion\tools\remove_bg.mjs` Node script to strip the white background and save it to the `public/` directory. 
+   - Run: `node tools/remove_bg.mjs <input_path_from_artifact> <output_path_in_public>`
+   - This script uses `Jimp` to identify white pixels and make them transparent.
+3. **Load and Scale**: In `BootScene.ts`, load the new asset. In the respective entity class (e.g., `Player.ts`), apply `.setScale()` as AI-generated images are typically 1024x1024 and need to be scaled down significantly (e.g., `0.0686` or `0.132`).
+
+### ⚙️ General Best Practices
 - **File Edits**: When making edits to complex Phaser configurations or logic, prefer targeted `multi_replace_file_content` to preserve existing behaviors.
 - **UI Adjustments**: Remember that Phaser world coordinates and DOM pixel coordinates are separate. `HUDManager` operates in DOM space, while `Button.ts` operates in Canvas space.
