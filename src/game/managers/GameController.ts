@@ -38,6 +38,10 @@ export class GameController {
     this.isPlaying = playing;
   }
 
+  public getScore(): number {
+    return this.score;
+  }
+
   public setupEvents() {
     EventBus.on('enemy_destroyed', (points: number) => this.handleEnemyDestroyed(points));
     EventBus.on('boss_destroyed', () => this.handleVictory());
