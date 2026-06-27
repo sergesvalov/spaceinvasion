@@ -10,19 +10,12 @@ export class Autopilot {
   private scene: Phaser.Scene;
   private player: Player;
   private entityManager: EntityManager;
-  private boss: Boss;
   private isEnabled: boolean = false;
-  
-  private targetX: number;
-  private targetY: number;
 
-  constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager, boss: Boss) {
+  constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager, _boss: Boss) {
     this.scene = scene;
     this.player = player;
     this.entityManager = entityManager;
-    this.boss = boss;
-    this.targetX = player.x;
-    this.targetY = player.y;
   }
 
   public enable() {
@@ -30,7 +23,7 @@ export class Autopilot {
     console.log('[Autopilot] Engaged!');
   }
 
-  public update(time: number, delta: number) {
+  public update(_time: number, _delta: number) {
     if (!this.isEnabled) return;
 
     // Try to transform if we have antimatter
