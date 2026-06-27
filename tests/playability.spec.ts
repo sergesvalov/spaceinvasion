@@ -7,6 +7,9 @@ test.describe('Game Playability Test', () => {
 
     await page.goto('/');
 
+    // Перехватываем логи консоли браузера и выводим их в консоль тестраннера (Jenkins)
+    page.on('console', msg => console.log(`[Browser] ${msg.type()}: ${msg.text()}`));
+
     // Включаем тестовый режим
     await page.evaluate(() => {
       (window as any).__E2E_TEST_MODE__ = true;

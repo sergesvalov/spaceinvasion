@@ -61,6 +61,7 @@ export class GameController {
   }
 
   public handleBossPhase(width: number) {
+    console.log('[GameController] Boss phase started!');
     this.boss.spawn(width / 2, -100);
   }
 
@@ -141,6 +142,7 @@ export class GameController {
     }
 
     if (this.health <= 0) {
+      console.log('[GameController] Player defeated!');
       if (localStorage.getItem('soundEnabled') !== 'false') {
         this.scene.sound.play('explosion', { volume: 0.8 });
       }
@@ -172,6 +174,7 @@ export class GameController {
   }
 
   private handleVictory() {
+    console.log('[GameController] Boss destroyed! VICTORY!');
     this.isPlaying = false;
     this.inputManager.isActive = false;
     (window as any).__GAME_RESULT__ = 'VICTORY';
