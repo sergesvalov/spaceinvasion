@@ -22,20 +22,16 @@ export class GarageScene extends Phaser.Scene {
     // Darken background slightly to make UI pop
     bg.setTint(0x888888);
 
-    // Ship
-    const ship = this.add.image(width / 2, height / 2 + 50, 'ship_side');
-    ship.setScale(0.3); // Adjust as needed
-
     // Title
-    this.add.text(width / 2, 50, 'GARAGE', {
-      fontSize: '48px',
+    this.add.text(width / 2, 60, 'GARAGE', {
+      fontSize: '56px',
       color: '#00ffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
     // Stats
-    this.creditsText = this.add.text(20, 20, '', { fontSize: '24px', color: '#ffff00' });
-    this.hpText = this.add.text(20, 60, '', { fontSize: '24px', color: '#ff0044' });
+    this.creditsText = this.add.text(width / 2, 120, '', { fontSize: '28px', color: '#ffff00' }).setOrigin(0.5);
+    this.hpText = this.add.text(width / 2, 160, '', { fontSize: '28px', color: '#ff0044' }).setOrigin(0.5);
 
     // Back Button
     const backBtn = this.add.text(width / 2, height - 50, '[ BACK TO MENU ]', {
@@ -50,11 +46,11 @@ export class GarageScene extends Phaser.Scene {
     backBtn.on('pointerout', () => backBtn.setColor('#ffffff'));
 
     // Repair Button
-    this.repairBtnText = this.add.text(width / 2, height - 120, '', {
-      fontSize: '36px',
+    this.repairBtnText = this.add.text(width / 2, height - 130, '', {
+      fontSize: '26px',
       color: '#00ff00',
       backgroundColor: '#004400',
-      padding: { x: 20, y: 10 }
+      padding: { x: 20, y: 15 }
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     this.repairBtnText.on('pointerdown', () => this.handleRepair());
