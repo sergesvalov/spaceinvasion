@@ -57,6 +57,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bg_city', 'bg/city.png');
     this.load.image('bg_suburbs', 'bg/suburbs.png');
     this.load.image('bg_mountains', 'bg/mountains.png');
+    this.load.image('bg_anime_city', 'bg/anime_city.png');
   }
 
   create() {

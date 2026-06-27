@@ -20,6 +20,7 @@ export class GameScene extends Phaser.Scene {
   
   private isPlaying: boolean = false;
   private lastAAGunSpawnTime: number = 0;
+  private currentLevel: number = 1;
   
   private score: number = 0;
   private health: number = 3;
@@ -35,8 +36,12 @@ export class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
+  init(data?: { level?: number }) {
+    this.currentLevel = data?.level || 1;
+  }
+
   create() {
-    AnalyticsService.getInstance().levelStart('level_1');
+    AnalyticsService.getInstance().levelStart(`level_${this.currentLevel}`);
     
     // Always ensure player starts with maximum health for the level
     GameState.getInstance().setHp(GameState.getInstance().maxHp);
@@ -89,19 +94,25 @@ export class GameScene extends Phaser.Scene {
     this.events.on('player_hit', () => this.handlePlayerDamage());
 
     // Setup Level Progression
+    const levelPhases = this.currentLevel === 1 ? [
+      { textureKey: 'bg_city', duration: 20000, spawnRateModifier: 1.0 },
+      { textureKey: 'bg_suburbs', duration: 20000, spawnRateModifier: 0.8 },
+      { textureKey: 'bg_mountains', duration: 20000, spawnRateModifier: 0.5 }
+    ] : [
+      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.7 },
+      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.4 } // faster spawning
+    ];
+
     this.levelManager = new LevelManager(
       this,
-      [
-        { textureKey: 'bg_city', duration: 20000, spawnRateModifier: 1.0 },
-        { textureKey: 'bg_suburbs', duration: 20000, spawnRateModifier: 0.8 },
-        { textureKey: 'bg_mountains', duration: 20000, spawnRateModifier: 0.5 }
-      ],
+      levelPhases,
       () => this.handleBossPhase()
     );
     this.levelManager.setupBackgrounds();
 
     // Start briefing
-    StoryManager.getInstance().showBriefing('level_1', () => {
+    const storyId = `level_${this.currentLevel}`;
+    StoryManager.getInstance().showBriefing(storyId, () => {
       this.isPlaying = true;
       this.inputManager.isActive = true;
       this.hudManager.show();
@@ -131,7 +142,7 @@ export class GameScene extends Phaser.Scene {
       this.player.explode();
 
       AnalyticsService.getInstance().playerDeath(this.player.x, this.player.y);
-      AnalyticsService.getInstance().levelFail('level_1', 'no_health');
+      AnalyticsService.getInstance().levelFail(`level_${this.currentLevel}`, 'no_health');
       
       // Reward credits and duct-tape repair
       state.addCredits(this.score);
@@ -192,9 +203,14 @@ export class GameScene extends Phaser.Scene {
       this.events.off('antimatter_collected');
       this.events.off('player_hit');
       
-      StoryManager.getInstance().showBriefing('level_1_victory', () => {
+      if (this.currentLevel === 1) {
+        StoryManager.getInstance().showBriefing('level_1_victory', () => {
+          this.scene.start('GameScene', { level: 2 });
+        });
+      } else {
+        // Ultimate Victory or menu
         this.scene.start('MenuScene');
-      });
+      }
     }, 4000);
   }
 
