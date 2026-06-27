@@ -57,9 +57,9 @@ export class CollisionManager {
     });
 
     // Player Projectile vs Boss
-    this.scene.physics.add.overlap(projectiles, this.boss, (proj, b) => {
-      const p = proj as BaseProjectile;
-      const bossObj = b as Boss;
+    this.scene.physics.add.overlap(projectiles, this.boss, (obj1, obj2) => {
+      const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
+      const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
       
       if (p.active && bossObj.active) {
         p.setActive(false);
@@ -97,9 +97,9 @@ export class CollisionManager {
     });
 
     // AA Projectile vs Boss
-    this.scene.physics.add.overlap(aaProjectiles, this.boss, (proj, b) => {
-      const p = proj as BaseProjectile;
-      const bossObj = b as Boss;
+    this.scene.physics.add.overlap(aaProjectiles, this.boss, (obj1, obj2) => {
+      const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
+      const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
       if (p.active && bossObj.active) {
         p.setActive(false);
         p.setVisible(false);
