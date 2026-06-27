@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'built-in' }
 
     parameters {
         booleanParam(name: 'BUILD_ANDROID', defaultValue: true, description: 'Собрать версию для Android (APK)')
