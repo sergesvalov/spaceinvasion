@@ -8,7 +8,9 @@ test.describe('Game Playability Test', () => {
     await page.goto('/');
 
     // Перехватываем логи консоли браузера и выводим их в консоль тестраннера (Jenkins)
-    page.on('console', msg => console.log(`[Browser] ${msg.type()}: ${msg.text()}`));
+    page.on('console', msg => process.stdout.write(`\n[Browser] ${msg.type()}: ${msg.text()}\n`));
+    page.on('pageerror', exception => process.stdout.write(`\n[Uncaught Exception]: ${exception}\n`));
+    page.on('requestfailed', request => process.stdout.write(`\n[Request Failed]: ${request.url()}\n`));
 
     // Включаем тестовый режим
     await page.evaluate(() => {
