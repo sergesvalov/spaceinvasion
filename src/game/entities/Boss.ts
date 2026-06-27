@@ -22,7 +22,7 @@ export class Boss extends BaseEntity {
     super(scene, x, y, 'boss');
     
     // Scale down the large generated image to an appropriate boss size
-    this.setScale(0.3);
+    this.setScale(0.33);
     
     this.enemyProjectiles = enemyProjectiles;
     this.onSpawnKamikaze = onSpawnKamikaze;

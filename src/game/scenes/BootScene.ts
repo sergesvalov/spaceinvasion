@@ -38,8 +38,8 @@ export class BootScene extends Phaser.Scene {
     // Cloud particle texture (circle)
     const cloudGraphics = this.add.graphics();
     cloudGraphics.fillStyle(0xffffff, 1);
-    cloudGraphics.fillCircle(10, 10, 10);
-    cloudGraphics.generateTexture('cloud_particle', 20, 20);
+    cloudGraphics.fillCircle(50, 50, 50);
+    cloudGraphics.generateTexture('cloud_particle', 100, 100);
     cloudGraphics.destroy();
 
     // Load sounds
@@ -51,6 +51,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('mecha', 'mecha.png');
     this.load.image('enemy', 'enemy.png');
     this.load.image('boss', 'boss.png');
+    this.load.image('antimatter', 'antimatter.png');
     this.load.image('aagun', 'aagun.png');
     this.load.image('powerup_health', 'powerup_health.png');
     this.load.image('powerup_weapon', 'powerup_weapon.png');

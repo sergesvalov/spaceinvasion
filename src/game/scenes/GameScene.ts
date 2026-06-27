@@ -194,7 +194,7 @@ export class GameScene extends Phaser.Scene {
       
       setTimeout(() => {
         this.destroyScene();
-        this.scene.start('GameOverScene');
+        this.scene.start('MenuScene');
       }, 2000);
     } else {
       this.player.setAlpha(0.5);

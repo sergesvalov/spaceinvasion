@@ -56,7 +56,7 @@ export class LevelManager {
       lifespan: 2500,
       speedY: { min: 400, max: 700 },
       speedX: { min: -50, max: 50 },
-      scale: { start: 2, end: 10 },
+      scale: { start: 0.4, end: 2 },
       alpha: { start: 0.5, end: 0 },
       tint: 0xdddddd,
       blendMode: 'NORMAL',

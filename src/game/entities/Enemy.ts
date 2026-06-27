@@ -16,7 +16,7 @@ export class Enemy extends BaseEntity {
       body.setSize(48, 48);
     }
     
-    this.setScale(0.0624);
+    this.setScale(0.0686);
     
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },

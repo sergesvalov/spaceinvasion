@@ -28,14 +28,14 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
-    this.sprite.setScale(0.0624);
+    this.sprite.setScale(0.0686);
     this.add(this.sprite);
 
     this.shieldGraphics = scene.add.graphics();
     this.shieldGraphics.lineStyle(4, 0x00ffcc, 0.8);
     this.shieldGraphics.fillStyle(0x00ffcc, 0.2);
-    this.shieldGraphics.strokeCircle(0, 0, 45);
-    this.shieldGraphics.fillCircle(0, 0, 45);
+    this.shieldGraphics.strokeCircle(0, 0, 50);
+    this.shieldGraphics.fillCircle(0, 0, 50);
     this.shieldGraphics.setVisible(false);
     this.add(this.shieldGraphics);
 
@@ -49,7 +49,7 @@ export class Player extends Phaser.GameObjects.Container {
       tint: [0x00aaff, 0x0044ff],
       frequency: 20
     });
-    this.exhaustEmitter.startFollow(this, 0, 36);
+    this.exhaustEmitter.startFollow(this, 0, 40);
     
     this.setFighterForm();
   }
@@ -57,7 +57,7 @@ export class Player extends Phaser.GameObjects.Container {
   private setFighterForm() {
     this.sprite.setTexture('ship');
     this.sprite.setTint(0xffffff); // Normal color
-    this.sprite.setScale(0.0624);
+    this.sprite.setScale(0.0686);
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
@@ -66,20 +66,20 @@ export class Player extends Phaser.GameObjects.Container {
         scale: { start: 1.5, end: 0 },
         tint: [0x00aaff, 0x0044ff]
       });
-      this.exhaustEmitter.startFollow(this, 0, 36);
+      this.exhaustEmitter.startFollow(this, 0, 40);
     }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(36, 42);
-      body.setOffset(-18, -24);
+      body.setSize(40, 46);
+      body.setOffset(-20, -26);
     }
   }
 
   private setMechaForm() {
     this.sprite.setTexture('mecha');
     this.sprite.setTint(0xffffff);
-    this.sprite.setScale(0.12); // Mecha sprite might need slightly different scale, 0.12 roughly fits 512x512
+    this.sprite.setScale(0.132); // 10% larger than 0.12
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
@@ -88,13 +88,13 @@ export class Player extends Phaser.GameObjects.Container {
         scale: { start: 2.5, end: 0 },
         tint: [0xffaa00, 0xff4400]
       });
-      this.exhaustEmitter.startFollow(this, 0, 48);
+      this.exhaustEmitter.startFollow(this, 0, 53);
     }
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(48, 48);
-      body.setOffset(-24, -24);
+      body.setSize(53, 53);
+      body.setOffset(-26, -26);
     }
   }
 
