@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { Enemy } from './Enemy';
 import { Boss } from './Boss';
-import { AAGunProjectile } from './AAGunProjectile';
 import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';

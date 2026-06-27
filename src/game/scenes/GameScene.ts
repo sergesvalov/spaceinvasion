@@ -1,9 +1,7 @@
 import Phaser from 'phaser';
 import { Player } from '../entities/Player';
-import { Projectile } from '../entities/Projectile';
 import { Enemy } from '../entities/Enemy';
 import { Boss } from '../entities/Boss';
-import { AAGun } from '../entities/AAGun';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';

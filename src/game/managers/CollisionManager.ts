@@ -29,7 +29,7 @@ export class CollisionManager {
   }
 
   public setupCollisions() {
-    const { projectiles, enemies, boss, aaProjectiles, enemyProjectiles, antimatterContainers } = this.entityManager;
+    const { projectiles, enemies, aaProjectiles, enemyProjectiles, antimatterContainers } = this.entityManager;
 
     // Player Projectile vs Enemy
     this.scene.physics.add.overlap(projectiles, enemies, (proj, enemy) => {
