@@ -28,6 +28,11 @@ export class MenuScene extends Phaser.Scene {
       this.scene.start('GameScene');
     });
 
+    // Экспортируем функцию для E2E тестов
+    (window as any).__START_GAME__ = () => {
+      this.scene.start('GameScene');
+    };
+
     // Garage Button
     Button.create(this, width / 2, height * 0.5, 'GARAGE', () => {
       this.scene.start('GarageScene');

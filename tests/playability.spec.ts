@@ -12,25 +12,13 @@ test.describe('Game Playability Test', () => {
       (window as any).__E2E_TEST_MODE__ = true;
     });
 
-    // Ожидаем загрузки игры и нажимаем PLAY
-    await page.waitForSelector('text=PLAY', { state: 'visible', timeout: 10000 });
-    await page.click('text=PLAY');
-
-    // Пропускаем диалоги/гараж, если нужно (если есть кнопка SKIP или СТАРТ МИССИИ)
-    // GarageScene has "НАЧАТЬ МИССИЮ" text
-    try {
-      await page.waitForSelector('text=НАЧАТЬ МИССИЮ', { state: 'visible', timeout: 5000 });
-      await page.click('text=НАЧАТЬ МИССИЮ');
-    } catch (e) {
-      // Игнорируем, если сразу перешло в игру
-    }
-
-    try {
-      await page.waitForSelector('text=SKIP', { state: 'visible', timeout: 5000 });
-      await page.click('text=SKIP');
-    } catch (e) {
-      // Игнорируем
-    }
+    // Ожидаем, пока хук __START_GAME__ не станет доступен
+    await page.waitForFunction(() => typeof (window as any).__START_GAME__ === 'function', null, { timeout: 10000 });
+    
+    // Запускаем игру
+    await page.evaluate(() => {
+      (window as any).__START_GAME__();
+    });
 
     // Ожидаем завершения игры (установки __GAME_RESULT__)
     const result = await page.waitForFunction(() => {
