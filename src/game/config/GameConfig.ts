@@ -6,7 +6,7 @@ export const GameConfig = {
     DamageMecha: 1.5,
   },
   Enemy: {
-    HP: 3,
+    HP: 1,
     FireRate: 1500,
     Points: 100,
     AntimatterDropChance: 0.15,
