@@ -51,8 +51,7 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
       scale: { start: 1, end: 0 },
       blendMode: 'ADD',
       lifespan: 300,
-      quantity: 20,
-      destroy: true
+      quantity: 20
     });
     emitter.explode(20);
   }
