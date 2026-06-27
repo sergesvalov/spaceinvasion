@@ -3,20 +3,23 @@ import { Enemy } from '../entities/Enemy';
 import { EntityManager } from './EntityManager';
 
 import { Boss } from '../entities/Boss';
+import { Player } from '../entities/Player';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
   private entityManager: EntityManager;
   private boss: Boss;
+  private player: Player;
   
   private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
   private lastPowerUpSpawn: number = 0;
 
-  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss) {
+  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss, player: Player) {
     this.scene = scene;
     this.entityManager = entityManager;
     this.boss = boss;
+    this.player = player;
   }
 
   public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0) {
@@ -59,11 +62,11 @@ export class EntitySpawner {
   }
 
   public spawnAAGun(time: number) {
-    if (time > this.lastAAGunSpawn + 10000) {
+    if (time > this.lastAAGunSpawn + 3000) {
       this.lastAAGunSpawn = time;
       const gun = this.entityManager.getAAGun();
       if (gun) {
-        gun.setReferences(this.entityManager, this.boss);
+        gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
         gun.spawn(x, -100, 500);
       }

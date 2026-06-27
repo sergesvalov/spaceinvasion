@@ -82,30 +82,32 @@ export class CollisionManager {
       }
     });
 
-    // AA Projectile vs Enemy
-    this.scene.physics.add.overlap(aaProjectiles, enemies, (proj, enemy) => {
+    // Player Projectile vs AAGun
+    this.scene.physics.add.overlap(projectiles, this.entityManager.aaGuns, (proj, aaGun) => {
       const p = proj as BaseProjectile;
-      const e = enemy as Enemy;
-      if (p.active && e.active) {
+      const gun = aaGun as any;
+      if (p.active && gun.active) {
         p.setActive(false);
         p.setVisible(false);
-        const destroyed = e.takeDamage(p.damage);
-        if (destroyed) {
-          EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
-        }
+        
+        // AAGuns die in one hit
+        gun.setActive(false);
+        gun.setVisible(false);
+        this.createExplosion(gun.x, gun.y);
+        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2); // 200 points for a ground target
       }
     });
 
-    // AA Projectile vs Boss
-    this.scene.physics.add.overlap(aaProjectiles, this.boss, (obj1, obj2) => {
-      const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
-      const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
-      if (p.active && bossObj.active) {
+    // AA Projectile vs Player
+    this.scene.physics.add.overlap(aaProjectiles, this.player, (obj1, obj2) => {
+      const p = (obj1 === this.player ? obj2 : obj1) as BaseProjectile;
+      if (p.active && this.isPlayingGetter()) {
         p.setActive(false);
         p.setVisible(false);
-        const destroyed = bossObj.takeDamage(p.damage);
-        if (destroyed) {
-          EventBus.emit('boss_destroyed');
+        this.createExplosion(p.x, p.y);
+        
+        if (this.player.getForm() !== 'mecha') {
+          EventBus.emit('player_hit');
         }
       }
     });

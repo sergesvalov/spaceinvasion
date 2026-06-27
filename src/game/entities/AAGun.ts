@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
-import { Enemy } from './Enemy';
-import { Boss } from './Boss';
+import { Player } from './Player';
 import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
@@ -8,7 +7,7 @@ import { EntityManager } from '../managers/EntityManager';
 export class AAGun extends BaseEntity {
   private lastFired: number = 0;
   private entityManager!: EntityManager;
-  private boss!: Boss;
+  private player!: Player;
   private fireRateMs: number = GameConfig.AAGun.FireRate;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -25,9 +24,9 @@ export class AAGun extends BaseEntity {
     }
   }
 
-  setReferences(entityManager: EntityManager, boss: Boss) {
+  setReferences(entityManager: EntityManager, player: Player) {
     this.entityManager = entityManager;
-    this.boss = boss;
+    this.player = player;
   }
 
   spawn(x: number, y: number, scrollSpeed: number) {
@@ -59,27 +58,13 @@ export class AAGun extends BaseEntity {
   }
 
   private fireAtNearestEnemy(time: number) {
-    let nearestDist = Number.MAX_VALUE;
+    // AAGun is hostile, so it targets the player
     let target: Phaser.GameObjects.Sprite | null = null;
 
-    // Check enemies
-    this.entityManager.enemies.getChildren().forEach((child) => {
-      const enemy = child as Enemy;
-      if (enemy.active) {
-        const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
-        if (dist < nearestDist && dist < 800) { // Max range
-          nearestDist = dist;
-          target = enemy;
-        }
-      }
-    });
-
-    // Check boss
-    if (this.boss && this.boss.active) {
-      const dist = Phaser.Math.Distance.Between(this.x, this.y, this.boss.x, this.boss.y);
-      if (dist < nearestDist && dist < 800) {
-        nearestDist = dist;
-        target = this.boss;
+    if (this.player && this.player.active) {
+      const dist = Phaser.Math.Distance.Between(this.x, this.y, this.player.x, this.player.y);
+      if (dist < 800) { // Max range
+        target = this.player as unknown as Phaser.GameObjects.Sprite;
       }
     }
 
