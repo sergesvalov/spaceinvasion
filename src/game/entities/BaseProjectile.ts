@@ -36,5 +36,12 @@ export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
       this.setActive(false);
       this.setVisible(false);
     }
+
+    if (this.active) {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      if (body && (body.velocity.x !== 0 || body.velocity.y !== 0)) {
+        this.rotation = Math.atan2(body.velocity.y, body.velocity.x) + Math.PI / 2;
+      }
+    }
   }
 }
