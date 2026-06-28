@@ -27,23 +27,23 @@ export class Projectile extends BaseProjectile {
     
     // Default config (Fighter)
     this.setTexture('projectile_fighter');
-    this.setScale(0.06); 
+    this.setScale(0.03); 
     this.clearTint();
 
     if (weaponType === 'ion') {
-      this.setScale(0.1);
+      this.setScale(0.05);
       this.setTint(0xaa00ff);
     } else if (weaponType === 'wave') {
-      this.setScale(0.08);
+      this.setScale(0.04);
       this.setTint(0x00ffaa);
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
-      this.setScale(0.07);
+      this.setScale(0.035);
     } else if (weaponType === 'beam') {
       // Mecha config
       this.setTexture('projectile_mecha');
       this.setTint(0xffffff);
-      this.setScale(0.08);
+      this.setScale(0.04);
       this.piercing = true;
     }
 
