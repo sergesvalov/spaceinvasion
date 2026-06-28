@@ -55,6 +55,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('aagun', 'aagun.png');
     this.load.image('powerup_health', 'powerup_health.png');
     this.load.image('powerup_weapon', 'powerup_weapon.png');
+    this.load.image('projectile_fighter', 'projectile_fighter.png');
+    this.load.image('projectile_mecha', 'projectile_mecha.png');
     
     // Load garage textures
     this.load.image('hangar', 'hangar.png');

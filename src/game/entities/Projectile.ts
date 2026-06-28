@@ -10,16 +10,7 @@ export class Projectile extends BaseProjectile {
   private timeAlive: number = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'projectile');
-
-    if (!scene.textures.exists('projectile')) {
-      const graphics = scene.add.graphics();
-      graphics.fillStyle(0x00ff00, 1);
-      graphics.fillRect(0, 0, 4, 20);
-      graphics.generateTexture('projectile', 4, 20);
-      graphics.destroy();
-      this.setTexture('projectile');
-    }
+    super(scene, x, y, 'projectile_fighter'); // Default to fighter sprite
   }
 
   fire(x: number, y: number, velocityY: number, damage?: number, weaponType: string = 'plasma') {
@@ -31,22 +22,36 @@ export class Projectile extends BaseProjectile {
     this.startX = x;
     this.timeAlive = 0;
 
-    this.setScale(1);
+    // Use additive blending for a nice neon glow
+    this.setBlendMode(Phaser.BlendModes.ADD);
+    
+    // Default config (Fighter)
+    this.setTexture('projectile_fighter');
+    this.setScale(0.06); 
     this.clearTint();
 
     if (weaponType === 'ion') {
-      this.setScale(2.5);
+      this.setScale(0.1);
       this.setTint(0xaa00ff);
     } else if (weaponType === 'wave') {
-      this.setScale(1.5);
+      this.setScale(0.08);
       this.setTint(0x00ffaa);
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
-      this.setScale(1.2);
+      this.setScale(0.07);
     } else if (weaponType === 'beam') {
+      // Mecha config
+      this.setTexture('projectile_mecha');
       this.setTint(0xffffff);
-      this.setScale(2, 6); // Stretch to look like a beam
+      this.setScale(0.08);
       this.piercing = true;
+    }
+
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (body) {
+      // Since it's a 1024x1024 texture scaled down, let's make the hitbox reasonable
+      body.setSize(400, 400); // Scaled by 0.06 -> ~24px
+      body.setOffset(312, 312); // Center it
     }
   }
 
