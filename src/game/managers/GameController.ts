@@ -9,6 +9,8 @@ import { InputManager } from './InputManager';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
+import { GameConfig } from '../config/GameConfig';
+import { burst } from '../effects/burst';
 
 export class GameController {
   private isPlaying: boolean = false;
@@ -27,7 +29,11 @@ export class GameController {
     private inputManager: InputManager,
     private currentLevel: number
   ) {
-    this.health = GameState.getInstance().currentHp;
+    const state = GameState.getInstance();
+    this.health = state.currentHp;
+    // Antimatter is a persistent currency shared with the Garage, so the HUD
+    // mirrors the saved balance instead of counting only this run's pickups.
+    this.antimatter = state.antimatter;
   }
 
   public getIsPlaying(): boolean {
@@ -170,10 +176,11 @@ export class GameController {
   private handleTransformRequest() {
     if (this.player.getForm() === 'mecha') return; // Already transformed
     
-    if (this.antimatter >= 5) {
-      this.antimatter -= 5;
+    const state = GameState.getInstance();
+    if (state.spendAntimatter(GameConfig.Player.MechaCost)) {
+      this.antimatter = state.antimatter;
       this.hudManager.update(this.score, this.health, this.antimatter);
-      
+
       this.player.transformToMecha();
       
       // Play sound if available
@@ -181,8 +188,7 @@ export class GameController {
         this.scene.sound.play('pew', { volume: 0.5, rate: 0.5 }); // Deep sound
       }
 
-      // Revert after 15 seconds
-      this.scene.time.delayedCall(15000, () => {
+      this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
         if (this.isPlaying) {
           this.player.revertToFighter();
         }
@@ -201,8 +207,9 @@ export class GameController {
   }
 
   private handleAntimatterCollected() {
-    this.antimatter += 1;
-    GameState.getInstance().addAntimatter(1);
+    const state = GameState.getInstance();
+    state.addAntimatter(1);
+    this.antimatter = state.antimatter;
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
 
@@ -266,7 +273,9 @@ export class GameController {
       AnalyticsService.getInstance().levelFail(`level_${this.currentLevel}`, 'no_health');
       
       state.addCredits(this.score);
-      state.setHp(state.maxHp);
+      // Hand back a barely-flyable hull instead of a free full repair: the
+      // Garage is what restores HP. 1 HP guarantees the player is never stuck.
+      state.setHp(1);
       
       setTimeout(() => {
         this.hudManager.destroy();
@@ -293,10 +302,9 @@ export class GameController {
     this.entityManager.enemies.children.iterate((c) => {
       const e = c as Enemy;
       if (e.active) {
-        const emitter = this.scene.add.particles(e.x, e.y, 'particle', {
-          speed: { min: 50, max: 200 }, scale: { start: 1, end: 0 }, lifespan: 300, quantity: 20
+        burst(this.scene, e.x, e.y, 20, {
+          speed: { min: 50, max: 200 }, scale: { start: 1, end: 0 }, lifespan: 300
         });
-        emitter.explode(20);
         e.setActive(false).setVisible(false);
       }
       return true;

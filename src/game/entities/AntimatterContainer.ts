@@ -6,7 +6,7 @@ export class AntimatterContainer extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    this.setScale(0.04); 
+    this.setScale(0.64); 
   }
 
   spawn(x: number, y: number, vx: number = 0, vy: number = 50) {

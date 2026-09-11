@@ -27,31 +27,31 @@ export class Projectile extends BaseProjectile {
     
     // Default config (Fighter)
     this.setTexture('projectile_fighter');
-    this.setScale(0.03); 
+    this.setScale(0.48);
     this.clearTint();
 
     if (weaponType === 'ion') {
-      this.setScale(0.05);
+      this.setScale(0.8);
       this.setTint(0xaa00ff);
     } else if (weaponType === 'wave') {
-      this.setScale(0.04);
+      this.setScale(0.64);
       this.setTint(0x00ffaa);
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
-      this.setScale(0.035);
+      this.setScale(0.56);
     } else if (weaponType === 'beam') {
       // Mecha config
       this.setTexture('projectile_mecha');
       this.setTint(0xffffff);
-      this.setScale(0.04);
+      this.setScale(0.64);
       this.piercing = true;
     }
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      // Since it's a 1024x1024 texture scaled down, let's make the hitbox reasonable
-      body.setSize(400, 400); // Scaled by 0.06 -> ~24px
-      body.setOffset(312, 312); // Center it
+      // Hitbox in texture pixels; Arcade multiplies it by the sprite scale.
+      body.setSize(25, 25); // 25 * 0.48 -> ~12px
+      body.setOffset(19.5, 19.5); // Center it: (64 - 25) / 2
     }
   }
 

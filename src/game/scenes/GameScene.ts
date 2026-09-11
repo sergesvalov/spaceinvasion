@@ -40,20 +40,25 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     AnalyticsService.getInstance().levelStart(`level_${this.currentLevel}`);
+    const state = GameState.getInstance();
     if (this.currentLevel === 1) {
-      GameState.getInstance().resetWeaponLevel();
+      state.resetWeaponLevel();
     }
-    GameState.getInstance().setHp(GameState.getInstance().maxHp);
+    // Damage carries over between runs so that repairing in the Garage matters.
+    // Only guard against starting a run with a destroyed hull.
+    if (state.currentHp <= 0) {
+      state.setHp(1);
+    }
 
     this.hudManager = new HUDManager();
-    this.hudManager.createHUD(GameState.getInstance().currentHp);
+    this.hudManager.createHUD(state.currentHp);
 
     const { width, height } = this.scale;
 
     this.player = new Player(this, width / 2, height - 100);
     this.entityManager = new EntityManager(this);
 
-    if (GameState.getInstance().hasDrone) {
+    if (state.hasDrone) {
       new Drone(this, this.player, this.entityManager);
     }
 

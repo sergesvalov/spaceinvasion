@@ -4,6 +4,8 @@ export const GameConfig = {
     FireRateMecha: 300,
     DamageFighter: 1,
     DamageMecha: 1.5,
+    MechaCost: 5, // Antimatter spent per transformation
+    MechaDuration: 15000,
   },
   Enemy: {
     HP: 1,

@@ -33,6 +33,16 @@ Strips near-white background colors from an image, turning them fully transparen
 node tools/remove_bg.mjs <absolute_input_path> <absolute_output_path>
 ```
 
+### `optimize_asset.mjs`
+Resizes and re-encodes a single image. AI-generated sprites arrive as 1024x1024 (~1MB each) and must be downscaled before shipping - the whole `public/` folder went from 24MB to 2.7MB this way.
+**Usage**:
+```bash
+node tools/optimize_asset.mjs <input> <output> --size <px> [--quality <1-100>] [--format png|jpeg]
+```
+- Use `--format png` for sprites that need transparency, `--format jpeg --quality 78` for full-frame art (backgrounds, story panels).
+- Target roughly **2x** the size the asset is actually drawn at.
+- **Warning**: changing a texture's dimensions changes its hitbox. See the Asset Generation Workflow in `AI_README.md` for the scale/body recalculation rule.
+
 ### `generate_pew.cjs`
 Generates a retro 8-bit laser/pew sound effect and saves it as a `.wav` file.
 **Usage**:

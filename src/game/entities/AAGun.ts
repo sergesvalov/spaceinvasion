@@ -15,12 +15,12 @@ export class AAGun extends BaseEntity {
     super(scene, x, y, 'aagun');
 
     // Scale down the generated asset if needed
-    this.setScale(0.15); 
+    this.setScale(0.6); 
     this.setDepth(-10); // Sit on top of buildings but below flying ships
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(200, 200); // adjust as needed based on scale
+      body.setSize(50, 50); // adjust as needed based on scale
       body.setImmovable(true);
     }
   }

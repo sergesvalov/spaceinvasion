@@ -36,12 +36,15 @@ This document is designed to help any AI agent (or developer) quickly understand
 - **`LevelManager`**: Handles background scrolling phases and triggers boss spawns.
 - **`InputManager`**: Handles pointer movement, double taps, and keyboard shortcuts (e.g., Spacebar for shield).
 
-### 4. Services & State (`src/services/`)
+### 4. Effects (`src/game/effects/`)
+- **`burst(scene, x, y, quantity, config)`**: one-shot particle explosion that destroys its emitter once the last particle fades. Phaser keeps exploded emitters in the display list forever, so **always use this helper instead of `scene.add.particles(...).explode()`** for transient effects - otherwise every kill leaks a GameObject. Long-lived emitters (engine exhaust, garage sparks) are still created directly.
+
+### 5. Services & State (`src/services/`)
 - **`GameState`**: A Singleton managing **persistent data** saved in `localStorage`:
   - `_antimatter`: Premium currency.
   - `_credits`: Standard currency.
   - `_baseWeaponLevel`: Permanent weapon upgrade level.
-  - `_currentHp` / `_maxHp`: Ship health.
+  - `_currentHp` / `_maxHp`: Ship health. **Damage persists between runs** - `GameScene` no longer heals to full on start, it only guarantees a minimum of 1 HP so the player can never be stuck. Restoring HP is what the Garage's REPAIR button is for.
   - `_shields`: Inventory of consumable shields.
   - `_bombs`: Inventory of consumable screen-clearing bombs.
   - `_equippedWeapon`: Base weapon class ('plasma', 'ion', 'wave').
@@ -64,7 +67,7 @@ This document is designed to help any AI agent (or developer) quickly understand
    - During a run, picking up weapon power-ups increases `weaponLevel`.
    - On death (or new game start at level 1), `GameScene` calls `GameState.getInstance().resetWeaponLevel()` to strip temporary buffs.
 6. **Mecha Transformation**:
-   - Costs 5 Antimatter (handled in `GameController.ts`).
+   - Costs `GameConfig.Player.MechaCost` (5) Antimatter, spent through `GameState.spendAntimatter()` so it draws on the same persistent balance the Garage uses. The HUD mirrors that saved balance rather than counting only the current run's pickups.
    - Activated by double-tapping the screen or right-clicking.
    - **Shockwave**: Emits `mecha_shockwave` event upon transform to clear nearby projectiles and damage enemies.
    - **Hyper Beam**: Replaces standard base weapon. Projectiles get `piercing = true` and stretch vertically to act as a continuous laser.
@@ -94,7 +97,11 @@ When the user asks to create a new skin, enemy, weapon, or other sprite, follow 
 2. **Process the Image**: Once generated, the image will be in the `.gemini` artifacts directory. Use the included `c:\wndr\repo\spaceinvasion\tools\remove_bg.mjs` Node script to strip the white background and save it to the `public/` directory. 
    - Run: `node tools/remove_bg.mjs <input_path_from_artifact> <output_path_in_public>`
    - This script uses `Jimp` to identify white pixels and make them transparent.
-3. **Load and Scale**: In `BootScene.ts`, load the new asset. In the respective entity class (e.g., `Player.ts`), apply `.setScale()` as AI-generated images are typically 1024x1024 and need to be scaled down significantly (e.g., `0.0686` or `0.132`).
+3. **Resize It — do NOT ship a 1024x1024 sprite**: generated images are 1024x1024 and ~1MB each, which is unusable on mobile. Downscale to roughly **2x the size the sprite is actually drawn at** with `tools/optimize_asset.mjs`:
+   - Run: `node tools/optimize_asset.mjs public/foo.png public/foo.png --size 128 --format png`
+   - Sprites that need transparency must stay `png`. Full-frame art (backgrounds, story panels) should be `jpeg --quality 78` — those keep a `.png` filename purely so no code has to change.
+4. **Load and Scale**: In `BootScene.ts`, load the new asset. In the respective entity class, apply `.setScale()` so the sprite ends up at its intended on-screen size (e.g. a 128px texture drawn at ~70px uses `0.5488`).
+   - **Careful**: `body.setSize()` / `body.setOffset()` are expressed in *texture* pixels and Arcade multiplies them by the sprite scale. If you change a texture's dimensions by a factor `k`, you must also multiply the scale by `1/k` and the body size/offset by `k` — otherwise the hitbox silently changes size.
 
 ### ⚙️ General Best Practices
 - **File Edits**: When making edits to complex Phaser configurations or logic, prefer targeted `multi_replace_file_content` to preserve existing behaviors.

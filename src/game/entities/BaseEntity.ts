@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { burst } from '../effects/burst';
 
 export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
   public hp: number = 0;
@@ -45,14 +46,12 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
   }
 
   protected createExplosion() {
-    const emitter = this.scene.add.particles(this.x, this.y, 'particle', {
+    burst(this.scene, this.x, this.y, 20, {
       speed: { min: 50, max: 200 },
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
       blendMode: 'ADD',
-      lifespan: 300,
-      quantity: 20
+      lifespan: 300
     });
-    emitter.explode(20);
   }
 }

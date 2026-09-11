@@ -3,6 +3,7 @@ import { EventBus } from '../../services/EventBus';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
+import { burst } from '../effects/burst';
 
 import { GameState } from '../../services/GameState';
 
@@ -41,7 +42,7 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     this.sprite = scene.add.sprite(0, 0, 'ship');
-    this.sprite.setScale(0.0686);
+    this.sprite.setScale(0.5488);
     this.add(this.sprite);
 
     this.shieldGraphics = scene.add.graphics();
@@ -78,7 +79,7 @@ export class Player extends Phaser.GameObjects.Container {
   private setFighterForm() {
     this.sprite.setTexture('ship');
     this.sprite.setTint(0xffffff); // Normal color
-    this.sprite.setScale(0.0686);
+    this.sprite.setScale(0.5488);
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
@@ -100,7 +101,7 @@ export class Player extends Phaser.GameObjects.Container {
   private setMechaForm() {
     this.sprite.setTexture('mecha');
     this.sprite.setTint(0xffffff);
-    this.sprite.setScale(0.132); // 10% larger than 0.12
+    this.sprite.setScale(0.528); // 10% larger than the old 0.12 baseline
     
     if (this.exhaustEmitter) {
       this.exhaustEmitter.setConfig({
@@ -141,16 +142,14 @@ export class Player extends Phaser.GameObjects.Container {
     });
 
     // Shockwave visual & event
-    const shockwave = this.scene.add.particles(this.x, this.y, 'particle', {
+    burst(this.scene, this.x, this.y, 1, {
       speed: 600,
       scale: { start: 0, end: 15 },
       alpha: { start: 0.8, end: 0 },
       blendMode: 'ADD',
       lifespan: 400,
-      tint: 0xffaa00,
-      quantity: 1
+      tint: 0xffaa00
     });
-    shockwave.explode(1);
 
     EventBus.emit('mecha_shockwave', { x: this.x, y: this.y, radius: 400 });
   }
@@ -324,39 +323,33 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     // Main fiery explosion
-    const emitter = this.scene.add.particles(this.x, this.y, 'particle', {
+    burst(this.scene, this.x, this.y, 100, {
       speed: { min: 100, max: 500 },
       angle: { min: 0, max: 360 },
       scale: { start: 3, end: 0 },
       blendMode: 'ADD',
       lifespan: 800,
-      tint: [0xffaa00, 0xff0000, 0xffff00, 0xffffff],
-      quantity: 100
+      tint: [0xffaa00, 0xff0000, 0xffff00, 0xffffff]
     });
-    emitter.explode(100);
 
     // Shockwave ring
-    const shockwave = this.scene.add.particles(this.x, this.y, 'particle', {
+    burst(this.scene, this.x, this.y, 1, {
       speed: 600,
       scale: { start: 0, end: 15 },
       alpha: { start: 0.8, end: 0 },
       blendMode: 'ADD',
       lifespan: 400,
-      tint: 0xffdd00,
-      quantity: 1
+      tint: 0xffdd00
     });
-    shockwave.explode(1);
 
     // Debris
-    const debris = this.scene.add.particles(this.x, this.y, 'particle', {
+    burst(this.scene, this.x, this.y, 30, {
       speed: { min: 50, max: 300 },
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
       lifespan: 1500,
-      tint: 0x555555,
-      quantity: 30
+      tint: 0x555555
     });
-    debris.explode(30);
   }
 
   public fire(entityManager: EntityManager) {

@@ -7,6 +7,7 @@ import { BaseProjectile } from '../entities/BaseProjectile';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from './EntityManager';
+import { burst } from '../effects/burst';
 
 export class CollisionManager {
   private scene: Phaser.Scene;
@@ -182,14 +183,12 @@ export class CollisionManager {
   }
 
   private createExplosion(x: number, y: number) {
-    const emitter = this.scene.add.particles(x, y, 'particle', {
+    burst(this.scene, x, y, 20, {
       speed: { min: 50, max: 200 },
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
       blendMode: 'ADD',
-      lifespan: 300,
-      quantity: 20
+      lifespan: 300
     });
-    emitter.explode(20);
   }
 }
