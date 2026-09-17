@@ -87,4 +87,38 @@ export class EntityManager {
   public getPowerUp(): PowerUp | null {
     return this.powerUps.get() as PowerUp | null;
   }
+
+  public applyDamageToAllEnemies(damage: number, radius?: number, centerX?: number, centerY?: number) {
+    this.enemies.children.iterate((c) => {
+      const e = c as Enemy;
+      if (e.active) {
+        if (radius !== undefined && centerX !== undefined && centerY !== undefined) {
+          const dist = Phaser.Math.Distance.Between(centerX, centerY, e.x, e.y);
+          if (dist <= radius) {
+            e.takeDamage(damage);
+          }
+        } else {
+          e.takeDamage(damage);
+        }
+      }
+      return true;
+    });
+  }
+
+  public clearEnemyProjectiles(radius?: number, centerX?: number, centerY?: number) {
+    this.enemyProjectiles.children.iterate((c) => {
+      const p = c as Phaser.Physics.Arcade.Sprite;
+      if (p.active) {
+        if (radius !== undefined && centerX !== undefined && centerY !== undefined) {
+          const dist = Phaser.Math.Distance.Between(centerX, centerY, p.x, p.y);
+          if (dist <= radius) {
+            p.setActive(false).setVisible(false);
+          }
+        } else {
+          p.setActive(false).setVisible(false);
+        }
+      }
+      return true;
+    });
+  }
 }

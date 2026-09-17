@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Button } from '../ui/Button';
+import { AudioManager } from '../../services/AudioManager';
 
 export class MenuScene extends Phaser.Scene {
   private background!: Phaser.GameObjects.TileSprite;
@@ -99,16 +100,14 @@ export class MenuScene extends Phaser.Scene {
     this.settingsContainer.add(bg);
 
     // Sound toggle logic
-    const isSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+    const isSoundEnabled = AudioManager.getInstance().isSoundEnabled();
     this.soundText = this.add.text(0, 0, `Sound: ${isSoundEnabled ? 'ON' : 'OFF'}`, {
       fontSize: '20px',
       color: '#ffffff'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     this.soundText.on('pointerdown', () => {
-      const current = localStorage.getItem('soundEnabled') !== 'false';
-      const next = !current;
-      localStorage.setItem('soundEnabled', next.toString());
+      const next = AudioManager.getInstance().toggleSoundEnabled();
       this.soundText.setText(`Sound: ${next ? 'ON' : 'OFF'}`);
       
       if (window.Telegram?.WebApp?.HapticFeedback) {

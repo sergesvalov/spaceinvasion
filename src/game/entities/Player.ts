@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
-import { EventBus } from '../../services/EventBus';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
 import { burst } from '../effects/burst';
 
 import { GameState } from '../../services/GameState';
+import { AudioManager } from '../../services/AudioManager';
+import { PlasmaWeapon, IonWeapon, WaveWeapon, BeamWeapon, SpreadWeapon, HomingWeapon, WeaponStrategy } from '../weapons/WeaponStrategies';
+import { PlayerContext, PlayerStateComponent, FighterState, MechaState } from './components/PlayerStateComponent';
 
 export type PlayerForm = 'fighter' | 'mecha';
 
@@ -16,7 +18,6 @@ export class Player extends Phaser.GameObjects.Container {
   private shieldGraphics: Phaser.GameObjects.Graphics;
   private lastFired: number = 0;
   private lastSwarmFired: number = 0;
-  private lastMeleeFired: number = 0;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
   
   private purchasedShieldActive: boolean = false;
@@ -24,6 +25,10 @@ export class Player extends Phaser.GameObjects.Container {
   
   private tempWeapon: 'spread' | 'homing' | null = null;
   private tempWeaponTimerEvent?: Phaser.Time.TimerEvent;
+  
+  private currentStateComponent: PlayerStateComponent;
+  private fighterState: FighterState;
+  private mechaState: MechaState;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -73,51 +78,23 @@ export class Player extends Phaser.GameObjects.Container {
     });
     this.exhaustEmitter.startFollow(this, 0, 40);
     
-    this.setFighterForm();
+    this.fighterState = new FighterState();
+    this.mechaState = new MechaState();
+    
+    this.currentStateComponent = this.fighterState;
+    this.currentStateComponent.enter(this.getPlayerContext());
   }
 
-  private setFighterForm() {
-    this.sprite.setTexture('ship');
-    this.sprite.setTint(0xffffff); // Normal color
-    this.sprite.setScale(0.5488);
-    
-    if (this.exhaustEmitter) {
-      this.exhaustEmitter.setConfig({
-        speedY: { min: 200, max: 400 },
-        speedX: { min: -20, max: 20 },
-        scale: { start: 1.5, end: 0 },
-        tint: [0x00aaff, 0x0044ff]
-      });
-      this.exhaustEmitter.startFollow(this, 0, 40);
-    }
-    
-    const body = this.body as Phaser.Physics.Arcade.Body;
-    if (body) {
-      body.setSize(40, 46);
-      body.setOffset(-20, -26);
-    }
-  }
-
-  private setMechaForm() {
-    this.sprite.setTexture('mecha');
-    this.sprite.setTint(0xffffff);
-    this.sprite.setScale(0.528); // 10% larger than the old 0.12 baseline
-    
-    if (this.exhaustEmitter) {
-      this.exhaustEmitter.setConfig({
-        speedY: { min: 100, max: 200 },
-        speedX: { min: -30, max: 30 },
-        scale: { start: 2.5, end: 0 },
-        tint: [0xffaa00, 0xff4400]
-      });
-      this.exhaustEmitter.startFollow(this, 0, 53);
-    }
-    
-    const body = this.body as Phaser.Physics.Arcade.Body;
-    if (body) {
-      body.setSize(53, 53);
-      body.setOffset(-26, -26);
-    }
+  private getPlayerContext(): PlayerContext {
+    return {
+      x: this.x,
+      y: this.y,
+      sprite: this.sprite,
+      body: this.body as Phaser.Physics.Arcade.Body,
+      exhaustEmitter: this.exhaustEmitter,
+      shieldGraphics: this.shieldGraphics,
+      scene: this.scene
+    };
   }
 
   public transformToMecha() {
@@ -129,29 +106,9 @@ export class Player extends Phaser.GameObjects.Container {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
     }
 
-    this.setMechaForm();
-    this.shieldGraphics.setVisible(true);
-    
-    // Pulse animation for shield
-    this.scene.tweens.add({
-      targets: this.shieldGraphics,
-      alpha: 0.5,
-      duration: 500,
-      yoyo: true,
-      repeat: -1
-    });
-
-    // Shockwave visual & event
-    burst(this.scene, this.x, this.y, 1, {
-      speed: 600,
-      scale: { start: 0, end: 15 },
-      alpha: { start: 0.8, end: 0 },
-      blendMode: 'ADD',
-      lifespan: 400,
-      tint: 0xffaa00
-    });
-
-    EventBus.emit('mecha_shockwave', { x: this.x, y: this.y, radius: 400 });
+    this.currentStateComponent.exit(this.getPlayerContext());
+    this.currentStateComponent = this.mechaState;
+    this.currentStateComponent.enter(this.getPlayerContext());
   }
 
   public revertToFighter() {
@@ -159,10 +116,9 @@ export class Player extends Phaser.GameObjects.Container {
     this.form = 'fighter';
     AnalyticsService.getInstance().formSwitch('fighter');
 
-    this.setFighterForm();
-    this.shieldGraphics.setVisible(false);
-    this.scene.tweens.killTweensOf(this.shieldGraphics);
-    this.shieldGraphics.alpha = 1;
+    this.currentStateComponent.exit(this.getPlayerContext());
+    this.currentStateComponent = this.fighterState;
+    this.currentStateComponent.enter(this.getPlayerContext());
   }
 
   public getForm(): PlayerForm {
@@ -205,15 +161,32 @@ export class Player extends Phaser.GameObjects.Container {
     });
   }
   
-  public canFire(time: number): boolean {
+  private getWeaponStrategy(): WeaponStrategy {
     const state = GameState.getInstance();
+    let weaponClass = state.equippedWeapon as string;
+    if (this.tempWeapon) {
+      weaponClass = this.tempWeapon;
+    }
+    const isMecha = this.getForm() === 'mecha';
+    if (isMecha && !this.tempWeapon) {
+      weaponClass = 'beam';
+    }
+
+    switch (weaponClass) {
+      case 'ion': return new IonWeapon();
+      case 'wave': return new WaveWeapon();
+      case 'beam': return new BeamWeapon();
+      case 'spread': return new SpreadWeapon();
+      case 'homing': return new HomingWeapon();
+      case 'plasma':
+      default: return new PlasmaWeapon();
+    }
+  }
+
+  public canFire(time: number): boolean {
     let fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
     
-    if (state.equippedWeapon === 'ion') {
-      fireRate *= 2.5; 
-    } else if (state.equippedWeapon === 'wave') {
-      fireRate *= 1.5; 
-    }
+    fireRate *= this.getWeaponStrategy().getFireRateModifier();
     
     if (this.weaponLevel >= 2) {
       fireRate *= 0.5; // 50% faster fire rate for upgraded weapons
@@ -236,9 +209,7 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   public fireSwarm(entityManager: EntityManager) {
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('pew', { volume: 0.6, rate: 1.2 });
-    }
+    AudioManager.getInstance().playPew(this.scene, { volume: 0.6, rate: 1.2 });
 
     const angles = [-60, -30, 0, 30, 60];
     const speed = 300;
@@ -260,57 +231,7 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   public updateMelee(entityManager: EntityManager, time: number) {
-    if (this.form !== 'mecha') return;
-    if (time < this.lastMeleeFired + 1000) return; // 1s cooldown
-
-    let nearestDist = Infinity;
-    entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
-      if (e.active) {
-        const dist = Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y);
-        if (dist < nearestDist) {
-          nearestDist = dist;
-        }
-      }
-      return true;
-    });
-
-    if (nearestDist < 150) {
-      this.lastMeleeFired = time;
-      this.performMeleeSlash(entityManager);
-    }
-  }
-
-  private performMeleeSlash(entityManager: EntityManager) {
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('explosion', { volume: 0.5, rate: 2.0 });
-    }
-
-    const slash = this.scene.add.graphics();
-    slash.lineStyle(8, 0x00ffff, 1);
-    slash.beginPath();
-    slash.arc(this.x, this.y - 20, 100, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(360), false);
-    slash.strokePath();
-
-    this.scene.tweens.add({
-      targets: slash,
-      scaleX: 1.5,
-      scaleY: 1.5,
-      alpha: 0,
-      duration: 300,
-      onComplete: () => slash.destroy()
-    });
-
-    entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
-      if (e.active) {
-        const dist = Phaser.Math.Distance.Between(this.x, this.y - 20, e.x, e.y);
-        if (dist < 150 && e.y < this.y) {
-          e.takeDamage(GameConfig.Player.DamageMecha * 5); 
-        }
-      }
-      return true;
-    });
+    this.currentStateComponent.update(this.getPlayerContext(), entityManager, time);
   }
 
   public explode() {
@@ -353,94 +274,15 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   public fire(entityManager: EntityManager) {
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('pew', { volume: 0.3 });
-    }
+    AudioManager.getInstance().playPew(this.scene, { volume: 0.3 });
 
-    const state = GameState.getInstance();
-    let weaponClass = state.equippedWeapon as string;
-    if (this.tempWeapon) {
-      weaponClass = this.tempWeapon;
-    }
-
-    const isMecha = this.getForm() === 'mecha';
-    
-    let baseDamage = isMecha ? GameConfig.Player.DamageMecha : GameConfig.Player.DamageFighter;
-    let speed = isMecha ? -400 : -600;
-
-    if (isMecha && !this.tempWeapon) {
-      weaponClass = 'beam';
-      speed = -1000; // Fast laser
-    }
-
-    if (weaponClass === 'ion') {
-      baseDamage *= 4;
-      speed *= 0.7; // slower projectile
-    } else if (weaponClass === 'wave') {
-      baseDamage *= 1.5;
-      speed *= 0.8;
-    } else if (weaponClass === 'beam') {
-      baseDamage *= 2; 
-    }
-
-    let lines = 1;
-    if (isMecha || this.weaponLevel >= 3) {
-      lines = 2;
-    }
-
-    const fireProj = (x: number, y: number, vx: number, vy: number, target?: any) => {
-      const proj = entityManager.getProjectile() as any;
-      if (proj && typeof proj.fire === 'function') {
-        proj.fire(x, y, vy, baseDamage, weaponClass);
-        const body = proj.body as Phaser.Physics.Arcade.Body;
-        if (body) body.setVelocityX(vx);
-        if (target) proj.target = target;
-      }
-    };
-
-    if (weaponClass === 'spread') {
-      const angles = [-30, -15, 0, 15, 30];
-      angles.forEach(angle => {
-        const rad = Phaser.Math.DegToRad(angle - 90);
-        const vx = Math.cos(rad) * Math.abs(speed);
-        const vy = Math.sin(rad) * Math.abs(speed);
-        fireProj(this.x, this.y - 20, vx, vy);
-      });
-      return;
-    }
-
-    if (weaponClass === 'homing') {
-      // Find nearest enemy
-      let nearestDist = Infinity;
-      let nearestEnemy: any = null;
-      entityManager.enemies.children.iterate((c) => {
-        const e = c as any;
-        if (e.active) {
-          const dist = Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y);
-          if (dist < nearestDist) {
-            nearestDist = dist;
-            nearestEnemy = e;
-          }
-        }
-        return true;
-      });
-      // Also check boss
-      // Not easily accessible here without a boss ref, but it's okay for homing to just hit normal enemies or just fire straight if none
-      fireProj(this.x, this.y - 20, 0, speed, nearestEnemy);
-      return;
-    }
-
-    if (lines === 2) {
-      fireProj(this.x - 10, this.y, 0, speed);
-      fireProj(this.x + 10, this.y, 0, speed);
-    } else {
-      fireProj(this.x, this.y - 20, 0, speed);
-    }
-
-    if (this.weaponLevel >= 4) {
-      const diagSpeed = speed * 0.707;
-      fireProj(this.x - 15, this.y, speed * 0.707, diagSpeed); // Left (speed is negative, so vx < 0)
-      fireProj(this.x + 15, this.y, -speed * 0.707, diagSpeed); // Right
-    }
+    const strategy = this.getWeaponStrategy();
+    strategy.fire({
+      x: this.x,
+      y: this.y,
+      weaponLevel: this.weaponLevel,
+      isMecha: this.form === 'mecha',
+      scene: this.scene
+    }, entityManager);
   }
 }

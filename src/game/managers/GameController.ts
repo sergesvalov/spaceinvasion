@@ -11,6 +11,7 @@ import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
 import { GameConfig } from '../config/GameConfig';
 import { burst } from '../effects/burst';
+import { AudioManager } from '../../services/AudioManager';
 
 export class GameController {
   private isPlaying: boolean = false;
@@ -102,31 +103,14 @@ export class GameController {
       this.scene.cameras.main.flash(500, 255, 255, 255);
       this.scene.cameras.main.shake(300, 0.02);
       
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('explosion', { volume: 1.0 });
-      }
+      AudioManager.getInstance().playExplosion(this.scene, { volume: 1.0 });
       
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
       }
       
-      // Damage all enemies (instakill normal, hurt boss)
-      this.entityManager.enemies.children.iterate((c) => {
-        const e = c as Enemy;
-        if (e.active) {
-          e.takeDamage(100); 
-        }
-        return true;
-      });
-      
-      // Clear all enemy projectiles
-      this.entityManager.enemyProjectiles.children.iterate((c) => {
-        const p = c as Phaser.Physics.Arcade.Sprite;
-        if (p.active) {
-          p.setActive(false).setVisible(false);
-        }
-        return true;
-      });
+      this.entityManager.applyDamageToAllEnemies(100);
+      this.entityManager.clearEnemyProjectiles();
 
       this.hudManager.update(this.score, this.health, this.antimatter);
     } else {
@@ -142,33 +126,10 @@ export class GameController {
     this.scene.cameras.main.flash(300, 255, 200, 0);
     this.scene.cameras.main.shake(200, 0.015);
     
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('explosion', { volume: 0.8 });
-    }
+    AudioManager.getInstance().playExplosion(this.scene, { volume: 0.8 });
     
-    // Damage enemies in radius
-    this.entityManager.enemies.children.iterate((c) => {
-      const e = c as Enemy;
-      if (e.active) {
-        const dist = Phaser.Math.Distance.Between(data.x, data.y, e.x, e.y);
-        if (dist <= data.radius) {
-          e.takeDamage(100); 
-        }
-      }
-      return true;
-    });
-    
-    // Clear projectiles in radius
-    this.entityManager.enemyProjectiles.children.iterate((c) => {
-      const p = c as Phaser.Physics.Arcade.Sprite;
-      if (p.active) {
-        const dist = Phaser.Math.Distance.Between(data.x, data.y, p.x, p.y);
-        if (dist <= data.radius) {
-          p.setActive(false).setVisible(false);
-        }
-      }
-      return true;
-    });
+    this.entityManager.applyDamageToAllEnemies(100, data.radius, data.x, data.y);
+    this.entityManager.clearEnemyProjectiles(data.radius, data.x, data.y);
 
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
@@ -183,10 +144,7 @@ export class GameController {
 
       this.player.transformToMecha();
       
-      // Play sound if available
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('pew', { volume: 0.5, rate: 0.5 }); // Deep sound
-      }
+      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.5 }); // Deep sound
 
       this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
         if (this.isPlaying) {
@@ -199,9 +157,7 @@ export class GameController {
   }
 
   private handleEnemyDestroyed(points: number) {
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('explosion', { volume: 0.3 });
-    }
+    AudioManager.getInstance().playExplosion(this.scene, { volume: 0.3 });
     this.score += points;
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
@@ -219,20 +175,14 @@ export class GameController {
       this.health = Math.min(this.health + 1, state.maxHp);
       state.setHp(this.health);
       this.hudManager.update(this.score, this.health, this.antimatter);
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('pew', { volume: 0.5, rate: 2 });
-      }
+      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 2 });
     } else if (type === 'weapon') {
       state.upgradeWeapon();
       this.player.weaponLevel = state.weaponLevel;
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('pew', { volume: 0.5, rate: 1.5 });
-      }
+      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 1.5 });
     } else if (type === 'spread' || type === 'homing') {
       this.player.setTempWeapon(type as any, 10000); // 10 seconds
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('pew', { volume: 0.8, rate: 1.0 });
-      }
+      AudioManager.getInstance().playPew(this.scene, { volume: 0.8, rate: 1.0 });
     }
   }
 
@@ -251,9 +201,7 @@ export class GameController {
     this.scene.cameras.main.shake(200, 0.01);
     this.scene.cameras.main.flash(200, 255, 0, 0);
     
-    if (localStorage.getItem('soundEnabled') !== 'false') {
-      this.scene.sound.play('pew', { volume: 0.5, rate: 0.2 });
-    }
+    AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.2 });
     
     if (window.Telegram?.WebApp?.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
@@ -261,9 +209,7 @@ export class GameController {
 
     if (this.health <= 0) {
       console.log('[GameController] Player defeated!');
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('explosion', { volume: 0.8 });
-      }
+      AudioManager.getInstance().playExplosion(this.scene, { volume: 0.8 });
       this.isPlaying = false;
       this.inputManager.isActive = false;
       (window as any).__GAME_RESULT__ = 'DEFEAT';
