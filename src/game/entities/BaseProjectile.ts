@@ -2,11 +2,23 @@ import Phaser from 'phaser';
 
 export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
   public damage: number = 1;
+  protected trailEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+
+    this.trailEmitter = scene.add.particles(0, 0, 'particle', {
+      scale: { start: 0.6, end: 0 },
+      alpha: { start: 0.6, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 150,
+      tint: 0x00ffff,
+      frequency: 20
+    });
+    this.trailEmitter.startFollow(this);
+    this.trailEmitter.stop();
   }
 
   fire(x: number, y: number, velocityY: number, damage?: number) {
@@ -22,6 +34,18 @@ export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
       body.reset(x, y);
       body.setVelocityY(velocityY);
     }
+    
+    if (this.trailEmitter) {
+      this.trailEmitter.start();
+    }
+  }
+
+  setActive(value: boolean): this {
+    super.setActive(value);
+    if (!value && this.trailEmitter) {
+      this.trailEmitter.stop();
+    }
+    return this;
   }
 
   protected isOutOfBounds(): boolean {

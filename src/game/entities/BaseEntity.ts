@@ -22,9 +22,9 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
     
     this.hp -= amount;
     
-    // Flash red when taking damage
-    this.setTint(0xff0000);
-    this.scene.time.delayedCall(100, () => {
+    // Flash white when taking damage
+    this.setTintFill(0xffffff);
+    this.scene.time.delayedCall(80, () => {
       if (this.active) this.clearTint();
     });
 

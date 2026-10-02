@@ -57,10 +57,14 @@ export class CollisionManager {
       } else {
         p.setActive(false);
         p.setVisible(false);
+        // Hit spark
+        burst(this.scene, p.x, p.y, 5, { scale: { start: 0.5, end: 0 }, lifespan: 200, speed: { min: 50, max: 150 }, tint: 0x00ffff });
       }
       
       const destroyed = e.takeDamage(p.damage);
       if (destroyed) {
+        // Small screen shake on enemy death
+        this.scene.cameras.main.shake(100, 0.005);
         EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
         if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
           const container = this.entityManager.getAntimatterContainer();
@@ -83,9 +87,14 @@ export class CollisionManager {
       } else {
         p.setActive(false);
         p.setVisible(false);
+        // Hit spark
+        burst(this.scene, p.x, p.y, 10, { scale: { start: 0.8, end: 0 }, lifespan: 300, speed: { min: 100, max: 200 }, tint: 0x00ffff });
       }
       
       const destroyed = bossObj.takeDamage(p.damage);
+      // Small screen shake for boss hit
+      this.scene.cameras.main.shake(100, 0.003);
+      
       if (destroyed) {
         for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
           const container = this.entityManager.getAntimatterContainer();

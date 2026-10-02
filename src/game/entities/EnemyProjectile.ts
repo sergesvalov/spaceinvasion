@@ -4,6 +4,9 @@ import { BaseProjectile } from './BaseProjectile';
 export class EnemyProjectile extends BaseProjectile {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'enemy-projectile');
+    if (this.trailEmitter) {
+      this.trailEmitter.setParticleTint(0xff00ff);
+    }
   }
 
   fire(x: number, y: number, velocityY: number) {
