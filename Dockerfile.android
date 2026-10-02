@@ -26,9 +26,13 @@ RUN mkdir -p ${ANDROID_HOME}/licenses && \
     echo "e9acab5b5fbb560a72cfaecce8946896ff6aab9d" > ${ANDROID_HOME}/licenses/mips-android-sysimage-license && \
     sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
 
-# Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM)
+# Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM Macs), если требуется
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
-    curl -s https://raw.githubusercontent.com/Commit451/android-arm-build-tools/main/install.sh | bash
+    if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
+        curl -s https://raw.githubusercontent.com/Commit451/android-arm-build-tools/main/install.sh | bash; \
+    else \
+        echo "Running on x86_64, skipping ARM build tools replacement."; \
+    fi
 
 # Заставляем Gradle использовать нативный aapt2 вместо скачивания x86_64 версии из Maven
 RUN mkdir -p /root/.gradle && echo "android.aapt2FromMavenOverride=/opt/android-sdk/build-tools/37.0.0/aapt2" >> /root/.gradle/gradle.properties
