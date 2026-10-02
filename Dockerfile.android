@@ -14,16 +14,17 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest
 
 # Принятие лицензий и установка компонентов SDK
-RUN apt-get update && apt-get install -y expect && rm -rf /var/lib/apt/lists/* && \
-    expect -c ' \
-        set timeout -1; \
-        spawn sdkmanager --licenses; \
-        expect { \
-            "y/N" { exp_send "y\r"; exp_continue } \
-            eof \
-        } \
-    ' && \
-    yes | sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
+RUN mkdir -p ${ANDROID_HOME}/licenses && \
+    echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "84831b9409646a918e30573bab4c9c91346d8abd" >> ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" >> ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "e5443be1267ea0445dcb9ac9c020f1df296e680a" >> ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "d975f751698a77b662f1254ddbeed3901e976f5a" >> ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ${ANDROID_HOME}/licenses/android-sdk-preview-license && \
+    echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > ${ANDROID_HOME}/licenses/android-googletv-license && \
+    echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > ${ANDROID_HOME}/licenses/google-gdk-license && \
+    echo "e9acab5b5fbb560a72cfaecce8946896ff6aab9d" > ${ANDROID_HOME}/licenses/mips-android-sysimage-license && \
+    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
 
 # Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM)
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
