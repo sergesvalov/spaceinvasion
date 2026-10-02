@@ -18,6 +18,7 @@ export class LevelManager {
   private scrollSpeed = 0.5;
   private activeBg!: Phaser.GameObjects.TileSprite;
   private nextBg!: Phaser.GameObjects.TileSprite;
+  private resizeHandler!: (gameSize: Phaser.Structs.Size) => void;
 
   constructor(scene: Phaser.Scene, phases: LevelPhase[], onBossPhase: () => void) {
     this.scene = scene;
@@ -42,6 +43,23 @@ export class LevelManager {
     this.activeBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.activeBg.setDepth(-100);
     this.activeBg.setAlpha(0.8);
+
+    // Handle resize events
+    this.resizeHandler = (gameSize: Phaser.Structs.Size) => {
+      const { width, height } = gameSize;
+      starBg.setPosition(width / 2, height / 2);
+      starBg.setSize(width, height);
+      this.activeBg.setPosition(width / 2, height / 2);
+      this.activeBg.setSize(width, height);
+      this.nextBg.setPosition(width / 2, height / 2);
+      this.nextBg.setSize(width, height);
+    };
+    
+    this.scene.scale.on('resize', this.resizeHandler, this);
+  }
+
+  public destroy() {
+    this.scene.scale.off('resize', this.resizeHandler, this);
   }
 
   public startLevel(time: number) {

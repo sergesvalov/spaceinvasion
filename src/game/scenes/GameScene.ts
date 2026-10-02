@@ -160,10 +160,20 @@ export class GameScene extends Phaser.Scene {
     };
     document.addEventListener('visibilitychange', this.visibilityHandler);
 
+    const resizeHandler = (gameSize: Phaser.Structs.Size) => {
+      const { width, height } = gameSize;
+      this.physics.world.setBounds(0, 0, width, height);
+      this.cameras.main.setViewport(0, 0, width, height);
+    };
+    
+    this.scale.on('resize', resizeHandler, this);
+
     this.events.once('shutdown', () => {
       EventBus.off('toggle_pause', this.togglePauseHandler);
       document.removeEventListener('visibilitychange', this.visibilityHandler);
       this.playerActionManager.destroy();
+      this.levelManager.destroy();
+      this.scale.off('resize', resizeHandler, this);
     });
   }
 
