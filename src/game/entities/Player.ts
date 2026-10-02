@@ -29,6 +29,9 @@ export class Player extends Phaser.GameObjects.Container {
   private currentStateComponent: PlayerStateComponent;
   private fighterState: FighterState;
   private mechaState: MechaState;
+  
+  public isDashing: boolean = false;
+  private lastDashTime: number = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -123,6 +126,44 @@ export class Player extends Phaser.GameObjects.Container {
 
   public getForm(): PlayerForm {
     return this.form;
+  }
+
+  public dash(dx: number, dy: number, time: number) {
+    if (this.form !== 'mecha') return;
+    if (time - this.lastDashTime < 1500) return; // 1.5s cooldown
+    if (this.isDashing) return;
+
+    this.lastDashTime = time;
+    this.isDashing = true;
+    
+    // Ghost trail effect
+    this.scene.time.addEvent({
+      delay: 30,
+      repeat: 5,
+      callback: () => {
+        const ghost = this.scene.add.sprite(this.x, this.y, this.sprite.texture.key);
+        ghost.setScale(this.sprite.scaleX, this.sprite.scaleY);
+        ghost.setTint(0x00ffff);
+        this.scene.tweens.add({
+          targets: ghost,
+          alpha: 0,
+          scale: this.sprite.scaleX * 1.2,
+          duration: 300,
+          onComplete: () => ghost.destroy()
+        });
+      }
+    });
+
+    this.scene.tweens.add({
+      targets: this,
+      x: this.x + dx * 150,
+      y: this.y + dy * 150,
+      duration: 150,
+      ease: 'Power2',
+      onComplete: () => {
+        this.isDashing = false;
+      }
+    });
   }
   
   public activatePurchasedShield() {

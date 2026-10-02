@@ -16,6 +16,7 @@ import { AudioManager } from '../../services/AudioManager';
 export class GameController {
   private isPlaying: boolean = false;
   private isInvulnerable: boolean = false;
+  private damageTimestamps: number[] = [];
   
   private score: number = 0;
   private health: number = 3;
@@ -49,33 +50,53 @@ export class GameController {
     return this.score;
   }
 
+  public getDDAModifier(time: number): number {
+    this.damageTimestamps = this.damageTimestamps.filter(t => time - t < 30000);
+    const hits = this.damageTimestamps.length;
+    let modifier = 1.0 + (hits * 0.2);
+    if (hits === 0 && this.score > 2000) {
+      modifier = 0.8;
+    }
+    return Math.min(2.0, modifier);
+  }
+
+  private boundHandlers: Record<string, Function> = {};
+
   public setupEvents() {
-    EventBus.on('enemy_destroyed', (points: number) => this.handleEnemyDestroyed(points));
-    EventBus.on('boss_destroyed', () => this.handleVictory());
-    EventBus.on('antimatter_collected', () => this.handleAntimatterCollected());
-    EventBus.on('player_hit', () => this.handlePlayerDamage());
-    EventBus.on('powerup_collected', (type: string) => this.handlePowerUpCollected(type));
-    EventBus.on('transform_request', () => this.handleTransformRequest());
-    EventBus.on('shield_request', () => this.handleShieldRequest());
-    EventBus.on('bomb_request', () => this.handleBombRequest());
-    EventBus.on('mecha_shockwave', (data: any) => this.handleMechaShockwave(data));
+    this.boundHandlers['enemy_destroyed'] = (points: number) => this.handleEnemyDestroyed(points);
+    this.boundHandlers['boss_destroyed'] = () => this.handleVictory();
+    this.boundHandlers['antimatter_collected'] = () => this.handleAntimatterCollected();
+    this.boundHandlers['player_hit'] = () => this.handlePlayerDamage();
+    this.boundHandlers['powerup_collected'] = (type: string) => this.handlePowerUpCollected(type);
+    this.boundHandlers['transform_request'] = () => this.handleTransformRequest();
+    this.boundHandlers['shield_request'] = () => this.handleShieldRequest();
+    this.boundHandlers['bomb_request'] = () => this.handleBombRequest();
+    this.boundHandlers['dash_request'] = (dir: { dx: number, dy: number }) => this.handleDashRequest(dir);
+    this.boundHandlers['mecha_shockwave'] = (data: any) => this.handleMechaShockwave(data);
+
+    Object.entries(this.boundHandlers).forEach(([event, handler]) => {
+      EventBus.on(event, handler as Function, this);
+    });
   }
 
   public destroy() {
-    EventBus.off('enemy_destroyed');
-    EventBus.off('boss_destroyed');
-    EventBus.off('antimatter_collected');
-    EventBus.off('player_hit');
-    EventBus.off('powerup_collected');
-    EventBus.off('transform_request');
-    EventBus.off('shield_request');
-    EventBus.off('bomb_request');
-    EventBus.off('mecha_shockwave');
+    Object.entries(this.boundHandlers).forEach(([event, handler]) => {
+      EventBus.off(event, handler as Function, this);
+    });
+    this.boundHandlers = {};
   }
 
   public handleBossPhase(width: number) {
     console.log('[GameController] Boss phase started!');
     this.boss.spawn(width / 2, -100);
+    this.hudManager.showBossBar();
+    this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+  }
+
+  public updateBossHUD() {
+    if (this.boss.active) {
+      this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+    }
   }
 
   private handleShieldRequest() {
@@ -84,9 +105,7 @@ export class GameController {
       this.player.activatePurchasedShield();
       this.hudManager.update(this.score, this.health, this.antimatter);
       
-      if (localStorage.getItem('soundEnabled') !== 'false') {
-        this.scene.sound.play('pew', { volume: 0.5, rate: 0.8 }); // Maybe another sound?
-      }
+      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.8 });
     } else if (state.shields === 0) {
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
@@ -117,6 +136,12 @@ export class GameController {
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
       }
+    }
+  }
+
+  private handleDashRequest(dir: { dx: number, dy: number }) {
+    if (this.player.getForm() === 'mecha' && this.isPlaying) {
+      this.player.dash(dir.dx, dir.dy, this.scene.time.now);
     }
   }
 
@@ -156,6 +181,24 @@ export class GameController {
     }
   }
 
+  private showFloatingText(x: number, y: number, text: string, color: string) {
+    const txt = this.scene.add.text(x, y, text, {
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: color,
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+    
+    this.scene.tweens.add({
+      targets: txt,
+      y: y - 50,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => txt.destroy()
+    });
+  }
+
   private handleEnemyDestroyed(points: number) {
     AudioManager.getInstance().playExplosion(this.scene, { volume: 0.3 });
     this.score += points;
@@ -167,6 +210,7 @@ export class GameController {
     state.addAntimatter(1);
     this.antimatter = state.antimatter;
     this.hudManager.update(this.score, this.health, this.antimatter);
+    this.showFloatingText(this.player.x, this.player.y, '+1 AM', '#ff00ff');
   }
 
   private handlePowerUpCollected(type: string) {
@@ -180,19 +224,22 @@ export class GameController {
       state.upgradeWeapon();
       this.player.weaponLevel = state.weaponLevel;
       AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 1.5 });
+      this.showFloatingText(this.player.x, this.player.y, 'W UP', '#ffff00');
     } else if (type === 'spread' || type === 'homing') {
       this.player.setTempWeapon(type as any, 10000); // 10 seconds
       AudioManager.getInstance().playPew(this.scene, { volume: 0.8, rate: 1.0 });
+      this.showFloatingText(this.player.x, this.player.y, type.toUpperCase(), '#00ffff');
     }
   }
 
   private handlePlayerDamage() {
-    if (this.isInvulnerable) return;
+    if (this.isInvulnerable || this.player.isDashing) return;
     // God mode for E2E tests to prevent flaky test failures due to bullet hell randomness
     if ((window as any).__E2E_TEST_MODE__) return;
     
     this.health -= 1;
     this.isInvulnerable = true;
+    this.damageTimestamps.push(this.scene.time.now);
     
     const state = GameState.getInstance();
     state.setHp(this.health);
@@ -226,11 +273,20 @@ export class GameController {
       setTimeout(() => {
         this.hudManager.destroy();
         this.destroy();
-        this.scene.scene.start('MenuScene');
+        this.scene.scene.start('DefeatScene', { score: this.score, level: this.currentLevel });
       }, 2000);
     } else {
-      this.player.setAlpha(0.5);
+      // Blinking invulnerability effect
+      const blinkTween = this.scene.tweens.add({
+        targets: this.player,
+        alpha: 0.2,
+        duration: 80,
+        yoyo: true,
+        repeat: 5, // 6 blinks over ~960ms
+      });
+
       this.scene.time.delayedCall(1000, () => {
+        blinkTween.stop();
         if (this.isPlaying) {
           this.player.setAlpha(1);
         }
@@ -245,6 +301,12 @@ export class GameController {
     this.inputManager.isActive = false;
     (window as any).__GAME_RESULT__ = 'VICTORY';
     
+    this.scene.cameras.main.shake(1500, 0.02);
+    
+    AnalyticsService.getInstance().levelComplete(`level_${this.currentLevel}`);
+
+    this.hudManager.hideBossBar();
+
     this.entityManager.enemies.children.iterate((c) => {
       const e = c as Enemy;
       if (e.active) {

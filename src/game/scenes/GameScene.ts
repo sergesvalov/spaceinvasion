@@ -4,6 +4,7 @@ import { Drone } from '../entities/Drone';
 import { Boss } from '../entities/Boss';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
+import { EventBus } from '../../services/EventBus';
 
 import { HUDManager } from '../managers/HUDManager';
 import { InputManager } from '../managers/InputManager';
@@ -29,6 +30,9 @@ export class GameScene extends Phaser.Scene {
   private levelManager!: LevelManager;
   private gameController!: GameController;
   private autopilot!: Autopilot;
+  private isPaused: boolean = false;
+  private visibilityHandler!: () => void;
+  private togglePauseHandler!: () => void;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -109,10 +113,51 @@ export class GameScene extends Phaser.Scene {
     );
     this.levelManager.setupBackgrounds();
 
+    // Speed lines effect
+    this.add.particles(0, 0, 'star', {
+      x: { min: 0, max: width },
+      y: 0,
+      lifespan: 1500,
+      speedY: { min: 300, max: 600 },
+      scaleY: { min: 5, max: 15 },
+      scaleX: 1,
+      alpha: { start: 0.3, end: 0 },
+      quantity: 2,
+      blendMode: 'ADD'
+    });
+
     this.gameController.setIsPlaying(true);
     this.inputManager.isActive = true;
     this.hudManager.show();
     this.levelManager.startLevel(this.time.now);
+
+    this.togglePauseHandler = () => this.togglePause();
+    EventBus.on('toggle_pause', this.togglePauseHandler);
+
+    this.visibilityHandler = () => {
+      if (document.hidden && !this.isPaused && this.gameController.getIsPlaying()) {
+        this.togglePause();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+
+    this.events.once('shutdown', () => {
+      EventBus.off('toggle_pause', this.togglePauseHandler);
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+    });
+  }
+
+  private togglePause() {
+    if (!this.gameController.getIsPlaying()) return; // Don't pause on game over
+
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.scene.pause();
+      this.hudManager.showPauseOverlay();
+    } else {
+      this.scene.resume();
+      this.hudManager.hidePauseOverlay();
+    }
   }
 
   update(time: number, delta: number) {
@@ -130,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     }
     
     this.player.updateMelee(this.entityManager, time);
+    this.gameController.updateBossHUD();
 
     const currentPhase = this.levelManager.getCurrentPhaseKey();
     if (currentPhase === 'bg_city' || currentPhase === 'bg_suburbs') {
@@ -139,7 +185,9 @@ export class GameScene extends Phaser.Scene {
     const baseModifier = this.levelManager.getCurrentSpawnModifier();
     // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)
     const scoreModifier = Math.max(0.3, 1 - Math.floor(this.gameController.getScore() / 1000) * 0.05);
-    const finalModifier = baseModifier * scoreModifier;
+    const ddaModifier = this.gameController.getDDAModifier(time);
+    
+    const finalModifier = baseModifier * scoreModifier * ddaModifier;
 
     this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier);
   }

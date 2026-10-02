@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
+import { Enemy } from '../entities/Enemy';
 
 export interface WeaponContext {
   x: number;
@@ -114,10 +115,10 @@ export class HomingWeapon extends BaseWeaponStrategy implements WeaponStrategy {
     const speed = this.getBaseSpeed(context.isMecha);
     
     let nearestDist = Infinity;
-    let nearestEnemy: any = null;
+    let nearestEnemy: Enemy | null = null;
     
     entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
+      const e = c as Enemy;
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(context.x, context.y, e.x, e.y);
         if (dist < nearestDist) {

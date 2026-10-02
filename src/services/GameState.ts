@@ -176,7 +176,7 @@ export class GameState {
   }
 
   public setHp(amount: number) {
-    this._currentHp = Phaser.Math.Clamp(amount, 0, this._maxHp);
+    this._currentHp = Math.max(0, Math.min(amount, this._maxHp));
     this.saveState();
   }
 

@@ -3,6 +3,7 @@ import { Enemy } from '../entities/Enemy';
 import { EntityManager } from './EntityManager';
 
 import { Boss } from '../entities/Boss';
+import { PowerUpType } from '../entities/PowerUp';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -53,7 +54,7 @@ export class EntitySpawner {
       if (powerUp) {
         const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
         const rand = Phaser.Math.FloatBetween(0, 1);
-        let type: any = 'weapon';
+        let type: PowerUpType = 'weapon';
         if (rand < 0.2) type = 'spread';
         else if (rand < 0.4) type = 'homing';
         else if (rand < 0.7) type = 'health';

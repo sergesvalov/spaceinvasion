@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { EntityManager } from '../managers/EntityManager';
 import { Player } from './Player';
+import { Enemy } from './Enemy';
 
 export class Drone extends Phaser.GameObjects.Sprite {
   private player: Player;
@@ -42,9 +43,9 @@ export class Drone extends Phaser.GameObjects.Sprite {
 
   private fire() {
     let nearestDist = Infinity;
-    let nearestEnemy: any = null;
+    let nearestEnemy: Enemy | null = null;
     this.entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
+      const e = c as Enemy;
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y);
         if (dist < nearestDist) {
@@ -56,9 +57,10 @@ export class Drone extends Phaser.GameObjects.Sprite {
     });
 
     if (nearestEnemy) {
-      const proj = this.entityManager.getProjectile() as any;
-      if (proj && typeof proj.fire === 'function') {
-        const angle = Phaser.Math.Angle.Between(this.x, this.y, nearestEnemy.x, nearestEnemy.y);
+      const target = nearestEnemy as Enemy;
+      const proj = this.entityManager.getProjectile();
+      if (proj) {
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
         const speed = 400;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
@@ -71,8 +73,8 @@ export class Drone extends Phaser.GameObjects.Sprite {
         proj.setTint(0x00ff00);
       }
     } else {
-      const proj = this.entityManager.getProjectile() as any;
-      if (proj && typeof proj.fire === 'function') {
+      const proj = this.entityManager.getProjectile();
+      if (proj) {
         proj.fire(this.x, this.y, -400, 1, 'plasma');
         proj.setScale(0.24);
         proj.setTint(0x00ff00);

@@ -8,6 +8,7 @@ import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from './EntityManager';
 import { burst } from '../effects/burst';
+import { Projectile } from '../entities/Projectile';
 
 export class CollisionManager {
   private scene: Phaser.Scene;
@@ -35,7 +36,7 @@ export class CollisionManager {
 
     // Player Projectile vs Enemy
     this.scene.physics.add.overlap(projectiles, enemies, (proj, enemy) => {
-      const p = proj as any; // Cast to any to access piercing/hitTargets
+      const p = proj as Projectile;
       const e = enemy as Enemy;
       
       if (p.active && e.active) {

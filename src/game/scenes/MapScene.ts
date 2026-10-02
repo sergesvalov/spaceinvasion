@@ -132,7 +132,10 @@ export class MapScene extends Phaser.Scene {
     this.cameras.main.zoomTo(1.2, 4000, 'Sine.easeInOut');
 
     // Click or timeout to proceed
+    let proceeded = false;
     const proceed = () => {
+      if (proceeded) return;
+      proceeded = true;
       this.cameras.main.flash(500, 255, 255, 255); // White flash
       this.time.delayedCall(100, () => {
         this.scene.start('GameScene', { level: this.levelData.level });

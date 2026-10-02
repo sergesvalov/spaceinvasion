@@ -42,5 +42,18 @@ export class InputManager {
         EventBus.emit('shield_request');
       }
     });
+
+    this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (!this.isActive) return;
+      
+      const swipeTime = pointer.upTime - pointer.downTime;
+      const dx = pointer.upX - pointer.downX;
+      const dy = pointer.upY - pointer.downY;
+      
+      if (swipeTime < 300 && (Math.abs(dx) > 100 || Math.abs(dy) > 100)) {
+        const len = Math.sqrt(dx * dx + dy * dy);
+        EventBus.emit('dash_request', { dx: dx / len, dy: dy / len });
+      }
+    });
   }
 }

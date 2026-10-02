@@ -42,6 +42,17 @@ export class BootScene extends Phaser.Scene {
     cloudGraphics.generateTexture('cloud_particle', 100, 100);
     cloudGraphics.destroy();
 
+    // AA Gun projectile texture
+    const aapGraphics = this.add.graphics();
+    aapGraphics.fillStyle(0xff8800, 0.4);
+    aapGraphics.fillCircle(15, 15, 15);
+    aapGraphics.fillStyle(0xff2200, 0.8);
+    aapGraphics.fillCircle(15, 15, 10);
+    aapGraphics.fillStyle(0xffffaa, 1);
+    aapGraphics.fillCircle(15, 15, 5);
+    aapGraphics.generateTexture('aagun-projectile', 30, 30);
+    aapGraphics.destroy();
+
     // Load sounds
     this.load.audio('pew', 'pew.wav');
     this.load.audio('explosion', 'explosion.wav');
@@ -67,6 +78,9 @@ export class BootScene extends Phaser.Scene {
     this.load.image('story_2', 'story/story_2.png');
     this.load.image('story_3', 'story/story_3.png');
     this.load.image('story_4', 'story/story_4.png');
+    this.load.image('victory_1', 'story/victory_1.png');
+    this.load.image('victory_2', 'story/victory_2.png');
+    this.load.image('victory_3', 'story/victory_3.png');
 
     // Load Earth backgrounds
     this.load.image('bg_city', 'bg/city.png');

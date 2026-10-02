@@ -4,6 +4,7 @@ import { burst } from '../../effects/burst';
 import { EventBus } from '../../../services/EventBus';
 import { AudioManager } from '../../../services/AudioManager';
 import { GameConfig } from '../../config/GameConfig';
+import { Enemy } from '../Enemy';
 
 export interface PlayerContext {
   x: number;
@@ -112,7 +113,7 @@ export class MechaState implements PlayerStateComponent {
 
     let nearestDist = Infinity;
     entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
+      const e = c as Enemy;
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(context.x, context.y, e.x, e.y);
         if (dist < nearestDist) {
@@ -147,7 +148,7 @@ export class MechaState implements PlayerStateComponent {
     });
 
     entityManager.enemies.children.iterate((c) => {
-      const e = c as any;
+      const e = c as Enemy;
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(context.x, context.y - 20, e.x, e.y);
         if (dist < 150 && e.y < context.y) {
