@@ -11,6 +11,7 @@ export class Boss extends BaseEntity {
 
   private enemyProjectiles: Phaser.Physics.Arcade.Group;
   private onSpawnKamikaze: (x: number, y: number) => void;
+  private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(
     scene: Phaser.Scene,
@@ -32,6 +33,19 @@ export class Boss extends BaseEntity {
       body.setSize(108, 78);
       body.setImmovable(true);
     }
+
+    this.exhaustEmitter = scene.add.particles(0, 0, 'cloud_particle', {
+      speedY: { min: -100, max: -300 }, // boss points down, engine is at the top
+      speedX: { min: -20, max: 20 },
+      scale: { start: 0.8, end: 0 },
+      alpha: { start: 0.6, end: 0 },
+      blendMode: 'ADD',
+      lifespan: 600,
+      tint: [0xff0000, 0xff5500],
+      frequency: 30
+    });
+    this.exhaustEmitter.startFollow(this, 0, -30);
+    this.exhaustEmitter.stop(); // default stopped until spawned
   }
 
   spawn(x: number, y: number) {
@@ -49,6 +63,7 @@ export class Boss extends BaseEntity {
       // Moves slowly down until it reaches top of screen
       body.setVelocityY(20);
     }
+    this.exhaustEmitter.start();
   }
 
   preUpdate(time: number, delta: number) {
@@ -101,5 +116,13 @@ export class Boss extends BaseEntity {
         }
       }
     });
+  }
+
+  setActive(value: boolean): this {
+    super.setActive(value);
+    if (!value) {
+      this.exhaustEmitter.stop();
+    }
+    return this;
   }
 }

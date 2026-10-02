@@ -18,11 +18,22 @@ export class MenuScene extends Phaser.Scene {
     this.background = this.add.tileSprite(width / 2, height / 2, width, height, 'starfield');
 
     // Title
-    this.add.text(width / 2, height * 0.3, 'SPACE INVASION', {
-      fontSize: '32px',
-      color: '#ffffff',
-      fontStyle: 'bold'
+    const title = this.add.text(width / 2, height * 0.25, 'SPACE INVASION', {
+      fontFamily: 'Orbitron',
+      fontSize: '42px',
+      color: '#00ffcc',
+      fontStyle: '900',
+      shadow: { color: '#00ffcc', blur: 15, fill: true }
     }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: title,
+      scale: 1.05,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
 
     // Play Button
     Button.create(this, width / 2, height * 0.4, 'PLAY', () => {

@@ -5,9 +5,9 @@ import { GameConfig } from '../config/GameConfig';
 export class HUDManager {
   private hudEl!: HTMLElement;
   private scoreEl!: HTMLElement;
+  private currentDisplayedScore: number = 0;
   private antimatterEl!: HTMLElement;
   private healthContainerEl!: HTMLElement;
-  private healthFillEl!: HTMLElement;
   private shieldBtnEl!: HTMLElement;
   private bombBtnEl!: HTMLElement;
   private bossBarContainer!: HTMLElement;
@@ -16,6 +16,7 @@ export class HUDManager {
   private pauseBtnEl!: HTMLElement;
   private pauseOverlayEl!: HTMLElement;
   private resumeBtnEl!: HTMLElement;
+  private warningOverlayEl!: HTMLElement;
 
   public createHUD(initialHealth: number) {
     const uiContainer = document.getElementById('ui-container');
@@ -37,12 +38,9 @@ export class HUDManager {
     statsContainer.appendChild(this.antimatterEl);
     
     this.healthContainerEl = document.createElement('div');
-    this.healthContainerEl.className = 'health-bar-container';
+    this.healthContainerEl.className = 'health-segments-container';
     
-    this.healthFillEl = document.createElement('div');
-    this.healthFillEl.className = 'health-bar-fill';
-    
-    this.healthContainerEl.appendChild(this.healthFillEl);
+    // We will dynamically add segments in update()
     
     this.hudEl.appendChild(statsContainer);
     this.hudEl.appendChild(this.healthContainerEl);
@@ -105,6 +103,11 @@ export class HUDManager {
 
     this.hudEl.appendChild(this.bombBtnEl);
 
+    // Warning Overlay
+    this.warningOverlayEl = document.createElement('div');
+    this.warningOverlayEl.className = 'warning-overlay';
+    this.hudEl.appendChild(this.warningOverlayEl);
+
     // Boss HP bar
     this.bossBarContainer = document.createElement('div');
     this.bossBarContainer.className = 'boss-bar-container';
@@ -130,7 +133,27 @@ export class HUDManager {
   }
 
   public update(score: number, health: number, antimatter: number = 0) {
-    if (this.scoreEl) this.scoreEl.textContent = `Score: ${score}`;
+    if (this.scoreEl) {
+      if (this.currentDisplayedScore !== score) {
+        // Animate score update logic
+        const diff = score - this.currentDisplayedScore;
+        this.currentDisplayedScore += Math.ceil(diff * 0.2); // Smooth follow
+        if (Math.abs(score - this.currentDisplayedScore) < 5) {
+          this.currentDisplayedScore = score;
+        }
+        this.scoreEl.textContent = `SCORE: ${this.currentDisplayedScore}`;
+        
+        // Pop effect
+        this.scoreEl.style.transform = 'scale(1.2)';
+        this.scoreEl.style.color = '#ffffff';
+        setTimeout(() => {
+          if (this.scoreEl) {
+            this.scoreEl.style.transform = 'scale(1)';
+            this.scoreEl.style.color = '#00ffcc';
+          }
+        }, 100);
+      }
+    }
     if (this.antimatterEl) {
       this.antimatterEl.textContent = `Antimatter: ${antimatter}`;
       if (antimatter >= GameConfig.Player.MechaCost) {
@@ -143,20 +166,20 @@ export class HUDManager {
       }
     }
     
-    if (this.healthFillEl) {
+    if (this.healthContainerEl) {
       const maxHp = GameState.getInstance().maxHp;
-      const percentage = Math.max(0, Math.min(100, (health / maxHp) * 100));
-      this.healthFillEl.style.width = `${percentage}%`;
+      this.healthContainerEl.innerHTML = ''; // clear segments
       
-      if (percentage > 50) {
-        this.healthFillEl.style.backgroundColor = '#00ff00';
-        this.healthFillEl.style.boxShadow = '0 0 10px #00ff00';
-      } else if (percentage > 25) {
-        this.healthFillEl.style.backgroundColor = '#ffff00';
-        this.healthFillEl.style.boxShadow = '0 0 10px #ffff00';
-      } else {
-        this.healthFillEl.style.backgroundColor = '#ff0000';
-        this.healthFillEl.style.boxShadow = '0 0 10px #ff0000';
+      for (let i = 0; i < maxHp; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'health-segment';
+        if (i < health) {
+          seg.classList.add('active');
+          if (health <= 1) {
+            seg.classList.add('danger');
+          }
+        }
+        this.healthContainerEl.appendChild(seg);
       }
     }
 
@@ -183,6 +206,21 @@ export class HUDManager {
 
   public showBossBar() {
     if (this.bossBarContainer) this.bossBarContainer.style.display = 'block';
+    
+    if (this.warningOverlayEl) {
+      this.warningOverlayEl.classList.add('active');
+      const warningText = document.createElement('div');
+      warningText.className = 'warning-text';
+      warningText.textContent = 'WARNING: BOSS APPROACHING';
+      this.warningOverlayEl.appendChild(warningText);
+      
+      setTimeout(() => {
+        if (this.warningOverlayEl) {
+          this.warningOverlayEl.classList.remove('active');
+          this.warningOverlayEl.innerHTML = '';
+        }
+      }, 3000);
+    }
   }
 
   public hideBossBar() {

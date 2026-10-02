@@ -15,21 +15,29 @@ export class Button {
       hoverBackgroundColor?: string;
     }
   ): Phaser.GameObjects.Text {
-    const defaultColor = options?.color || '#00aaff';
-    const hoverColor = options?.hoverColor || '#ffaa00';
-    const defaultBg = options?.backgroundColor || '#111111';
-    const hoverBg = options?.hoverBackgroundColor || '#333333';
+    const defaultColor = options?.color || '#00ffcc';
+    const hoverColor = options?.hoverColor || '#ffffff';
+    const defaultBg = options?.backgroundColor || 'rgba(0, 50, 100, 0.4)';
+    const hoverBg = options?.hoverBackgroundColor || 'rgba(0, 150, 255, 0.6)';
 
     const btn = scene.add.text(x, y, text, {
+      fontFamily: 'Orbitron',
       fontSize: options?.fontSize || '24px',
       color: defaultColor,
       backgroundColor: defaultBg,
-      padding: { x: 20, y: 10 }
+      padding: { x: 30, y: 15 },
+      shadow: { color: defaultColor, blur: 5, fill: true }
     })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
-      .on('pointerover', () => btn.setStyle({ color: hoverColor, backgroundColor: hoverBg }))
-      .on('pointerout', () => btn.setStyle({ color: defaultColor, backgroundColor: defaultBg }))
+      .on('pointerover', () => {
+        btn.setStyle({ color: hoverColor, backgroundColor: hoverBg, shadow: { color: hoverColor, blur: 15, fill: true } });
+        scene.tweens.add({ targets: btn, scale: 1.1, duration: 100 });
+      })
+      .on('pointerout', () => {
+        btn.setStyle({ color: defaultColor, backgroundColor: defaultBg, shadow: { color: defaultColor, blur: 5, fill: true } });
+        scene.tweens.add({ targets: btn, scale: 1, duration: 100 });
+      })
       .on('pointerdown', () => {
         // Haptic feedback
         if (window.Telegram?.WebApp?.HapticFeedback) {

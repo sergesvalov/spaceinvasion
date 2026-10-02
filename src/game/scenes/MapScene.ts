@@ -84,6 +84,16 @@ export class MapScene extends Phaser.Scene {
       }
     });
 
+    // Draw route path
+    const path = this.add.graphics();
+    path.lineStyle(2, 0x00ffcc, 0.3);
+    path.beginPath();
+    path.moveTo(markers[0].x, markers[0].y);
+    for (let i = 1; i < markers.length; i++) {
+      path.lineTo(markers[i].x, markers[i].y);
+    }
+    path.strokePath();
+
     // Draw Active Marker
     this.redMarker = this.add.graphics();
     this.redMarker.lineStyle(2, 0xff0033, 0.8);
@@ -99,10 +109,10 @@ export class MapScene extends Phaser.Scene {
     labelBox.strokeRect(activeMarker.x + 20, activeMarker.y - 30, 180, 25);
 
     this.add.text(activeMarker.x + 25, activeMarker.y - 25, activeMarker.name, {
-      fontFamily: 'monospace',
+      fontFamily: 'Orbitron',
       fontSize: '12px',
       color: '#ff0033',
-      fontStyle: 'bold'
+      fontStyle: '900'
     });
 
     // Connector Line

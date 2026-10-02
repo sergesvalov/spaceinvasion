@@ -30,32 +30,42 @@ export class GarageScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // Background
+    // Hologram Background
     const bg = this.add.image(width / 2, height / 2, 'hangar');
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
     const scale = Math.max(scaleX, scaleY);
     bg.setScale(scale).setScrollFactor(0);
-    // Darken background slightly to make UI pop
-    bg.setTint(0x888888);
+    bg.setTint(0x004488); // Blueish holographic tint
+    bg.setAlpha(0.6);
+
+    // Scanlines
+    const scanlines = this.add.graphics();
+    scanlines.fillStyle(0x000000, 0.4);
+    for (let i = 0; i < height; i += 4) {
+      scanlines.fillRect(0, i, width, 1);
+    }
 
     // Title
     this.add.text(width / 2, 40, 'GARAGE', {
+      fontFamily: 'Orbitron',
       fontSize: '48px',
       color: '#00ffff',
-      fontStyle: 'bold'
+      fontStyle: '900',
+      shadow: { color: '#00ffff', blur: 10, fill: true }
     }).setOrigin(0.5);
 
     // Stats
     const statsY = 80;
     const spacing = 30;
-    this.antimatterText = this.add.text(width / 2, statsY, '', { fontSize: '20px', color: '#ffaa00' }).setOrigin(0.5);
-    this.creditsText = this.add.text(width / 2, statsY + spacing, '', { fontSize: '20px', color: '#ffff00' }).setOrigin(0.5);
-    this.hpText = this.add.text(width / 2, statsY + spacing * 2, '', { fontSize: '20px', color: '#ff0044' }).setOrigin(0.5);
-    this.shieldsText = this.add.text(width / 2, statsY + spacing * 3, '', { fontSize: '20px', color: '#00ccff' }).setOrigin(0.5);
-    this.bombsText = this.add.text(width / 2, statsY + spacing * 4, '', { fontSize: '20px', color: '#ff5500' }).setOrigin(0.5);
-    this.weaponText = this.add.text(width / 2, statsY + spacing * 5, '', { fontSize: '20px', color: '#ffffff' }).setOrigin(0.5);
-    this.droneText = this.add.text(width / 2, statsY + spacing * 6, '', { fontSize: '20px', color: '#aaffaa' }).setOrigin(0.5);
+    const statStyle = { fontFamily: 'Orbitron', fontSize: '18px' };
+    this.antimatterText = this.add.text(width / 2, statsY, '', { ...statStyle, color: '#ffaa00' }).setOrigin(0.5);
+    this.creditsText = this.add.text(width / 2, statsY + spacing, '', { ...statStyle, color: '#ffff00' }).setOrigin(0.5);
+    this.hpText = this.add.text(width / 2, statsY + spacing * 2, '', { ...statStyle, color: '#ff0044' }).setOrigin(0.5);
+    this.shieldsText = this.add.text(width / 2, statsY + spacing * 3, '', { ...statStyle, color: '#00ccff' }).setOrigin(0.5);
+    this.bombsText = this.add.text(width / 2, statsY + spacing * 4, '', { ...statStyle, color: '#ff5500' }).setOrigin(0.5);
+    this.weaponText = this.add.text(width / 2, statsY + spacing * 5, '', { ...statStyle, color: '#ffffff' }).setOrigin(0.5);
+    this.droneText = this.add.text(width / 2, statsY + spacing * 6, '', { ...statStyle, color: '#aaffaa' }).setOrigin(0.5);
 
     // Back Button
     const backBtn = this.add.text(width / 2, height - 30, '[ BACK TO MENU ]', {
