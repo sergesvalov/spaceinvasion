@@ -17,45 +17,19 @@ export class EntityManager {
   public powerUps: Phaser.Physics.Arcade.Group;
 
   constructor(private scene: Phaser.Scene) {
-    this.projectiles = this.scene.physics.add.group({
-      classType: Projectile,
-      maxSize: 150,
-      runChildUpdate: true
-    });
+    this.projectiles = this.createGroup(Projectile, 150);
+    this.enemies = this.createGroup(Enemy, 20);
+    this.enemyProjectiles = this.createGroup(EnemyProjectile, 50);
+    this.antimatterContainers = this.createGroup(AntimatterContainer, 50);
+    this.aaProjectiles = this.createGroup(AAGunProjectile, 100);
+    this.aaGuns = this.createGroup(AAGun, 10);
+    this.powerUps = this.createGroup(PowerUp, 10);
+  }
 
-    this.enemies = this.scene.physics.add.group({
-      classType: Enemy,
-      maxSize: 20,
-      runChildUpdate: true
-    });
-
-    this.enemyProjectiles = this.scene.physics.add.group({
-      classType: EnemyProjectile,
-      maxSize: 50,
-      runChildUpdate: true
-    });
-
-    this.antimatterContainers = this.scene.physics.add.group({
-      classType: AntimatterContainer,
-      maxSize: 50,
-      runChildUpdate: true
-    });
-
-    this.aaProjectiles = this.scene.physics.add.group({
-      classType: AAGunProjectile,
-      maxSize: 100,
-      runChildUpdate: true
-    });
-
-    this.aaGuns = this.scene.physics.add.group({
-      classType: AAGun,
-      maxSize: 10,
-      runChildUpdate: true
-    });
-
-    this.powerUps = this.scene.physics.add.group({
-      classType: PowerUp,
-      maxSize: 10,
+  private createGroup(classType: Function, maxSize: number): Phaser.Physics.Arcade.Group {
+    return this.scene.physics.add.group({
+      classType,
+      maxSize,
       runChildUpdate: true
     });
   }
@@ -91,7 +65,7 @@ export class EntityManager {
   public applyDamageToAllEnemies(damage: number, radius?: number, centerX?: number, centerY?: number) {
     this.enemies.children.iterate((c) => {
       const e = c as Enemy;
-      if (e.active) {
+      if (e && e.active) {
         if (radius !== undefined && centerX !== undefined && centerY !== undefined) {
           const dist = Phaser.Math.Distance.Between(centerX, centerY, e.x, e.y);
           if (dist <= radius) {

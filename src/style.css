@@ -330,3 +330,16 @@ html, body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+.boss-bar-fill.high {
+  background-color: #ff2200;
+  box-shadow: 0 0 12px #ff2200;
+}
+.boss-bar-fill.med {
+  background-color: #ff8800;
+  box-shadow: 0 0 12px #ff8800;
+}
+.boss-bar-fill.low {
+  background-color: #ffcc00;
+  box-shadow: 0 0 12px #ffcc00, 0 0 20px #ff4400;
+}

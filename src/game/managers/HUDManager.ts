@@ -25,111 +25,71 @@ export class HUDManager {
 
     this.hudEl = document.createElement('div');
     this.hudEl.className = 'hud';
-    
-    const statsContainer = document.createElement('div');
-    statsContainer.className = 'hud-stats';
-    
-    this.scoreEl = document.createElement('div');
-    this.scoreEl.textContent = 'Score: 0';
-    
-    this.antimatterEl = document.createElement('div');
-    this.antimatterEl.textContent = 'Antimatter: 0';
-    
-    statsContainer.appendChild(this.scoreEl);
-    statsContainer.appendChild(this.antimatterEl);
-    
-    this.healthContainerEl = document.createElement('div');
-    this.healthContainerEl.className = 'health-segments-container';
-    
-    // We will dynamically add segments in update()
-    
-    this.hudEl.appendChild(statsContainer);
-    this.hudEl.appendChild(this.healthContainerEl);
+    this.hudEl.innerHTML = `
+      <div class="hud-stats">
+        <div id="hud-score">Score: 0</div>
+        <div id="hud-antimatter">Antimatter: 0</div>
+      </div>
+      <div id="hud-health-container" class="health-segments-container"></div>
+      
+      <div id="hud-pause-btn" class="hud-pause-btn">⏸</div>
+      <div id="hud-pause-overlay" class="pause-overlay" style="display: none;">
+        <div class="pause-title">PAUSED</div>
+        <div id="hud-resume-btn" class="pause-resume-btn">RESUME</div>
+      </div>
 
-    // Pause button
-    this.pauseBtnEl = document.createElement('div');
-    this.pauseBtnEl.className = 'hud-pause-btn';
-    this.pauseBtnEl.textContent = '⏸';
+      <div id="hud-shield-btn" class="hud-shield-btn" style="display: none;"></div>
+      <div id="hud-bomb-btn" class="hud-bomb-btn" style="display: none;"></div>
+      
+      <div id="hud-warning-overlay" class="warning-overlay"></div>
+      
+      <div id="hud-boss-bar-container" class="boss-bar-container" style="display: none;">
+        <div class="boss-bar-label">⚠ BOSS</div>
+        <div class="boss-bar-track"><div id="hud-boss-bar-fill" class="boss-bar-fill"></div></div>
+      </div>
+    `;
+
+    uiContainer.appendChild(this.hudEl);
+
+    // Grab references
+    this.scoreEl = this.hudEl.querySelector('#hud-score') as HTMLElement;
+    this.antimatterEl = this.hudEl.querySelector('#hud-antimatter') as HTMLElement;
+    this.healthContainerEl = this.hudEl.querySelector('#hud-health-container') as HTMLElement;
+    this.pauseBtnEl = this.hudEl.querySelector('#hud-pause-btn') as HTMLElement;
+    this.pauseOverlayEl = this.hudEl.querySelector('#hud-pause-overlay') as HTMLElement;
+    this.resumeBtnEl = this.hudEl.querySelector('#hud-resume-btn') as HTMLElement;
+    this.shieldBtnEl = this.hudEl.querySelector('#hud-shield-btn') as HTMLElement;
+    this.bombBtnEl = this.hudEl.querySelector('#hud-bomb-btn') as HTMLElement;
+    this.warningOverlayEl = this.hudEl.querySelector('#hud-warning-overlay') as HTMLElement;
+    this.bossBarContainer = this.hudEl.querySelector('#hud-boss-bar-container') as HTMLElement;
+    this.bossBarFill = this.hudEl.querySelector('#hud-boss-bar-fill') as HTMLElement;
+
+    // Attach event listeners
+    const preventDefaultAndStop = (e: Event) => {
+      e.stopPropagation();
+      e.preventDefault();
+    };
+
     this.pauseBtnEl.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
+      preventDefaultAndStop(e);
       EventBus.emit('toggle_pause');
     });
-    this.hudEl.appendChild(this.pauseBtnEl);
 
-    // Pause Overlay
-    this.pauseOverlayEl = document.createElement('div');
-    this.pauseOverlayEl.className = 'pause-overlay';
-    this.pauseOverlayEl.style.display = 'none';
-
-    const pauseTitle = document.createElement('div');
-    pauseTitle.className = 'pause-title';
-    pauseTitle.textContent = 'PAUSED';
-
-    this.resumeBtnEl = document.createElement('div');
-    this.resumeBtnEl.className = 'pause-resume-btn';
-    this.resumeBtnEl.textContent = 'RESUME';
     this.resumeBtnEl.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
+      preventDefaultAndStop(e);
       EventBus.emit('toggle_pause');
     });
-
-    this.pauseOverlayEl.appendChild(pauseTitle);
-    this.pauseOverlayEl.appendChild(this.resumeBtnEl);
-    this.hudEl.appendChild(this.pauseOverlayEl);
-
-    this.shieldBtnEl = document.createElement('div');
-    this.shieldBtnEl.className = 'hud-shield-btn';
-
 
     this.shieldBtnEl.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      e.preventDefault(); // Prevent double triggering on mobile
+      preventDefaultAndStop(e);
       EventBus.emit('shield_request');
     });
 
-    this.hudEl.appendChild(this.shieldBtnEl);
-
-    // Bomb Button
-    this.bombBtnEl = document.createElement('div');
-    this.bombBtnEl.className = 'hud-bomb-btn';
-
-
     this.bombBtnEl.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      e.preventDefault(); 
+      preventDefaultAndStop(e);
       EventBus.emit('bomb_request');
     });
 
-    this.hudEl.appendChild(this.bombBtnEl);
-
-    // Warning Overlay
-    this.warningOverlayEl = document.createElement('div');
-    this.warningOverlayEl.className = 'warning-overlay';
-    this.hudEl.appendChild(this.warningOverlayEl);
-
-    // Boss HP bar
-    this.bossBarContainer = document.createElement('div');
-    this.bossBarContainer.className = 'boss-bar-container';
-
-    this.bossBarLabel = document.createElement('div');
-    this.bossBarLabel.className = 'boss-bar-label';
-    this.bossBarLabel.textContent = '⚠ BOSS';
-
-    const bossBarTrack = document.createElement('div');
-    bossBarTrack.className = 'boss-bar-track';
-
-    this.bossBarFill = document.createElement('div');
-    this.bossBarFill.className = 'boss-bar-fill';
-
-    bossBarTrack.appendChild(this.bossBarFill);
-    this.bossBarContainer.appendChild(this.bossBarLabel);
-    this.bossBarContainer.appendChild(bossBarTrack);
-    this.hudEl.appendChild(this.bossBarContainer);
-
-    uiContainer.appendChild(this.hudEl);
-    
     this.update(0, initialHealth, 0);
   }
 
@@ -233,15 +193,15 @@ export class HUDManager {
     const pct = Math.max(0, Math.min(100, (currentHp / maxHp) * 100));
     this.bossBarFill.style.width = `${pct}%`;
 
+    // Remove previous classes
+    this.bossBarFill.classList.remove('high', 'med', 'low');
+
     if (pct > 60) {
-      this.bossBarFill.style.backgroundColor = '#ff2200';
-      this.bossBarFill.style.boxShadow = '0 0 12px #ff2200';
+      this.bossBarFill.classList.add('high');
     } else if (pct > 30) {
-      this.bossBarFill.style.backgroundColor = '#ff8800';
-      this.bossBarFill.style.boxShadow = '0 0 12px #ff8800';
+      this.bossBarFill.classList.add('med');
     } else {
-      this.bossBarFill.style.backgroundColor = '#ffcc00';
-      this.bossBarFill.style.boxShadow = '0 0 12px #ffcc00, 0 0 20px #ff4400';
+      this.bossBarFill.classList.add('low');
     }
   }
 
