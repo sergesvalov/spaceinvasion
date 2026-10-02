@@ -4,10 +4,10 @@ import { GameState } from '../../services/GameState';
 export class GarageScene extends Phaser.Scene {
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   
-  private REPAIR_COST = 500;
-  private SHIELD_COST = 2; // Antimatter
-  private BOMB_COST = 1000; // Credits
-  private DRONE_COST = 5; // Antimatter
+  private REPAIR_COST = 1000;
+  private SHIELD_COST = 5; // Antimatter
+  private BOMB_COST = 2500; // Credits
+  private DRONE_COST = 15; // Antimatter
 
   private domElements: HTMLElement[] = [];
 

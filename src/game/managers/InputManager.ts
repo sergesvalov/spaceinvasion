@@ -16,8 +16,15 @@ export class InputManager {
   public setupInput() {
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       if (pointer.isDown && this.isActive) {
-        this.player.x = Phaser.Math.Linear(this.player.x, pointer.x, 0.5);
-        this.player.y = Phaser.Math.Linear(this.player.y, pointer.y - 50, 0.5);
+        const targetX = pointer.x;
+        const targetY = pointer.y - 50; // offset so finger doesn't cover ship
+        
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, targetX, targetY);
+        
+        if (dist > 5) { // Dead zone
+          this.player.x = Phaser.Math.Linear(this.player.x, targetX, 0.8);
+          this.player.y = Phaser.Math.Linear(this.player.y, targetY, 0.8);
+        }
       }
     });
 

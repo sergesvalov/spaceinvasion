@@ -13,6 +13,7 @@ export class EntitySpawner {
   private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
   private lastPowerUpSpawn: number = 0;
+  private spawnCount: number = 0;
 
   constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss) {
     this.scene = scene;
@@ -28,9 +29,24 @@ export class EntitySpawner {
     // Spawn enemies
     if (time > this.lastEnemySpawn + spawnDelay) {
       this.lastEnemySpawn = time;
+      this.spawnCount++;
       const enemy = this.entityManager.getEnemy();
       if (enemy) {
-        const startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
+        let startX: number;
+        // Alternate between random and pattern-based spawns
+        if (this.spawnCount % 5 === 0) {
+           // Center
+           startX = this.scene.scale.width / 2;
+        } else if (this.spawnCount % 5 === 1) {
+           // Left sweep
+           startX = 50 + (this.scene.scale.width / 4);
+        } else if (this.spawnCount % 5 === 2) {
+           // Right sweep
+           startX = this.scene.scale.width - 50 - (this.scene.scale.width / 4);
+        } else {
+           // Random
+           startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
+        }
         enemy.spawn(startX, -50);
       }
     }
