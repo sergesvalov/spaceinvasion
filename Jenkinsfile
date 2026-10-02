@@ -11,7 +11,7 @@ pipeline {
 
     environment {
         // Конфигурация локального реестра
-        REGISTRY_IP   = "192.168.10.222" 
+        REGISTRY_IP   = "192.168.0.222" 
         REGISTRY_PORT = "5050"
         
         // Имя образа
