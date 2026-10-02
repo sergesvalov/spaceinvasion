@@ -25,25 +25,36 @@ export class HUDManager {
     this.hudEl = document.createElement('div');
     this.hudEl.className = 'hud';
     this.hudEl.innerHTML = `
-      <div class="hud-stats">
-        <div id="hud-score">Score: 0</div>
-        <div id="hud-antimatter">Antimatter: 0</div>
+      <div class="hud-top-bar">
+        <div class="hud-health-module ui-panel">
+          <div id="hud-health-container" class="health-segments-container"></div>
+        </div>
+        
+        <div class="hud-stats-module ui-panel">
+          <div id="hud-score" class="hud-stat">SCORE: 0</div>
+          <div id="hud-antimatter" class="hud-stat">ANTIMATTER: 0</div>
+        </div>
+        
+        <div id="hud-pause-btn" class="hud-pause-btn ui-panel">⏸</div>
       </div>
-      <div id="hud-health-container" class="health-segments-container"></div>
       
-      <div id="hud-pause-btn" class="hud-pause-btn">⏸</div>
       <div id="hud-pause-overlay" class="pause-overlay" style="display: none;">
-        <div class="pause-title">PAUSED</div>
-        <div id="hud-resume-btn" class="pause-resume-btn">RESUME</div>
+        <div class="ui-panel pause-panel">
+          <div class="pause-title">PAUSED</div>
+          <button id="hud-resume-btn" class="btn-primary">RESUME MISSION</button>
+          <button id="hud-menu-btn" class="btn-primary" style="margin-top: 15px;">MAIN MENU</button>
+        </div>
       </div>
 
-      <div id="hud-shield-btn" class="hud-shield-btn" style="display: none;"></div>
-      <div id="hud-bomb-btn" class="hud-bomb-btn" style="display: none;"></div>
+      <div class="hud-actions-container">
+        <button id="hud-shield-btn" class="btn-hud-action shield-action" style="display: none;">SHIELD (0)</button>
+        <button id="hud-bomb-btn" class="btn-hud-action bomb-action" style="display: none;">BOMB (0)</button>
+      </div>
       
       <div id="hud-warning-overlay" class="warning-overlay"></div>
       
       <div id="hud-boss-bar-container" class="boss-bar-container" style="display: none;">
-        <div class="boss-bar-label">⚠ BOSS</div>
+        <div class="boss-bar-label">⚠ BOSS ENTITY DETECTED</div>
         <div class="boss-bar-track"><div id="hud-boss-bar-fill" class="boss-bar-fill"></div></div>
       </div>
     `;
@@ -77,6 +88,12 @@ export class HUDManager {
     this.resumeBtnEl.addEventListener('pointerdown', (e) => {
       preventDefaultAndStop(e);
       EventBus.emit('toggle_pause');
+    });
+
+    const menuBtnEl = this.hudEl.querySelector('#hud-menu-btn');
+    menuBtnEl?.addEventListener('pointerdown', (e) => {
+      preventDefaultAndStop(e);
+      EventBus.emit('quit_to_menu');
     });
 
     this.shieldBtnEl.addEventListener('pointerdown', (e) => {

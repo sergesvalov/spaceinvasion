@@ -36,6 +36,9 @@ export class StoryManager {
     this.overlayEl = document.createElement('div');
     this.overlayEl.className = 'story-overlay';
     
+    const panelEl = document.createElement('div');
+    panelEl.className = 'story-panel ui-panel';
+    
     this.imageEl = document.createElement('img');
     this.imageEl.className = 'story-image';
     
@@ -47,12 +50,14 @@ export class StoryManager {
     
     this.hintEl = document.createElement('div');
     this.hintEl.className = 'story-hint';
-    this.hintEl.textContent = 'Нажмите для продолжения...';
+    this.hintEl.textContent = 'НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ...';
 
-    this.overlayEl.appendChild(this.imageEl);
-    this.overlayEl.appendChild(this.titleEl);
-    this.overlayEl.appendChild(this.textEl);
-    this.overlayEl.appendChild(this.hintEl);
+    panelEl.appendChild(this.imageEl);
+    panelEl.appendChild(this.titleEl);
+    panelEl.appendChild(this.textEl);
+    panelEl.appendChild(this.hintEl);
+    
+    this.overlayEl.appendChild(panelEl);
     uiContainer.appendChild(this.overlayEl);
 
     this.overlayEl.addEventListener('pointerdown', (e) => {

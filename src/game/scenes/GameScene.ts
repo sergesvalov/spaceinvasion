@@ -153,6 +153,11 @@ export class GameScene extends Phaser.Scene {
     this.togglePauseHandler = () => this.togglePause();
     EventBus.on('toggle_pause', this.togglePauseHandler);
 
+    const quitHandler = () => {
+      this.scene.start('MenuScene');
+    };
+    EventBus.on('quit_to_menu', quitHandler);
+
     this.visibilityHandler = () => {
       if (document.hidden && !this.isPaused && this.gameController.getIsPlaying()) {
         this.togglePause();
@@ -170,6 +175,7 @@ export class GameScene extends Phaser.Scene {
 
     this.events.once('shutdown', () => {
       EventBus.off('toggle_pause', this.togglePauseHandler);
+      EventBus.off('quit_to_menu', quitHandler);
       document.removeEventListener('visibilitychange', this.visibilityHandler);
       this.playerActionManager.destroy();
       this.levelManager.destroy();
