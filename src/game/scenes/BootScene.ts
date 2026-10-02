@@ -83,8 +83,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('victory_3', 'story/victory_3.png');
 
     // Load Earth backgrounds (now generated procedurally)
-    this.load.image('bg_suburbs', 'bg/suburbs.png');
-    this.load.image('bg_mountains', 'bg/mountains.png');
+    // Removed static loads for bg_suburbs and bg_mountains
   }
 
   create() {
@@ -95,16 +94,69 @@ export class BootScene extends Phaser.Scene {
     
     // Generate procedural backgrounds
     if (!this.textures.exists('bg_city')) {
-      this.createAnimeCityTexture('bg_city', 800, 1200, [0x2a1b54, 0x1b2854, 0x3d1b54, 0x173a4a], [0x3c2a70, 0x273b70, 0x512a70, 0x225566]);
+      this.createAnimeCityTexture('bg_city', 800, 1200, 200, [0x2a1b54, 0x1b2854, 0x3d1b54, 0x173a4a], [0x3c2a70, 0x273b70, 0x512a70, 0x225566]);
+    }
+    if (!this.textures.exists('bg_suburbs')) {
+      this.createAnimeCityTexture('bg_suburbs', 800, 1200, 50, [0x1a2b34, 0x1b2824, 0x1d3b24, 0x173a3a], [0x2c3a50, 0x273b40, 0x314a40, 0x225546]);
+    }
+    if (!this.textures.exists('bg_mountains')) {
+      this.createAnimeMountainsTexture('bg_mountains', 800, 1200);
     }
     if (!this.textures.exists('bg_anime_city')) {
-      this.createAnimeCityTexture('bg_anime_city', 800, 1200, [0x4a1b34, 0x2b1844, 0x1d1b54, 0x471a4a], [0x5c2a50, 0x372b60, 0x312a70, 0x622546]);
+      this.createAnimeCityTexture('bg_anime_city', 800, 1200, 200, [0x4a1b34, 0x2b1844, 0x1d1b54, 0x471a4a], [0x5c2a50, 0x372b60, 0x312a70, 0x622546]);
     }
 
     this.scene.start('MenuScene');
   }
 
-  private createAnimeCityTexture(key: string, texWidth: number, texHeight: number, colors: number[], roofColors: number[]) {
+  private createAnimeMountainsTexture(key: string, texWidth: number, texHeight: number) {
+    const graphics = this.add.graphics();
+    
+    // Base ground
+    graphics.fillStyle(0x050a14, 1);
+    graphics.fillRect(0, 0, texWidth, texHeight);
+
+    // Draw some glowing grid lines (faded)
+    graphics.lineStyle(1, 0x00ffcc, 0.1);
+    for(let y=0; y<texHeight; y+=200) {
+      graphics.moveTo(0, y); graphics.lineTo(texWidth, y);
+    }
+    for(let x=0; x<texWidth; x+=200) {
+      graphics.moveTo(x, 0); graphics.lineTo(x, texHeight);
+    }
+
+    // Draw procedural mountains (triangles with neon edges)
+    for (let i = 0; i < 40; i++) {
+      const mx = Phaser.Math.Between(-100, texWidth + 100);
+      const my = Phaser.Math.Between(0, texHeight);
+      const mw = Phaser.Math.Between(150, 400);
+      const mh = Phaser.Math.Between(100, 300);
+
+      // Dark shadow side
+      graphics.fillStyle(0x0a1020, 1);
+      graphics.fillTriangle(mx, my, mx + mw/2, my - mh, mx + mw, my);
+
+      // Light side
+      graphics.fillStyle(0x102030, 1);
+      graphics.fillTriangle(mx, my, mx + mw/2, my - mh, mx + mw/2, my);
+
+      // Neon ridge (cyberpunk touch)
+      graphics.lineStyle(2, Phaser.Math.RND.pick([0x00ffff, 0x00ffcc]), 0.4);
+      graphics.beginPath();
+      graphics.moveTo(mx + mw/2, my - mh);
+      graphics.lineTo(mx + mw/2, my + mh/4); // crack going down
+      graphics.strokePath();
+
+      // Peak highlight
+      graphics.fillStyle(0x00ffcc, 0.3);
+      graphics.fillTriangle(mx + mw/2 - 20, my - mh + 40, mx + mw/2, my - mh, mx + mw/2 + 20, my - mh + 40);
+    }
+
+    graphics.generateTexture(key, texWidth, texHeight);
+    graphics.destroy();
+  }
+
+  private createAnimeCityTexture(key: string, texWidth: number, texHeight: number, buildingCount: number, colors: number[], roofColors: number[]) {
     const graphics = this.add.graphics();
     
     // Base ground / roads (dark purple/blue)
@@ -122,7 +174,7 @@ export class BootScene extends Phaser.Scene {
     }
 
     // Generate random buildings
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < buildingCount; i++) {
       const bx = Phaser.Math.Between(-50, texWidth);
       const by = Phaser.Math.Between(-50, texHeight);
       const bw = Phaser.Math.Between(40, 120);
