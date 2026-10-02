@@ -69,82 +69,86 @@ pipeline {
             }
         }
 
-        stage('Package PC Version') {
-            when {
-                expression { params.BUILD_PC }
-            }
-            steps {
-                script {
-                    echo "Архивируем ПК-версию..."
-                    withBuilder {
-                        sh "cp PlayGame.bat dist/"
-                        sh "cd dist && zip -r ../spaceinvasion-pc.zip *"
+        stage('Packaging & Deployment') {
+            parallel {
+                stage('Package PC Version') {
+                    when {
+                        expression { params.BUILD_PC }
+                    }
+                    steps {
+                        script {
+                            echo "Архивируем ПК-версию..."
+                            withBuilder {
+                                sh "cp PlayGame.bat dist/"
+                                sh "cd dist && zip -r ../spaceinvasion-pc.zip *"
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        stage('Package Mac Version') {
-            when {
-                expression { params.BUILD_MAC }
-            }
-            steps {
-                script {
-                    echo "Архивируем Mac-версию..."
-                    withBuilder {
-                        sh "cp PlayGame.command dist/"
-                        sh "chmod +x dist/PlayGame.command"
-                        sh "cd dist && zip -r ../spaceinvasion-mac.zip *"
+                stage('Package Mac Version') {
+                    when {
+                        expression { params.BUILD_MAC }
+                    }
+                    steps {
+                        script {
+                            echo "Архивируем Mac-версию..."
+                            withBuilder {
+                                sh "cp PlayGame.command dist/"
+                                sh "chmod +x dist/PlayGame.command"
+                                sh "cd dist && zip -r ../spaceinvasion-mac.zip *"
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        stage('Package Telegram Bot & Build Web Image') {
-            when {
-                expression { params.BUILD_TELEGRAM }
-            }
-            steps {
-                script {
-                    echo "Архивируем веб-сборку для Telegram бота..."
-                    withBuilder {
-                        sh "cd dist && zip -r ../spaceinvasion-telegram.zip *"
+                stage('Package Telegram Bot & Build Web Image') {
+                    when {
+                        expression { params.BUILD_TELEGRAM }
                     }
+                    steps {
+                        script {
+                            echo "Архивируем веб-сборку для Telegram бота..."
+                            withBuilder {
+                                sh "cd dist && zip -r ../spaceinvasion-telegram.zip *"
+                            }
 
-                    echo "Сборка Docker-образа для Raspberry Pi (Web App)..."
-                    sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest -f Dockerfile.web ."
-                    
-                    echo "Пушим веб-образ в локальный реестр..."
-                    sh "docker push ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest"
+                            echo "Сборка Docker-образа для Raspberry Pi (Web App)..."
+                            sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest -f Dockerfile.web ."
+                            
+                            echo "Пушим веб-образ в локальный реестр..."
+                            sh "docker push ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-web:latest"
+                        }
+                    }
                 }
-            }
-        }
 
-        stage('Compile Android APK') {
-            when {
-                expression { params.BUILD_ANDROID }
-            }
-            steps {
-                script {
-                    echo "Генерация Android-проекта через Capacitor и компиляция APK..."
-                    withBuilder {
-                        // Если папка android отсутствует, cap add сгенерирует её. Иначе cap sync обновит ассеты.
-                        sh "npx cap add android || npx cap sync android"
-                        
-                        // Генерация иконок для Android
-                        sh "npx @capacitor/assets generate --android"
-                        
-                        // Сборка релизного APK
-                        sh "cd android && gradle assembleRelease"
+                stage('Compile Android APK') {
+                    when {
+                        expression { params.BUILD_ANDROID }
+                    }
+                    steps {
+                        script {
+                            echo "Генерация Android-проекта через Capacitor и компиляция APK..."
+                            withBuilder {
+                                // Если папка android отсутствует, cap add сгенерирует её. Иначе cap sync обновит ассеты.
+                                sh "npx cap add android || npx cap sync android"
+                                
+                                // Генерация иконок для Android
+                                sh "npx @capacitor/assets generate --android"
+                                
+                                // Сборка релизного APK
+                                sh "cd android && gradle assembleRelease"
 
-                        // Выравнивание и подпись APK
-                        echo "Выравниваем и подписываем APK..."
-                        sh '''
-                            APK_DIR="android/app/build/outputs/apk/release"
-                            /opt/android-sdk/build-tools/37.0.0/zipalign -v -p 4 ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
-                            /opt/android-sdk/build-tools/37.0.0/apksigner sign --ks release.keystore --ks-pass pass:spaceinvasion --key-pass pass:spaceinvasion --out ${APK_DIR}/spaceinvasion-release.apk ${APK_DIR}/app-release-aligned.apk
-                            rm ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
-                        '''
+                                // Выравнивание и подпись APK
+                                echo "Выравниваем и подписываем APK..."
+                                sh '''
+                                    APK_DIR="android/app/build/outputs/apk/release"
+                                    /opt/android-sdk/build-tools/37.0.0/zipalign -v -p 4 ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
+                                    /opt/android-sdk/build-tools/37.0.0/apksigner sign --ks release.keystore --ks-pass pass:spaceinvasion --key-pass pass:spaceinvasion --out ${APK_DIR}/spaceinvasion-release.apk ${APK_DIR}/app-release-aligned.apk
+                                    rm ${APK_DIR}/app-release-unsigned.apk ${APK_DIR}/app-release-aligned.apk
+                                '''
+                            }
+                        }
                     }
                 }
             }

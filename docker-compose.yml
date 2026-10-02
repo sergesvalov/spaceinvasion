@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spaceinvasion-web:
-    image: 192.168.10.222:5050/spaceinvasion-web:latest
+    image: 192.168.0.222:5050/spaceinvasion-web:latest
     container_name: spaceinvasion-web
     restart: unless-stopped
     ports:
