@@ -69,11 +69,6 @@ export class GameController {
     this.boundHandlers['antimatter_collected'] = () => this.handleAntimatterCollected();
     this.boundHandlers['player_hit'] = () => this.handlePlayerDamage();
     this.boundHandlers['powerup_collected'] = (type: string) => this.handlePowerUpCollected(type);
-    this.boundHandlers['transform_request'] = () => this.handleTransformRequest();
-    this.boundHandlers['shield_request'] = () => this.handleShieldRequest();
-    this.boundHandlers['bomb_request'] = () => this.handleBombRequest();
-    this.boundHandlers['dash_request'] = (dir: { dx: number, dy: number }) => this.handleDashRequest(dir);
-    this.boundHandlers['mecha_shockwave'] = (data: any) => this.handleMechaShockwave(data);
 
     Object.entries(this.boundHandlers).forEach(([event, handler]) => {
       EventBus.on(event, handler as Function, this);
@@ -100,86 +95,11 @@ export class GameController {
     }
   }
 
-  private handleShieldRequest() {
+  public syncAndRefreshHUD() {
     const state = GameState.getInstance();
-    if (!this.player.isShielded() && state.useShield()) {
-      this.player.activatePurchasedShield();
-      this.hudManager.update(this.score, this.health, this.antimatter);
-      
-      AudioManager.getInstance().playShieldSound(this.scene);
-    } else if (state.shields === 0) {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
-    }
-  }
-
-  private handleBombRequest() {
-    if (!this.isPlaying) return;
-    
-    const state = GameState.getInstance();
-    if (state.useBomb()) {
-      // Screen clear visual effect
-      this.scene.cameras.main.flash(500, 255, 255, 255);
-      this.scene.cameras.main.shake(300, 0.02);
-      
-      AudioManager.getInstance().playBombSound(this.scene);
-      
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-      }
-      
-      this.entityManager.applyDamageToAllEnemies(100);
-      this.entityManager.clearEnemyProjectiles();
-
-      this.hudManager.update(this.score, this.health, this.antimatter);
-    } else {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
-    }
-  }
-
-  private handleDashRequest(dir: { dx: number, dy: number }) {
-    if (this.player.getForm() === 'mecha' && this.isPlaying) {
-      this.player.dash(dir.dx, dir.dy, this.scene.time.now);
-    }
-  }
-
-  private handleMechaShockwave(data: { x: number, y: number, radius: number }) {
-    if (!this.isPlaying) return;
-    
-    this.scene.cameras.main.flash(300, 255, 200, 0);
-    this.scene.cameras.main.shake(200, 0.015);
-    
-    AudioManager.getInstance().playBombSound(this.scene);
-    
-    this.entityManager.applyDamageToAllEnemies(100, data.radius, data.x, data.y);
-    this.entityManager.clearEnemyProjectiles(data.radius, data.x, data.y);
-
+    this.health = state.currentHp;
+    this.antimatter = state.antimatter;
     this.hudManager.update(this.score, this.health, this.antimatter);
-  }
-
-  private handleTransformRequest() {
-    if (this.player.getForm() === 'mecha') return; // Already transformed
-    
-    const state = GameState.getInstance();
-    if (state.spendAntimatter(GameConfig.Player.MechaCost)) {
-      this.antimatter = state.antimatter;
-      this.hudManager.update(this.score, this.health, this.antimatter);
-
-      this.player.transformToMecha();
-      
-      AudioManager.getInstance().playTransformSound(this.scene);
-
-      this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
-        if (this.isPlaying) {
-          this.player.revertToFighter();
-        }
-      });
-    } else {
-      // Optional: Play an error sound or visual feedback that antimatter is not enough
-    }
   }
 
   private handleEnemyDestroyed(points: number) {

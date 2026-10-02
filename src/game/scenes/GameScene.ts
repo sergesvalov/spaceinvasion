@@ -14,6 +14,7 @@ import { LevelManager } from '../managers/LevelManager';
 import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
 import { GameController } from '../managers/GameController';
+import { PlayerActionManager } from '../managers/PlayerActionManager';
 import { Autopilot } from '../managers/Autopilot';
 
 export class GameScene extends Phaser.Scene {
@@ -29,6 +30,7 @@ export class GameScene extends Phaser.Scene {
   private entitySpawner!: EntitySpawner;
   private levelManager!: LevelManager;
   private gameController!: GameController;
+  private playerActionManager!: PlayerActionManager;
   private autopilot!: Autopilot;
   private isPaused: boolean = false;
   private visibilityHandler!: () => void;
@@ -84,6 +86,15 @@ export class GameScene extends Phaser.Scene {
       this.inputManager,
       this.currentLevel
     );
+
+    this.playerActionManager = new PlayerActionManager(
+      this,
+      this.player,
+      this.entityManager,
+      () => this.gameController.getIsPlaying(),
+      () => this.gameController.syncAndRefreshHUD()
+    );
+    this.playerActionManager.setupEvents();
 
     this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss);
     
@@ -152,6 +163,7 @@ export class GameScene extends Phaser.Scene {
     this.events.once('shutdown', () => {
       EventBus.off('toggle_pause', this.togglePauseHandler);
       document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.playerActionManager.destroy();
     });
   }
 
