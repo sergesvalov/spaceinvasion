@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Boss } from '../Boss';
 import { EnemyProjectile } from '../EnemyProjectile';
+import { GameConfig } from '../../config/GameConfig';
 
 export class BossAttackComponent {
   private lastFiredBullet: number = 0;
@@ -13,14 +14,24 @@ export class BossAttackComponent {
   ) {}
 
   public update(time: number) {
+    const isPhase2 = this.boss.hp <= GameConfig.Boss.HP / 2;
+    
+    if (isPhase2 && !this.boss.getData('phase2')) {
+      this.boss.setData('phase2', true);
+      this.boss.setTint(0xffaa55); // Orange/Red warning tint
+    }
+
+    const fireRate = isPhase2 ? 500 : 800;
+    
     // Bullet hell
-    if (time > this.lastFiredBullet + 800) {
+    if (time > this.lastFiredBullet + fireRate) {
       this.lastFiredBullet = time;
-      this.fireBulletHell();
+      this.fireBulletHell(isPhase2);
     }
 
     // Spawn Kamikaze
-    if (time > this.lastSpawnedKamikaze + 5000) {
+    const spawnRate = isPhase2 ? 3000 : 5000;
+    if (time > this.lastSpawnedKamikaze + spawnRate) {
       this.lastSpawnedKamikaze = time;
       // Spawn from left and right hangar bays
       this.onSpawnKamikaze(this.boss.x - 60, this.boss.y + 40);
@@ -28,10 +39,9 @@ export class BossAttackComponent {
     }
   }
 
-  private fireBulletHell() {
-    // Fire 5 bullets in a spread
-    const angles = [-30, -15, 0, 15, 30];
-    const speed = 250;
+  private fireBulletHell(isPhase2: boolean) {
+    const angles = isPhase2 ? [-45, -30, -15, 0, 15, 30, 45] : [-30, -15, 0, 15, 30];
+    const speed = isPhase2 ? 350 : 250;
 
     angles.forEach((angleDeg) => {
       const ep = this.enemyProjectiles.get() as EnemyProjectile;

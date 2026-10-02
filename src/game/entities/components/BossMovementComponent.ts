@@ -29,7 +29,10 @@ export class BossMovementComponent {
 
     // Sinewave horizontal movement
     if (this.boss.y >= 100) {
-       this.boss.x = this.startX + Math.sin((time + this.timeOffset) * 0.001) * 80;
+       const isPhase2 = this.boss.getData('phase2');
+       const speedMultiplier = isPhase2 ? 0.0025 : 0.001;
+       const widthMultiplier = isPhase2 ? 120 : 80;
+       this.boss.x = this.startX + Math.sin((time + this.timeOffset) * speedMultiplier) * widthMultiplier;
     }
   }
 }

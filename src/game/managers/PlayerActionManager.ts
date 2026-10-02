@@ -5,6 +5,7 @@ import { GameState } from '../../services/GameState';
 import { AudioManager } from '../../services/AudioManager';
 import { GameConfig } from '../config/GameConfig';
 import { EventBus } from '../../services/EventBus';
+import { AchievementManager } from '../../services/AchievementManager';
 
 export class PlayerActionManager {
   private boundHandlers: Record<string, Function> = {};
@@ -101,6 +102,7 @@ export class PlayerActionManager {
 
       this.player.transformToMecha();
       AudioManager.getInstance().playTransformSound(this.scene);
+      AchievementManager.getInstance().checkMechaTransform();
 
       this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
         if (this.isPlayingGetter()) {

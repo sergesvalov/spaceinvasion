@@ -13,6 +13,7 @@ import { GameConfig } from '../config/GameConfig';
 import { StyleConfig } from '../config/StyleConfig';
 import { burst } from '../effects/burst';
 import { AudioManager } from '../../services/AudioManager';
+import { AchievementManager } from '../../services/AchievementManager';
 
 export class GameController {
   private isPlaying: boolean = false;
@@ -37,6 +38,10 @@ export class GameController {
     // Antimatter is a persistent currency shared with the Garage, so the HUD
     // mirrors the saved balance instead of counting only this run's pickups.
     this.antimatter = state.antimatter;
+    
+    AchievementManager.getInstance().onAchievementUnlocked((title, desc) => {
+      this.hudManager.showAchievement(title, desc);
+    });
   }
 
   public getIsPlaying(): boolean {
@@ -106,6 +111,7 @@ export class GameController {
     AudioManager.getInstance().playEnemyDestroyed(this.scene);
     this.score += points;
     this.hudManager.update(this.score, this.health, this.antimatter);
+    AchievementManager.getInstance().checkScoreAchievements(this.score);
   }
 
   private handleAntimatterCollected() {
@@ -207,6 +213,7 @@ export class GameController {
     this.scene.cameras.main.shake(1500, 0.02);
     
     AnalyticsService.getInstance().levelComplete(`level_${this.currentLevel}`);
+    AchievementManager.getInstance().checkBossDefeat();
 
     this.hudManager.hideBossBar();
 
