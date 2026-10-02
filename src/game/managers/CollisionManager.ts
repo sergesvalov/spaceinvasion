@@ -46,7 +46,7 @@ export class CollisionManager {
     this.scene.physics.add.overlap(this.player, powerUps, this.handlePlayerVsPowerUp.bind(this));
   }
 
-  private handlePlayerProjectileVsEnemy(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handlePlayerProjectileVsEnemy(obj1: any, obj2: any) {
     const p = obj1 as Projectile;
     const e = obj2 as Enemy;
     
@@ -72,7 +72,7 @@ export class CollisionManager {
     }
   }
 
-  private handlePlayerProjectileVsBoss(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handlePlayerProjectileVsBoss(obj1: any, obj2: any) {
     const p = (obj1 === this.boss ? obj2 : obj1) as Projectile;
     const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
     
@@ -98,7 +98,7 @@ export class CollisionManager {
     }
   }
 
-  private handleAAProjectileVsEnemy(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handleAAProjectileVsEnemy(obj1: any, obj2: any) {
     const p = obj1 as BaseProjectile;
     const e = obj2 as Enemy;
     if (p.active && e.active) {
@@ -110,7 +110,7 @@ export class CollisionManager {
     }
   }
 
-  private handleAAProjectileVsBoss(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handleAAProjectileVsBoss(obj1: any, obj2: any) {
     const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
     const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
     if (p.active && bossObj.active) {
@@ -122,7 +122,7 @@ export class CollisionManager {
     }
   }
 
-  private handleEnemyProjectileVsPlayer(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handleEnemyProjectileVsPlayer(obj1: any, obj2: any) {
     const p = (obj1 === this.player ? obj2 : obj1) as BaseProjectile;
     if (p.active && this.isPlayingGetter()) {
       p.setActive(false);
@@ -134,7 +134,7 @@ export class CollisionManager {
     }
   }
 
-  private handleEnemyVsPlayer(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handleEnemyVsPlayer(obj1: any, obj2: any) {
     const e = (obj1 === this.player ? obj2 : obj1) as Enemy;
     if (e.active && this.isPlayingGetter()) {
       this.createExplosion(e.x, e.y);
@@ -148,14 +148,14 @@ export class CollisionManager {
     }
   }
 
-  private handleBossVsPlayer(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handleBossVsPlayer(obj1: any, obj2: any) {
     const b = (obj1 === this.player ? obj2 : obj1) as Boss;
     if (b.active && this.isPlayingGetter() && !this.player.isShielded()) {
       EventBus.emit('player_hit');
     }
   }
 
-  private handlePlayerVsAntimatter(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handlePlayerVsAntimatter(obj1: any, obj2: any) {
     const container = (obj1 === this.player ? obj2 : obj1) as AntimatterContainer;
     if (container.active && this.isPlayingGetter()) {
       container.setActive(false);
@@ -164,7 +164,7 @@ export class CollisionManager {
     }
   }
 
-  private handlePlayerVsPowerUp(obj1: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile, obj2: Phaser.Types.Physics.Arcade.GameObjectWithBody | Phaser.Tilemaps.Tile) {
+  private handlePlayerVsPowerUp(obj1: any, obj2: any) {
     const powerUp = (obj1 === this.player ? obj2 : obj1) as PowerUp;
     if (powerUp.active && this.isPlayingGetter()) {
       powerUp.setActive(false);

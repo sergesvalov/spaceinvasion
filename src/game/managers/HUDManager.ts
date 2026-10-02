@@ -13,7 +13,6 @@ export class HUDManager {
   private bombBtnEl!: HTMLElement;
   private bossBarContainer!: HTMLElement;
   private bossBarFill!: HTMLElement;
-  private bossBarLabel!: HTMLElement;
   private pauseBtnEl!: HTMLElement;
   private pauseOverlayEl!: HTMLElement;
   private resumeBtnEl!: HTMLElement;
