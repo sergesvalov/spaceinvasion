@@ -15,14 +15,9 @@ export class LevelManager {
   private isLevelComplete: boolean = false;
   private onBossPhaseCallback: () => void;
   
-  // Tilemap properties
-  private map!: Phaser.Tilemaps.Tilemap;
-  private layer!: Phaser.Tilemaps.TilemapLayer;
-  private tileSize = 32;
-  private mapCols = 26; // 800 / 32 = 25, +1 buffer
-  private mapRows = 40; // 1200 / 32 = 37.5, +2 buffer
-  private scrollY = 0;
   private scrollSpeed = 0.5;
+  private activeBg!: Phaser.GameObjects.TileSprite;
+  private nextBg!: Phaser.GameObjects.TileSprite;
 
   constructor(scene: Phaser.Scene, phases: LevelPhase[], onBossPhase: () => void) {
     this.scene = scene;
@@ -37,19 +32,16 @@ export class LevelManager {
     const starBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, 'starfield');
     starBg.setDepth(-200);
 
-    // Create endless tilemap
-    const data: number[][] = [];
-    for (let y = 0; y < this.mapRows; y++) {
-      data.push(this.generateRow('bg_city'));
-    }
+    // Initial background
+    const initialKey = this.phases[0] ? this.phases[0].textureKey : 'bg_city';
+    
+    this.nextBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
+    this.nextBg.setDepth(-101);
+    this.nextBg.setAlpha(0);
 
-    this.map = this.scene.make.tilemap({ data, tileWidth: this.tileSize, tileHeight: this.tileSize });
-    const tileset = this.map.addTilesetImage('procedural_tileset', 'procedural_tileset');
-    if (tileset) {
-      this.layer = this.map.createLayer(0, tileset, 0, -this.tileSize)!;
-      this.layer.setDepth(-100);
-      this.layer.setTint(0xbbbbbb); // Slightly darker
-    }
+    this.activeBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
+    this.activeBg.setDepth(-100);
+    this.activeBg.setAlpha(0.8);
   }
 
   public startLevel(time: number) {
@@ -62,18 +54,15 @@ export class LevelManager {
     // Scroll starfield
     const starBg = this.scene.children.list.find(c => (c as any).texture?.key === 'starfield') as Phaser.GameObjects.TileSprite;
     if (starBg) {
-      starBg.tilePositionY -= this.scrollSpeed * 0.5 * delta;
+      starBg.tilePositionY -= this.scrollSpeed * 0.2 * delta;
     }
 
-    // Scroll endless tilemap
-    if (this.layer) {
-      this.scrollY += this.scrollSpeed * delta;
-      
-      if (this.scrollY >= this.tileSize) {
-        this.scrollY -= this.tileSize;
-        this.shiftMapDown();
-      }
-      this.layer.y = -this.tileSize + this.scrollY;
+    // Scroll active backgrounds
+    if (this.activeBg) {
+      this.activeBg.tilePositionY -= this.scrollSpeed * delta;
+    }
+    if (this.nextBg && this.nextBg.alpha > 0) {
+      this.nextBg.tilePositionY -= this.scrollSpeed * delta;
     }
 
     if (this.isLevelComplete) return;
@@ -83,91 +72,43 @@ export class LevelManager {
 
     const timeInPhase = time - this.phaseStartTime;
 
+    // Check if we need to transition texture soon (3 seconds before phase ends)
+    if (timeInPhase > currentPhase.duration - 3000) {
+      const nextPhase = this.phases[this.currentPhaseIndex + 1];
+      if (nextPhase && this.nextBg.texture.key !== nextPhase.textureKey) {
+        if (this.scene.textures.exists(nextPhase.textureKey)) {
+          this.nextBg.setTexture(nextPhase.textureKey);
+          // Sync scroll position
+          this.nextBg.tilePositionY = this.activeBg.tilePositionY;
+        }
+      }
+      
+      // Crossfade
+      if (nextPhase && this.nextBg.alpha < 0.8) {
+        this.nextBg.setAlpha(this.nextBg.alpha + 0.001 * delta);
+        this.activeBg.setAlpha(this.activeBg.alpha - 0.001 * delta);
+      }
+    }
+
+    // Phase shift
     if (timeInPhase > currentPhase.duration) {
       this.currentPhaseIndex++;
       this.phaseStartTime = time;
+      
+      // Swap backgrounds logic if we crossfaded
+      if (this.nextBg.alpha > 0) {
+        const temp = this.activeBg;
+        this.activeBg = this.nextBg;
+        this.nextBg = temp;
+        this.nextBg.setAlpha(0);
+        this.activeBg.setAlpha(0.8);
+      }
       
       if (this.currentPhaseIndex >= this.phases.length) {
         this.isLevelComplete = true;
         this.onBossPhaseCallback();
       }
     }
-  }
-  
-  private shiftMapDown() {
-    // Determine which biome to generate
-    const currentPhase = this.phases[this.currentPhaseIndex];
-    let biome = currentPhase ? currentPhase.textureKey : 'bg_city';
-
-    // If we are close to transition (last 3 seconds), we generate transition tiles
-    if (currentPhase && this.currentPhaseIndex + 1 < this.phases.length) {
-      const timeInPhase = this.scene.time.now - this.phaseStartTime;
-      if (timeInPhase > currentPhase.duration - 3000) {
-        biome = 'transition';
-      }
-    }
-
-    const newRow = this.generateRow(biome);
-
-    // Shift data down (bottom-up to avoid overwrite)
-    for (let y = this.mapRows - 1; y > 0; y--) {
-      for (let x = 0; x < this.mapCols; x++) {
-        const tile = this.map.getTileAt(x, y - 1);
-        this.map.putTileAt(tile ? tile.index : 0, x, y);
-      }
-    }
-
-    // Insert new row at the top
-    for (let x = 0; x < this.mapCols; x++) {
-      this.map.putTileAt(newRow[x], x, 0);
-    }
-  }
-
-  private generateRow(biome: string): number[] {
-    const row: number[] = [];
-    
-    // Some basic layout logic: road in the center
-    const roadCenter = Math.floor(this.mapCols / 2);
-    
-    for (let x = 0; x < this.mapCols; x++) {
-      let tileIndex = 0;
-
-      if (biome === 'bg_city' || biome === 'bg_suburbs') {
-        const isRoad = Math.abs(x - roadCenter) < 2;
-        if (isRoad) {
-          tileIndex = 1; // Dark road
-          if (x === roadCenter) tileIndex = 2; // Neon road
-        } else {
-          // Buildings (chance depending on suburbs vs city)
-          const buildingChance = biome === 'bg_city' ? 0.6 : 0.3;
-          if (Math.random() < buildingChance) {
-            tileIndex = Phaser.Math.Between(4, 6); // Random roof
-          } else {
-            tileIndex = 3; // Building base/ground
-          }
-        }
-      } else if (biome === 'bg_mountains') {
-        // Mountains with peaks and base
-        if (Math.random() < 0.2) {
-          tileIndex = Phaser.Math.Between(9, 10); // Ridge / Peak
-        } else {
-          tileIndex = 8; // Mountain Base
-        }
-      } else if (biome === 'transition') {
-        // Mix of ground and mountain base
-        if (Math.random() < 0.5) {
-          tileIndex = 11; // Transition grass/cyber
-        } else {
-          tileIndex = 7; // Dirt
-        }
-      } else {
-        tileIndex = 7; // Default dirt
-      }
-
-      row.push(tileIndex);
-    }
-
-    return row;
   }
 
   public getCurrentSpawnModifier(): number {
