@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
 import { AnalyticsService } from '../../services/AnalyticsService';
-import { GameConfig } from '../config/GameConfig';
 import { EntityManager } from '../managers/EntityManager';
 import { burst } from '../effects/burst';
 
 import { GameState } from '../../services/GameState';
-import { AudioManager } from '../../services/AudioManager';
-import { PlasmaWeapon, IonWeapon, WaveWeapon, BeamWeapon, SpreadWeapon, HomingWeapon, WeaponStrategy } from '../weapons/WeaponStrategies';
 import { PlayerContext, PlayerStateComponent, FighterState, MechaState } from './components/PlayerStateComponent';
+import { WeaponComponent } from './components/WeaponComponent';
+import { MovementComponent } from './components/MovementComponent';
+import { ShieldComponent } from './components/ShieldComponent';
 
 export type PlayerForm = 'fighter' | 'mecha';
 
@@ -16,22 +16,15 @@ export class Player extends Phaser.GameObjects.Container {
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
   private shieldGraphics: Phaser.GameObjects.Graphics;
-  private lastFired: number = 0;
-  private lastSwarmFired: number = 0;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-  
-  private purchasedShieldActive: boolean = false;
-  private purchasedShieldGraphics!: Phaser.GameObjects.Graphics;
-  
-  private tempWeapon: 'spread' | 'homing' | null = null;
-  private tempWeaponTimerEvent?: Phaser.Time.TimerEvent;
   
   private currentStateComponent: PlayerStateComponent;
   private fighterState: FighterState;
   private mechaState: MechaState;
   
-  public isDashing: boolean = false;
-  private lastDashTime: number = 0;
+  private weaponComponent: WeaponComponent;
+  private movementComponent: MovementComponent;
+  private shieldComponent: ShieldComponent;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
@@ -61,13 +54,7 @@ export class Player extends Phaser.GameObjects.Container {
     this.shieldGraphics.setVisible(false);
     this.add(this.shieldGraphics);
 
-    this.purchasedShieldGraphics = scene.add.graphics();
-    this.purchasedShieldGraphics.lineStyle(4, 0x0088ff, 0.8);
-    this.purchasedShieldGraphics.fillStyle(0x0088ff, 0.2);
-    this.purchasedShieldGraphics.strokeCircle(0, 0, 60);
-    this.purchasedShieldGraphics.fillCircle(0, 0, 60);
-    this.purchasedShieldGraphics.setVisible(false);
-    this.add(this.purchasedShieldGraphics);
+
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: 200, max: 400 },
@@ -86,6 +73,18 @@ export class Player extends Phaser.GameObjects.Container {
     
     this.currentStateComponent = this.fighterState;
     this.currentStateComponent.enter(this.getPlayerContext());
+
+    this.weaponComponent = new WeaponComponent(this, scene);
+    this.movementComponent = new MovementComponent(this, scene);
+    this.shieldComponent = new ShieldComponent(this, scene);
+  }
+
+  public getSprite() {
+    return this.sprite;
+  }
+
+  public get isDashing(): boolean {
+    return this.movementComponent.isDashing;
   }
 
   private getPlayerContext(): PlayerContext {
@@ -129,148 +128,31 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   public dash(dx: number, dy: number, time: number) {
-    if (this.form !== 'mecha') return;
-    if (time - this.lastDashTime < 1500) return; // 1.5s cooldown
-    if (this.isDashing) return;
-
-    this.lastDashTime = time;
-    this.isDashing = true;
-    
-    this.scene.cameras.main.shake(150, 0.01);
-    
-    // Ghost trail effect
-    this.scene.time.addEvent({
-      delay: 30,
-      repeat: 5,
-      callback: () => {
-        const ghost = this.scene.add.sprite(this.x, this.y, this.sprite.texture.key);
-        ghost.setScale(this.sprite.scaleX, this.sprite.scaleY);
-        ghost.setTint(0x00ffff);
-        this.scene.tweens.add({
-          targets: ghost,
-          alpha: 0,
-          scale: this.sprite.scaleX * 1.2,
-          duration: 300,
-          onComplete: () => ghost.destroy()
-        });
-      }
-    });
-
-    this.scene.tweens.add({
-      targets: this,
-      x: this.x + dx * 150,
-      y: this.y + dy * 150,
-      duration: 150,
-      ease: 'Power2',
-      onComplete: () => {
-        this.isDashing = false;
-      }
-    });
+    this.movementComponent.dash(dx, dy, time);
   }
   
   public activatePurchasedShield() {
-    if (this.purchasedShieldActive) return;
-    
-    this.purchasedShieldActive = true;
-    this.purchasedShieldGraphics.setVisible(true);
-    
-    this.scene.tweens.add({
-      targets: this.purchasedShieldGraphics,
-      alpha: 0.5,
-      duration: 500,
-      yoyo: true,
-      repeat: -1
-    });
-
-    this.scene.time.delayedCall(15000, () => {
-      this.purchasedShieldActive = false;
-      this.scene.tweens.killTweensOf(this.purchasedShieldGraphics);
-      this.purchasedShieldGraphics.setVisible(false);
-      this.purchasedShieldGraphics.alpha = 1;
-    });
+    this.shieldComponent.activatePurchasedShield();
   }
 
   public isShielded(): boolean {
-    return this.purchasedShieldActive || this.form === 'mecha';
+    return this.shieldComponent.isShielded();
   }
   
   public setTempWeapon(type: 'spread' | 'homing', duration: number) {
-    this.tempWeapon = type;
-    if (this.tempWeaponTimerEvent) {
-      this.tempWeaponTimerEvent.destroy();
-    }
-    this.tempWeaponTimerEvent = this.scene.time.delayedCall(duration, () => {
-      this.tempWeapon = null;
-    });
-  }
-  
-  private getWeaponStrategy(): WeaponStrategy {
-    const state = GameState.getInstance();
-    let weaponClass = state.equippedWeapon as string;
-    if (this.tempWeapon) {
-      weaponClass = this.tempWeapon;
-    }
-    const isMecha = this.getForm() === 'mecha';
-    if (isMecha && !this.tempWeapon) {
-      weaponClass = 'beam';
-    }
-
-    switch (weaponClass) {
-      case 'ion': return new IonWeapon();
-      case 'wave': return new WaveWeapon();
-      case 'beam': return new BeamWeapon();
-      case 'spread': return new SpreadWeapon();
-      case 'homing': return new HomingWeapon();
-      case 'plasma':
-      default: return new PlasmaWeapon();
-    }
+    this.weaponComponent.setTempWeapon(type, duration);
   }
 
   public canFire(time: number): boolean {
-    let fireRate = this.form === 'fighter' ? GameConfig.Player.FireRateFighter : GameConfig.Player.FireRateMecha;
-    
-    fireRate *= this.getWeaponStrategy().getFireRateModifier();
-    
-    if (this.weaponLevel >= 2) {
-      fireRate *= 0.5; // 50% faster fire rate for upgraded weapons
-    }
-
-    if (time > this.lastFired + fireRate) {
-      this.lastFired = time;
-      return true;
-    }
-    return false;
+    return this.weaponComponent.canFire(time);
   }
 
   public canFireSwarm(time: number): boolean {
-    if (this.form !== 'mecha') return false;
-    if (time > this.lastSwarmFired + 2000) {
-      this.lastSwarmFired = time;
-      return true;
-    }
-    return false;
+    return this.weaponComponent.canFireSwarm(time);
   }
 
   public fireSwarm(entityManager: EntityManager) {
-    AudioManager.getInstance().playPew(this.scene, { volume: 0.6, rate: 1.2 });
-
-    const angles = [-60, -30, 0, 30, 60];
-    const speed = 300;
-    
-    angles.forEach(angle => {
-      const proj = entityManager.getProjectile() as any;
-      if (proj && typeof proj.fire === 'function') {
-        const rad = Phaser.Math.DegToRad(angle - 90);
-        const vx = Math.cos(rad) * speed;
-        const vy = Math.sin(rad) * speed;
-        
-        proj.fire(this.x, this.y, vy, GameConfig.Player.DamageMecha * 0.5, 'homing');
-        const body = proj.body as Phaser.Physics.Arcade.Body;
-        if (body) {
-          body.setVelocityX(vx);
-        }
-      }
-    });
+    this.weaponComponent.fireSwarm(entityManager);
   }
 
   public updateMelee(entityManager: EntityManager, time: number) {
@@ -317,15 +199,6 @@ export class Player extends Phaser.GameObjects.Container {
   }
 
   public fire(entityManager: EntityManager) {
-    AudioManager.getInstance().playPew(this.scene, { volume: 0.3 });
-
-    const strategy = this.getWeaponStrategy();
-    strategy.fire({
-      x: this.x,
-      y: this.y,
-      weaponLevel: this.weaponLevel,
-      isMecha: this.form === 'mecha',
-      scene: this.scene
-    }, entityManager);
+    this.weaponComponent.fire(entityManager);
   }
 }
