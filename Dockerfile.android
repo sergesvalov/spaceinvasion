@@ -1,4 +1,4 @@
-FROM node:20-bookworm
+FROM node:22-bookworm
 
 # Установка OpenJDK, zip и утилит
 RUN apt-get update && apt-get install -y openjdk-17-jdk wget unzip zip && rm -rf /var/lib/apt/lists/*
@@ -14,7 +14,15 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest
 
 # Принятие лицензий и установка компонентов SDK
-RUN yes | sdkmanager --licenses && \
+RUN apt-get update && apt-get install -y expect && rm -rf /var/lib/apt/lists/* && \
+    expect -c ' \
+        set timeout -1; \
+        spawn sdkmanager --licenses; \
+        expect { \
+            "y/N" { exp_send "y\r"; exp_continue } \
+            eof \
+        } \
+    ' && \
     yes | sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0"
 
 # Замена x86_64 утилит сборки на ARM64 (для работы на Raspberry Pi / ARM)

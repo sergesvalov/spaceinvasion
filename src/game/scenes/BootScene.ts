@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { TextureGenerator } from '../utils/TextureGenerator';
+import { TileGenerator } from '../utils/TileGenerator';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -94,6 +95,11 @@ export class BootScene extends Phaser.Scene {
     }
     
     // Generate procedural backgrounds
+    if (!this.textures.exists('procedural_tileset')) {
+      TileGenerator.generateTileset(this);
+    }
+    
+    // Legacy backgrounds (keep for MapScene/Garage if needed)
     if (!this.textures.exists('bg_city')) {
       TextureGenerator.generateAnimeCity(this, 'bg_city', 800, 1200, 200, [0x2a1b54, 0x1b2854, 0x3d1b54, 0x173a4a], [0x3c2a70, 0x273b70, 0x512a70, 0x225566]);
     }
