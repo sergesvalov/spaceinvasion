@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { StyleConfig } from '../config/StyleConfig';
 
 export class Button {
   public static create(
@@ -15,13 +16,13 @@ export class Button {
       hoverBackgroundColor?: string;
     }
   ): Phaser.GameObjects.Text {
-    const defaultColor = options?.color || '#00ffcc';
-    const hoverColor = options?.hoverColor || '#ffffff';
-    const defaultBg = options?.backgroundColor || 'rgba(0, 50, 100, 0.4)';
-    const hoverBg = options?.hoverBackgroundColor || 'rgba(0, 150, 255, 0.6)';
+    const defaultColor = options?.color || StyleConfig.Button.DefaultColor;
+    const hoverColor = options?.hoverColor || StyleConfig.Button.HoverColor;
+    const defaultBg = options?.backgroundColor || StyleConfig.Button.DefaultBg;
+    const hoverBg = options?.hoverBackgroundColor || StyleConfig.Button.HoverBg;
 
     const btn = scene.add.text(x, y, text, {
-      fontFamily: 'Orbitron',
+      fontFamily: StyleConfig.Fonts.Main,
       fontSize: options?.fontSize || '24px',
       color: defaultColor,
       backgroundColor: defaultBg,

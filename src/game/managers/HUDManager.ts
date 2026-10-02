@@ -1,6 +1,7 @@
 import { GameState } from '../../services/GameState';
 import { EventBus } from '../../services/EventBus';
 import { GameConfig } from '../config/GameConfig';
+import { StyleConfig } from '../config/StyleConfig';
 
 export class HUDManager {
   private hudEl!: HTMLElement;
@@ -256,5 +257,24 @@ export class HUDManager {
   public hidePauseOverlay() {
     if (this.pauseOverlayEl) this.pauseOverlayEl.style.display = 'none';
     if (this.pauseBtnEl) this.pauseBtnEl.style.display = 'block';
+  }
+
+  public showFloatingText(scene: Phaser.Scene, x: number, y: number, text: string, color: string) {
+    const txt = scene.add.text(x, y, text, {
+      fontFamily: StyleConfig.Fonts.Main,
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: color,
+      stroke: StyleConfig.Colors.Black,
+      strokeThickness: 3
+    }).setOrigin(0.5);
+    
+    scene.tweens.add({
+      targets: txt,
+      y: y - 50,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => txt.destroy()
+    });
   }
 }

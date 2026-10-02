@@ -10,6 +10,7 @@ import { AnalyticsService } from '../../services/AnalyticsService';
 import { GameState } from '../../services/GameState';
 import { StoryManager } from '../../services/StoryManager';
 import { GameConfig } from '../config/GameConfig';
+import { StyleConfig } from '../config/StyleConfig';
 import { burst } from '../effects/burst';
 import { AudioManager } from '../../services/AudioManager';
 
@@ -105,7 +106,7 @@ export class GameController {
       this.player.activatePurchasedShield();
       this.hudManager.update(this.score, this.health, this.antimatter);
       
-      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.8 });
+      AudioManager.getInstance().playShieldSound(this.scene);
     } else if (state.shields === 0) {
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
@@ -122,7 +123,7 @@ export class GameController {
       this.scene.cameras.main.flash(500, 255, 255, 255);
       this.scene.cameras.main.shake(300, 0.02);
       
-      AudioManager.getInstance().playExplosion(this.scene, { volume: 1.0 });
+      AudioManager.getInstance().playBombSound(this.scene);
       
       if (window.Telegram?.WebApp?.HapticFeedback) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
@@ -151,7 +152,7 @@ export class GameController {
     this.scene.cameras.main.flash(300, 255, 200, 0);
     this.scene.cameras.main.shake(200, 0.015);
     
-    AudioManager.getInstance().playExplosion(this.scene, { volume: 0.8 });
+    AudioManager.getInstance().playBombSound(this.scene);
     
     this.entityManager.applyDamageToAllEnemies(100, data.radius, data.x, data.y);
     this.entityManager.clearEnemyProjectiles(data.radius, data.x, data.y);
@@ -169,7 +170,7 @@ export class GameController {
 
       this.player.transformToMecha();
       
-      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.5 }); // Deep sound
+      AudioManager.getInstance().playTransformSound(this.scene);
 
       this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
         if (this.isPlaying) {
@@ -181,26 +182,8 @@ export class GameController {
     }
   }
 
-  private showFloatingText(x: number, y: number, text: string, color: string) {
-    const txt = this.scene.add.text(x, y, text, {
-      fontSize: '20px',
-      fontStyle: 'bold',
-      color: color,
-      stroke: '#000000',
-      strokeThickness: 3
-    }).setOrigin(0.5);
-    
-    this.scene.tweens.add({
-      targets: txt,
-      y: y - 50,
-      alpha: 0,
-      duration: 1000,
-      onComplete: () => txt.destroy()
-    });
-  }
-
   private handleEnemyDestroyed(points: number) {
-    AudioManager.getInstance().playExplosion(this.scene, { volume: 0.3 });
+    AudioManager.getInstance().playEnemyDestroyed(this.scene);
     this.score += points;
     this.hudManager.update(this.score, this.health, this.antimatter);
   }
@@ -210,7 +193,7 @@ export class GameController {
     state.addAntimatter(1);
     this.antimatter = state.antimatter;
     this.hudManager.update(this.score, this.health, this.antimatter);
-    this.showFloatingText(this.player.x, this.player.y, '+1 AM', '#ff00ff');
+    this.hudManager.showFloatingText(this.scene, this.player.x, this.player.y, '+1 AM', StyleConfig.Colors.NeonPink);
   }
 
   private handlePowerUpCollected(type: string) {
@@ -219,16 +202,16 @@ export class GameController {
       this.health = Math.min(this.health + 1, state.maxHp);
       state.setHp(this.health);
       this.hudManager.update(this.score, this.health, this.antimatter);
-      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 2 });
+      AudioManager.getInstance().playPowerupSound(this.scene, 'health');
     } else if (type === 'weapon') {
       state.upgradeWeapon();
       this.player.weaponLevel = state.weaponLevel;
-      AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 1.5 });
-      this.showFloatingText(this.player.x, this.player.y, 'W UP', '#ffff00');
+      AudioManager.getInstance().playPowerupSound(this.scene, 'weapon');
+      this.hudManager.showFloatingText(this.scene, this.player.x, this.player.y, 'W UP', StyleConfig.Colors.NeonYellow);
     } else if (type === 'spread' || type === 'homing') {
       this.player.setTempWeapon(type as any, 10000); // 10 seconds
-      AudioManager.getInstance().playPew(this.scene, { volume: 0.8, rate: 1.0 });
-      this.showFloatingText(this.player.x, this.player.y, type.toUpperCase(), '#00ffff');
+      AudioManager.getInstance().playPowerupSound(this.scene, 'spread');
+      this.hudManager.showFloatingText(this.scene, this.player.x, this.player.y, type.toUpperCase(), StyleConfig.Colors.NeonCyan);
     }
   }
 
@@ -248,7 +231,7 @@ export class GameController {
     this.scene.cameras.main.shake(200, 0.01);
     this.scene.cameras.main.flash(200, 255, 0, 0);
     
-    AudioManager.getInstance().playPew(this.scene, { volume: 0.5, rate: 0.2 });
+    AudioManager.getInstance().playDamageSound(this.scene);
     
     if (window.Telegram?.WebApp?.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
@@ -256,7 +239,7 @@ export class GameController {
 
     if (this.health <= 0) {
       console.log('[GameController] Player defeated!');
-      AudioManager.getInstance().playExplosion(this.scene, { volume: 0.8 });
+      AudioManager.getInstance().playPlayerDestroyed(this.scene);
       this.isPlaying = false;
       this.inputManager.isActive = false;
       (window as any).__GAME_RESULT__ = 'DEFEAT';
@@ -323,11 +306,16 @@ export class GameController {
 
     const { width, height } = this.scene.scale;
     this.scene.add.text(width / 2, height / 2 - 50, 'MISSION ACCOMPLISHED', {
-      fontSize: '28px', color: '#00ffcc', fontStyle: 'bold'
+      fontFamily: StyleConfig.Fonts.Main,
+      fontSize: '28px', 
+      color: StyleConfig.Colors.NeonCyan, 
+      fontStyle: 'bold'
     }).setOrigin(0.5);
 
     this.scene.add.text(width / 2, height / 2 + 10, '+5000 CREDITS', {
-      fontSize: '20px', color: '#ffaa00'
+      fontFamily: StyleConfig.Fonts.Main,
+      fontSize: '20px', 
+      color: StyleConfig.Colors.NeonOrange
     }).setOrigin(0.5);
 
     setTimeout(() => {
