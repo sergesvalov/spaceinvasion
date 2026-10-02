@@ -136,6 +136,8 @@ export class Player extends Phaser.GameObjects.Container {
     this.lastDashTime = time;
     this.isDashing = true;
     
+    this.scene.cameras.main.shake(150, 0.01);
+    
     // Ghost trail effect
     this.scene.time.addEvent({
       delay: 30,

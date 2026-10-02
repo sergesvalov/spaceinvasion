@@ -131,6 +131,14 @@ export class GameScene extends Phaser.Scene {
     this.hudManager.show();
     this.levelManager.startLevel(this.time.now);
 
+    // Apply PostFX to the camera for sci-fi look
+    try {
+      this.cameras.main.postFX.addVignette(0.5, 0.5, 0.7);
+      this.cameras.main.postFX.addBloom(0xffffff, 1, 1, 0.6, 1.2);
+    } catch (e) {
+      console.warn("PostFX not supported on this device/browser");
+    }
+
     this.togglePauseHandler = () => this.togglePause();
     EventBus.on('toggle_pause', this.togglePauseHandler);
 
