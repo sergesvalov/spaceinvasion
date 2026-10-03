@@ -4,9 +4,9 @@ pipeline {
     parameters {
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Запустить E2E тесты на проходимость (Playwright)')
         booleanParam(name: 'BUILD_ANDROID', defaultValue: true, description: 'Собрать версию для Android (APK)')
-        booleanParam(name: 'BUILD_TELEGRAM', defaultValue: true, description: 'Собрать веб-версию для Telegram (ZIP)')
+        booleanParam(name: 'BUILD_TELEGRAM', defaultValue: false, description: 'Собрать веб-версию для Telegram (ZIP)')
         booleanParam(name: 'BUILD_PC', defaultValue: true, description: 'Собрать standalone-версию для ПК (ZIP + .bat)')
-        booleanParam(name: 'BUILD_MAC', defaultValue: true, description: 'Собрать standalone-версию для Mac (ZIP + .command)')
+        booleanParam(name: 'BUILD_MAC', defaultValue: false, description: 'Собрать standalone-версию для Mac (ZIP + .command)')
     }
 
     environment {
