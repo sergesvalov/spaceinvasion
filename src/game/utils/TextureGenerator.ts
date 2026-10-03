@@ -123,17 +123,17 @@ export class TextureGenerator {
       graphics.fillStyle(roofColors[colIdx], 1);
       graphics.fillRect(rx, ry, bw, bh);
       
-      // Roof border (neon)
-      graphics.lineStyle(2, Phaser.Math.RND.pick([0x00ffcc, 0xff00ff, 0x0088ff]), 0.4);
+      // Roof border (clean white outline for anime style)
+      graphics.lineStyle(2, 0xffffff, 0.6);
       graphics.strokeRect(rx, ry, bw, bh);
       
-      // Draw neon signs/helipads on the roof
+      // Draw AC units/water tanks on the roof (classic anime city details)
       const details = Phaser.Math.Between(0, 3);
       for(let d=0; d<details; d++) {
-        graphics.fillStyle(Phaser.Math.RND.pick([0xff00ff, 0x00ffff, 0xffff00]), 0.8);
+        graphics.fillStyle(Phaser.Math.RND.pick([0xffffff, 0xe0e6ed, 0xc6d0dc]), 0.9);
         const sx = Phaser.Math.Between(10, bw - 20);
         const sy = Phaser.Math.Between(10, bh - 20);
-        graphics.fillRect(rx + sx, ry + sy, Phaser.Math.Between(5, 15), Phaser.Math.Between(5, 15));
+        graphics.fillRect(rx + sx, ry + sy, Phaser.Math.Between(8, 16), Phaser.Math.Between(8, 16));
       }
     }
 
