@@ -63,15 +63,15 @@ export class TextureGenerator {
     graphics.destroy();
   }
 
-  public static generateAnimeCity(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number, buildingCount: number, colors: number[], roofColors: number[], minHeight: number = 30, maxHeight: number = 90) {
+  public static generateAnimeCity(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number, buildingCount: number, colors: number[], roofColors: number[], minHeight: number = 30, maxHeight: number = 90, isNight: boolean = false) {
     const graphics = scene.add.graphics();
     
-    // Base ground / roads (Daytime light grey/blue)
-    graphics.fillStyle(0xa0abb8, 1);
+    // Base ground / roads
+    graphics.fillStyle(isNight ? 0x0a1020 : 0xa0abb8, 1);
     graphics.fillRect(0, 0, texWidth, texHeight);
 
-    // Draw white road lines grid
-    graphics.lineStyle(2, 0xffffff, 0.5);
+    // Draw road lines grid
+    graphics.lineStyle(2, isNight ? 0x00ffff : 0xffffff, isNight ? 0.3 : 0.5);
     for(let y=0; y<texHeight; y+=150) {
       graphics.moveTo(0, y); graphics.lineTo(texWidth, y);
     }
@@ -123,14 +123,18 @@ export class TextureGenerator {
       graphics.fillStyle(roofColors[colIdx], 1);
       graphics.fillRect(rx, ry, bw, bh);
       
-      // Roof border (clean white outline for anime style)
-      graphics.lineStyle(2, 0xffffff, 0.6);
+      // Roof border
+      graphics.lineStyle(2, isNight ? Phaser.Math.RND.pick([0x00ffcc, 0xff00ff]) : 0xffffff, 0.6);
       graphics.strokeRect(rx, ry, bw, bh);
       
-      // Draw AC units/water tanks on the roof (classic anime city details)
+      // Draw details (neon at night, AC units in daytime)
       const details = Phaser.Math.Between(0, 3);
       for(let d=0; d<details; d++) {
-        graphics.fillStyle(Phaser.Math.RND.pick([0xffffff, 0xe0e6ed, 0xc6d0dc]), 0.9);
+        if (isNight) {
+          graphics.fillStyle(Phaser.Math.RND.pick([0xff00ff, 0x00ffff, 0xffff00]), 0.8);
+        } else {
+          graphics.fillStyle(Phaser.Math.RND.pick([0xffffff, 0xe0e6ed, 0xc6d0dc]), 0.9);
+        }
         const sx = Phaser.Math.Between(10, bw - 20);
         const sy = Phaser.Math.Between(10, bh - 20);
         graphics.fillRect(rx + sx, ry + sy, Phaser.Math.Between(8, 16), Phaser.Math.Between(8, 16));
@@ -176,6 +180,39 @@ export class TextureGenerator {
     graphics.fillRect(40, 24, 4, 8);
 
     graphics.generateTexture(key, 64, 64);
+    graphics.destroy();
+  }
+
+  public static generateAnimeOcean(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number) {
+    const graphics = scene.add.graphics();
+    
+    // Deep blue ocean base
+    graphics.fillStyle(0x103050, 1);
+    graphics.fillRect(0, 0, texWidth, texHeight);
+
+    // Draw shimmering waves
+    for (let i = 0; i < 200; i++) {
+      const wx = Phaser.Math.Between(0, texWidth);
+      const wy = Phaser.Math.Between(0, texHeight);
+      const wl = Phaser.Math.Between(20, 100);
+      
+      graphics.lineStyle(2, Phaser.Math.RND.pick([0x2a5b82, 0x427fa8, 0x6caabf]), Phaser.Math.FloatBetween(0.3, 0.8));
+      graphics.beginPath();
+      graphics.moveTo(wx, wy);
+      graphics.lineTo(wx + wl / 2, wy - 5);
+      graphics.lineTo(wx + wl, wy);
+      graphics.strokePath();
+    }
+    
+    // Moonlight/bioluminescent reflection
+    for (let i = 0; i < 50; i++) {
+      const mx = Phaser.Math.Between(texWidth * 0.3, texWidth * 0.7); // Center reflection
+      const my = Phaser.Math.Between(0, texHeight);
+      graphics.fillStyle(0x00ffcc, Phaser.Math.FloatBetween(0.1, 0.5));
+      graphics.fillCircle(mx, my, Phaser.Math.Between(2, 6));
+    }
+
+    graphics.generateTexture(key, texWidth, texHeight);
     graphics.destroy();
   }
 }

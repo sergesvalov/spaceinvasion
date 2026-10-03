@@ -100,8 +100,16 @@ export class BootScene extends Phaser.Scene {
     if (!this.textures.exists('bg_mountains')) {
       TextureGenerator.generateAnimeMountains(this, 'bg_mountains', 800, 1200);
     }
-    if (!this.textures.exists('bg_anime_city')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_anime_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
+    
+    // Night Anime City Colors
+    const nightBuildings = [0x1a253a, 0x223555, 0x2e4266];
+    const nightRoofs = [0x0d1424, 0x15223b, 0x1f2a42];
+
+    if (!this.textures.exists('bg_night_city')) {
+      TextureGenerator.generateAnimeCity(this, 'bg_night_city', 800, 1200, 250, nightBuildings, nightRoofs, 60, 200, true);
+    }
+    if (!this.textures.exists('bg_ocean')) {
+      TextureGenerator.generateAnimeOcean(this, 'bg_ocean', 800, 1200);
     }
     if (!this.textures.exists('aagun')) {
       TextureGenerator.generateAAGun(this, 'aagun');

@@ -32,8 +32,8 @@ export const GameConfig = {
       { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.5 }
     ],
     2: [
-      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.7 },
-      { textureKey: 'bg_anime_city', duration: 30000, spawnRateModifier: 0.4 }
+      { textureKey: 'bg_night_city', duration: 36000, spawnRateModifier: 0.7 },
+      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.4 }
     ]
   }
 };
