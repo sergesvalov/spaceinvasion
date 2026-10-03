@@ -140,4 +140,42 @@ export class TextureGenerator {
     graphics.generateTexture(key, texWidth, texHeight);
     graphics.destroy();
   }
+  public static generateAAGun(scene: Phaser.Scene, key: string) {
+    const graphics = scene.add.graphics();
+    
+    // Hexagonal Base (Mecha style dark grey)
+    graphics.fillStyle(0x4a5a75, 1);
+    graphics.beginPath();
+    graphics.moveTo(32, 4);
+    graphics.lineTo(56, 18);
+    graphics.lineTo(56, 46);
+    graphics.lineTo(32, 60);
+    graphics.lineTo(8, 46);
+    graphics.lineTo(8, 18);
+    graphics.closePath();
+    graphics.fillPath();
+    graphics.lineStyle(2, 0xc6d0dc, 1);
+    graphics.strokePath();
+
+    // Twin Cannons (Gunmetal)
+    graphics.fillStyle(0x334455, 1);
+    graphics.fillRect(18, 0, 8, 30); // Left barrel
+    graphics.fillRect(38, 0, 8, 30); // Right barrel
+
+    // Turret Body (Sleek White with Blue Anime Accents)
+    graphics.fillStyle(0xe0e6ed, 1);
+    graphics.fillRect(16, 20, 32, 28);
+    
+    // Turret Details
+    graphics.fillStyle(0x489ad8, 1); // Blue stripe
+    graphics.fillRect(28, 20, 8, 28);
+    
+    // Glowing bits (power cores/heatsinks)
+    graphics.fillStyle(0x00ffcc, 1);
+    graphics.fillRect(20, 24, 4, 8);
+    graphics.fillRect(40, 24, 4, 8);
+
+    graphics.generateTexture(key, 64, 64);
+    graphics.destroy();
+  }
 }

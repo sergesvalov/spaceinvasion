@@ -103,6 +103,9 @@ export class BootScene extends Phaser.Scene {
     if (!this.textures.exists('bg_anime_city')) {
       TextureGenerator.generateAnimeCity(this, 'bg_anime_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
     }
+    if (!this.textures.exists('aagun')) {
+      TextureGenerator.generateAAGun(this, 'aagun');
+    }
 
     this.scene.start('MenuScene');
   }

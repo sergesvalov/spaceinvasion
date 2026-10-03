@@ -140,4 +140,21 @@ export class LevelManager {
     const currentPhase = this.phases[this.currentPhaseIndex];
     return currentPhase ? currentPhase.textureKey : null;
   }
+
+  public getLevelProgress(time: number): number {
+    if (this.isLevelComplete) return 1.0;
+    
+    let totalDuration = 0;
+    for (const phase of this.phases) {
+      totalDuration += phase.duration;
+    }
+    
+    let timePassed = 0;
+    for (let i = 0; i < this.currentPhaseIndex; i++) {
+      timePassed += this.phases[i].duration;
+    }
+    timePassed += (time - this.phaseStartTime);
+    
+    return Phaser.Math.Clamp(timePassed / totalDuration, 0, 1);
+  }
 }

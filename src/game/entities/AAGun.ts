@@ -12,7 +12,7 @@ export class AAGun extends BaseEntity {
   private fireRateMs: number = GameConfig.AAGun.FireRate;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'game_atlas', 'aagun');
+    super(scene, x, y, 'aagun');
 
     // Scale down the generated asset if needed
     this.setScale(0.6); 

@@ -214,10 +214,8 @@ export class GameScene extends Phaser.Scene {
     this.player.updateMelee(this.entityManager, time);
     this.gameController.updateBossHUD();
 
-    const currentPhase = this.levelManager.getCurrentPhaseKey();
-    if (currentPhase === 'bg_city' || currentPhase === 'bg_suburbs') {
-      this.entitySpawner.spawnAAGun(time);
-    }
+    const levelProgress = this.levelManager.getLevelProgress(time);
+    this.entitySpawner.spawnAAGun(time, levelProgress);
 
     const baseModifier = this.levelManager.getCurrentSpawnModifier();
     // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)

@@ -69,8 +69,15 @@ export class EntitySpawner {
     }
   }
 
-  public spawnAAGun(time: number) {
-    if (time > this.lastAAGunSpawn + 3000) {
+  public spawnAAGun(time: number, progress: number) {
+    if (progress > 0.6) return; // Stop spawning after 60% of the level
+    
+    // Spawn delay increases from 1500ms (at start) to 5000ms (at 60%)
+    const baseDelay = 1500;
+    const maxDelay = 5000;
+    const delay = Phaser.Math.Linear(baseDelay, maxDelay, progress / 0.6);
+    
+    if (time > this.lastAAGunSpawn + delay) {
       this.lastAAGunSpawn = time;
       const gun = this.entityManager.getAAGun();
       if (gun) {
