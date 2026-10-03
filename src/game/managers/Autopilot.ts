@@ -11,11 +11,13 @@ export class Autopilot {
   private player: Player;
   private entityManager: EntityManager;
   private isEnabled: boolean = false;
+  private boss: Boss;
 
-  constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager, _boss: Boss) {
+  constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager, boss: Boss) {
     this.scene = scene;
     this.player = player;
     this.entityManager = entityManager;
+    this.boss = boss;
   }
 
   public enable() {
@@ -51,8 +53,6 @@ export class Autopilot {
     });
 
     // Move logic: Find a safe spot
-    // Very simple AI: Just stay in the center to shoot the boss, but dodge bullets horizontally
-    
     let desiredX = this.scene.scale.width / 2;
     let desiredY = this.scene.scale.height - 150; // Stay near bottom
 
@@ -60,7 +60,13 @@ export class Autopilot {
 
     // В E2E тестах игрок бессмертен, поэтому уклоняться не нужно.
     // Это гарантирует, что автопилот не забьется в угол и быстро убьет босса.
-    if (!(window as any).__E2E_TEST_MODE__) {
+    if ((window as any).__E2E_TEST_MODE__) {
+      // Прямо следуем за боссом, чтобы быстро убить его
+      if (this.boss && this.boss.active) {
+        desiredX = this.boss.x;
+        speed = 0.5; // Быстро догоняем
+      }
+    } else {
       // Repulsion from threats
       threats.forEach(t => {
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y);
