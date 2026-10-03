@@ -17,7 +17,7 @@ export class Boss extends BaseEntity {
     enemyProjectiles: Phaser.Physics.Arcade.Group,
     onSpawnKamikaze: (x: number, y: number) => void
   ) {
-    super(scene, x, y, 'boss');
+    super(scene, x, y, 'game_atlas', 'boss');
     
     // Scale down the large generated image to an appropriate boss size
     this.setScale(0.66);

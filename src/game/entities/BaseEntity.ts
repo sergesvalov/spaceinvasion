@@ -7,8 +7,8 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
   // Callbacks for events
   protected onDestroyed?: (entity: BaseEntity) => void;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
-    super(scene, x, y, texture);
+  constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
+    super(scene, x, y, texture, frame);
     scene.add.existing(this);
     scene.physics.add.existing(this);
   }

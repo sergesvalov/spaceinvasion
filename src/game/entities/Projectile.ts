@@ -10,7 +10,7 @@ export class Projectile extends BaseProjectile {
   private timeAlive: number = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'projectile_fighter'); // Default to fighter sprite
+    super(scene, x, y, 'game_atlas', 'projectile_fighter'); // Default to fighter sprite
   }
 
   fire(x: number, y: number, velocityY: number, damage?: number, weaponType: string = 'plasma') {
@@ -26,7 +26,7 @@ export class Projectile extends BaseProjectile {
     this.setBlendMode(Phaser.BlendModes.ADD);
     
     // Default config (Fighter)
-    this.setTexture('projectile_fighter');
+    this.setTexture('game_atlas', 'projectile_fighter');
     this.setScale(0.48);
     this.clearTint();
 
@@ -41,7 +41,7 @@ export class Projectile extends BaseProjectile {
       this.setScale(0.56);
     } else if (weaponType === 'beam') {
       // Mecha config
-      this.setTexture('projectile_mecha');
+      this.setTexture('game_atlas', 'projectile_mecha');
       this.setTint(0xffffff);
       this.setScale(0.64);
       this.piercing = true;

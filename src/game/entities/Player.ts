@@ -42,7 +42,7 @@ export class Player extends Phaser.GameObjects.Container {
       body.setOffset(-15, -15);
     }
 
-    this.sprite = scene.add.sprite(0, 0, 'ship');
+    this.sprite = scene.add.sprite(0, 0, 'game_atlas', 'ship');
     this.sprite.setScale(0.5488);
     this.add(this.sprite);
 

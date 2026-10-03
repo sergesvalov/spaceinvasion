@@ -24,7 +24,7 @@ export interface PlayerStateComponent {
 
 export class FighterState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
-    context.sprite.setTexture('ship');
+    context.sprite.setTexture('game_atlas', 'ship');
     context.sprite.setTint(0xffffff); // Normal color
     context.sprite.setScale(0.5488);
     
@@ -61,7 +61,7 @@ export class MechaState implements PlayerStateComponent {
   private lastMeleeFired: number = 0;
 
   enter(context: PlayerContext): void {
-    context.sprite.setTexture('mecha');
+    context.sprite.setTexture('game_atlas', 'mecha');
     context.sprite.setTint(0xffffff);
     context.sprite.setScale(0.528); // 10% larger than the old 0.12 baseline
     

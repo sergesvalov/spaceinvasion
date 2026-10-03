@@ -11,7 +11,7 @@ export class Drone extends Phaser.GameObjects.Sprite {
   private timeAlive: number = 0;
 
   constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager) {
-    super(scene, player.x + 50, player.y, 'ship');
+    super(scene, player.x + 50, player.y, 'game_atlas', 'ship');
     this.player = player;
     this.entityManager = entityManager;
 

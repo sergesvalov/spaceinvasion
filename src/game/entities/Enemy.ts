@@ -10,7 +10,7 @@ export class Enemy extends BaseEntity {
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'enemy');
+    super(scene, x, y, 'game_atlas', 'enemy');
     
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {

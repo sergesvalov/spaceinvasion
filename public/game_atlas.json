@@ -1,0 +1,250 @@
+{
+	"textures": [
+		{
+			"image": "game_atlas.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 505,
+				"h": 1110
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "boss",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 29,
+						"y": 0,
+						"w": 453,
+						"h": 498
+					},
+					"frame": {
+						"x": 2,
+						"y": 2,
+						"w": 453,
+						"h": 498
+					}
+				},
+				{
+					"filename": "aagun",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 256,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 37,
+						"y": 13,
+						"w": 182,
+						"h": 226
+					},
+					"frame": {
+						"x": 2,
+						"y": 504,
+						"w": 182,
+						"h": 226
+					}
+				},
+				{
+					"filename": "powerup_health",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 256,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 59,
+						"y": 28,
+						"w": 138,
+						"h": 200
+					},
+					"frame": {
+						"x": 2,
+						"y": 734,
+						"w": 138,
+						"h": 200
+					}
+				},
+				{
+					"filename": "powerup_weapon",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 256,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 43,
+						"y": 43,
+						"w": 167,
+						"h": 170
+					},
+					"frame": {
+						"x": 2,
+						"y": 938,
+						"w": 167,
+						"h": 170
+					}
+				},
+				{
+					"filename": "mecha",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 256,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 7,
+						"y": 51,
+						"w": 242,
+						"h": 163
+					},
+					"frame": {
+						"x": 144,
+						"y": 734,
+						"w": 242,
+						"h": 163
+					}
+				},
+				{
+					"filename": "ship",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 5,
+						"y": 5,
+						"w": 118,
+						"h": 118
+					},
+					"frame": {
+						"x": 188,
+						"y": 504,
+						"w": 118,
+						"h": 118
+					}
+				},
+				{
+					"filename": "enemy",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 25,
+						"y": 12,
+						"w": 78,
+						"h": 102
+					},
+					"frame": {
+						"x": 188,
+						"y": 626,
+						"w": 78,
+						"h": 102
+					}
+				},
+				{
+					"filename": "ship_side",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 256,
+						"h": 256
+					},
+					"spriteSourceSize": {
+						"x": 10,
+						"y": 83,
+						"w": 233,
+						"h": 87
+					},
+					"frame": {
+						"x": 270,
+						"y": 626,
+						"w": 233,
+						"h": 87
+					}
+				},
+				{
+					"filename": "projectile_fighter",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 64,
+						"h": 64
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 64,
+						"h": 64
+					},
+					"frame": {
+						"x": 310,
+						"y": 504,
+						"w": 64,
+						"h": 64
+					}
+				},
+				{
+					"filename": "projectile_mecha",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 64,
+						"h": 64
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 64,
+						"h": 64
+					},
+					"frame": {
+						"x": 378,
+						"y": 504,
+						"w": 64,
+						"h": 64
+					}
+				},
+				{
+					"filename": "antimatter",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 64,
+						"h": 64
+					},
+					"spriteSourceSize": {
+						"x": 5,
+						"y": 4,
+						"w": 54,
+						"h": 56
+					},
+					"frame": {
+						"x": 446,
+						"y": 504,
+						"w": 54,
+						"h": 56
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://github.com/odrick/free-tex-packer-core",
+		"version": "0.3.9"
+	}
+}

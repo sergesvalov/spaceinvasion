@@ -59,22 +59,9 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('pew', 'pew.wav');
     this.load.audio('explosion', 'explosion.wav');
 
-    // Load ship, enemy, and boss textures
-    this.load.image('ship', 'ship.png');
-    this.load.image('mecha', 'mecha.png');
-    this.load.image('enemy', 'enemy.png');
-    this.load.image('boss', 'boss.png');
-    this.load.image('antimatter', 'antimatter.png');
-    this.load.image('aagun', 'aagun.png');
-    this.load.image('powerup_health', 'powerup_health.png');
-    this.load.image('powerup_weapon', 'powerup_weapon.png');
-    this.load.image('projectile_fighter', 'projectile_fighter.png');
-    this.load.image('projectile_mecha', 'projectile_mecha.png');
+    // Load main game atlas
+    this.load.atlas('game_atlas', 'game_atlas.png', 'game_atlas.json');
     
-    // Load garage textures
-    this.load.image('hangar', 'hangar.png');
-    this.load.image('ship_side', 'ship_side.png');
-
     // Load story textures
     this.load.image('story_1', 'story/story_1.png');
     this.load.image('story_2', 'story/story_2.png');
