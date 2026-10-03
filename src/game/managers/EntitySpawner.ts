@@ -20,7 +20,7 @@ export class EntitySpawner {
     this.boss = boss;
   }
 
-  public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0) {
+  public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0, currentPhaseKey: string | null = null) {
     if (!isPlaying) return;
 
     const spawnDelay = 2000 * spawnRateModifier;
@@ -29,24 +29,25 @@ export class EntitySpawner {
     if (time > this.lastEnemySpawn + spawnDelay) {
       this.lastEnemySpawn = time;
       this.spawnCount++;
-      const enemy = this.entityManager.getEnemy();
-      if (enemy) {
-        let startX: number;
-        // Alternate between random and pattern-based spawns
-        if (this.spawnCount % 5 === 0) {
-           // Center
-           startX = this.scene.scale.width / 2;
-        } else if (this.spawnCount % 5 === 1) {
-           // Left sweep
-           startX = 50 + (this.scene.scale.width / 4);
-        } else if (this.spawnCount % 5 === 2) {
-           // Right sweep
-           startX = this.scene.scale.width - 50 - (this.scene.scale.width / 4);
-        } else {
-           // Random
-           startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
-        }
-        enemy.spawn(startX, -50);
+      // Alternate between random and pattern-based spawns
+      let startX: number;
+      if (this.spawnCount % 5 === 0) {
+        startX = this.scene.scale.width / 2;
+      } else if (this.spawnCount % 5 === 1) {
+        startX = 50 + (this.scene.scale.width / 4);
+      } else if (this.spawnCount % 5 === 2) {
+        startX = this.scene.scale.width - 50 - (this.scene.scale.width / 4);
+      } else {
+        startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
+      }
+
+      // Determine which enemy to spawn based on level phase
+      if (currentPhaseKey === 'bg_ocean') {
+        const oceanEnemy = this.entityManager.getOceanEnemy();
+        if (oceanEnemy) oceanEnemy.spawn(startX, -50);
+      } else {
+        const enemy = this.entityManager.getEnemy();
+        if (enemy) enemy.spawn(startX, -50);
       }
     }
 

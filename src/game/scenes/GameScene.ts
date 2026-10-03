@@ -224,6 +224,7 @@ export class GameScene extends Phaser.Scene {
     
     const finalModifier = baseModifier * scoreModifier * ddaModifier;
 
-    this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier);
+    const currentPhaseKey = this.levelManager.getCurrentPhaseKey();
+    this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier, currentPhaseKey);
   }
 }

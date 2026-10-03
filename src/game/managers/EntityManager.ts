@@ -2,15 +2,18 @@ import Phaser from 'phaser';
 import { Projectile } from '../entities/Projectile';
 import { Enemy } from '../entities/Enemy';
 import { EnemyProjectile } from '../entities/EnemyProjectile';
+import { OceanEnemy } from '../entities/OceanEnemy';
 import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { AAGunProjectile } from '../entities/AAGunProjectile';
 import { AAGun } from '../entities/AAGun';
 import { PowerUp } from '../entities/PowerUp';
 import { ObjectPool } from './ObjectPool';
+import { BaseEntity } from '../entities/BaseEntity';
 
 export class EntityManager {
   public projectiles: ObjectPool<Projectile>;
   public enemies: ObjectPool<Enemy>;
+  public oceanEnemies: ObjectPool<OceanEnemy>;
   public enemyProjectiles: ObjectPool<EnemyProjectile>;
   public antimatterContainers: ObjectPool<AntimatterContainer>;
   public aaProjectiles: ObjectPool<AAGunProjectile>;
@@ -20,6 +23,7 @@ export class EntityManager {
   constructor(private scene: Phaser.Scene) {
     this.projectiles = new ObjectPool<Projectile>(this.scene, Projectile, 150);
     this.enemies = new ObjectPool<Enemy>(this.scene, Enemy, 20);
+    this.oceanEnemies = new ObjectPool<OceanEnemy>(this.scene, OceanEnemy, 20);
     this.enemyProjectiles = new ObjectPool<EnemyProjectile>(this.scene, EnemyProjectile, 50);
     this.antimatterContainers = new ObjectPool<AntimatterContainer>(this.scene, AntimatterContainer, 50);
     this.aaProjectiles = new ObjectPool<AAGunProjectile>(this.scene, AAGunProjectile, 100);
@@ -28,20 +32,24 @@ export class EntityManager {
   }
 
   public applyDamageToAllEnemies(damage: number, radius?: number, centerX?: number, centerY?: number) {
-    this.enemies.children.iterate((c) => {
-      const e = c as Enemy;
-      if (e && e.active) {
-        if (radius !== undefined && centerX !== undefined && centerY !== undefined) {
-          const dist = Phaser.Math.Distance.Between(centerX, centerY, e.x, e.y);
-          if (dist <= radius) {
+    const applyToGroup = (pool: ObjectPool<any>) => {
+      pool.children.iterate((c) => {
+        const e = c as BaseEntity;
+        if (e && e.active) {
+          if (radius !== undefined && centerX !== undefined && centerY !== undefined) {
+            const dist = Phaser.Math.Distance.Between(centerX, centerY, e.x, e.y);
+            if (dist <= radius) {
+              e.takeDamage(damage);
+            }
+          } else {
             e.takeDamage(damage);
           }
-        } else {
-          e.takeDamage(damage);
         }
-      }
-      return true;
-    });
+        return true;
+      });
+    };
+    applyToGroup(this.enemies);
+    applyToGroup(this.oceanEnemies);
   }
 
   public clearEnemyProjectiles(radius?: number, centerX?: number, centerY?: number) {
@@ -67,6 +75,10 @@ export class EntityManager {
 
   public getEnemy(): Enemy | null {
     return this.enemies.get();
+  }
+
+  public getOceanEnemy(): OceanEnemy | null {
+    return this.oceanEnemies.get();
   }
 
   public getEnemyProjectile(): EnemyProjectile | null {

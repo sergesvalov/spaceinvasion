@@ -215,4 +215,33 @@ export class TextureGenerator {
     graphics.generateTexture(key, texWidth, texHeight);
     graphics.destroy();
   }
+  public static generateOceanEnemy(scene: Phaser.Scene, key: string) {
+    const graphics = scene.add.graphics();
+    
+    // Sleek triangular shape, dark aquatic metallic
+    graphics.fillStyle(0x1a2b3c, 1);
+    graphics.beginPath();
+    graphics.moveTo(32, 8);
+    graphics.lineTo(56, 48);
+    graphics.lineTo(32, 56);
+    graphics.lineTo(8, 48);
+    graphics.closePath();
+    graphics.fillPath();
+
+    // Metallic trim
+    graphics.lineStyle(2, 0x4a6b8c, 1);
+    graphics.strokePath();
+
+    // Glowing cyan "eye" or core
+    graphics.fillStyle(0x00ffcc, 1);
+    graphics.fillCircle(32, 24, 6);
+    
+    // Side glowing stripes
+    graphics.fillStyle(0x00aaff, 1);
+    graphics.fillRect(20, 36, 4, 12);
+    graphics.fillRect(40, 36, 4, 12);
+
+    graphics.generateTexture(key, 64, 64);
+    graphics.destroy();
+  }
 }

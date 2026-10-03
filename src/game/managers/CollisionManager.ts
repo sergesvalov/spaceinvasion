@@ -10,6 +10,7 @@ import { EntityManager } from './EntityManager';
 import { burst } from '../effects/burst';
 import { Projectile } from '../entities/Projectile';
 import { PowerUp } from '../entities/PowerUp';
+import { OceanEnemy } from '../entities/OceanEnemy';
 
 export class CollisionManager {
   private scene: Phaser.Scene;
@@ -33,14 +34,19 @@ export class CollisionManager {
   }
 
   public setupCollisions() {
-    const { projectiles, enemies, aaProjectiles, enemyProjectiles, antimatterContainers, powerUps } = this.entityManager;
+    const { projectiles, enemies, oceanEnemies, aaProjectiles, enemyProjectiles, antimatterContainers, powerUps } = this.entityManager;
 
     this.scene.physics.add.overlap(projectiles.getGroup(), enemies.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(projectiles.getGroup(), oceanEnemies.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
     this.scene.physics.add.overlap(projectiles.getGroup(), this.boss, this.handlePlayerProjectileVsDamageable.bind(this));
+    
     this.scene.physics.add.overlap(aaProjectiles.getGroup(), enemies.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(aaProjectiles.getGroup(), oceanEnemies.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
     this.scene.physics.add.overlap(aaProjectiles.getGroup(), this.boss, this.handleAAProjectileVsDamageable.bind(this));
+    
     this.scene.physics.add.overlap(enemyProjectiles.getGroup(), this.player, this.handleEnemyProjectileVsPlayer.bind(this));
     this.scene.physics.add.overlap(enemies.getGroup(), this.player, this.handleEnemyVsPlayer.bind(this));
+    this.scene.physics.add.overlap(oceanEnemies.getGroup(), this.player, this.handleOceanEnemyVsPlayer.bind(this));
     this.scene.physics.add.overlap(this.boss, this.player, this.handleBossVsPlayer.bind(this));
     this.scene.physics.add.overlap(this.player, antimatterContainers.getGroup(), this.handlePlayerVsAntimatter.bind(this));
     this.scene.physics.add.overlap(this.player, powerUps.getGroup(), this.handlePlayerVsPowerUp.bind(this));
@@ -95,6 +101,20 @@ export class CollisionManager {
       e.setVisible(false);
       if (this.player.getForm() === 'mecha') {
         EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
+      } else if (!this.player.isShielded()) {
+        EventBus.emit('player_hit');
+      }
+    }
+  }
+
+  private handleOceanEnemyVsPlayer(obj1: any, obj2: any) {
+    const e = (obj1 === this.player ? obj2 : obj1) as OceanEnemy;
+    if (e.active && this.isPlayingGetter()) {
+      this.createExplosion(e.x, e.y);
+      e.setActive(false);
+      e.setVisible(false);
+      if (this.player.getForm() === 'mecha') {
+        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2);
       } else if (!this.player.isShielded()) {
         EventBus.emit('player_hit');
       }
