@@ -73,6 +73,10 @@ export class BootScene extends Phaser.Scene {
 
     // Load Earth backgrounds (now generated procedurally)
     // Removed static loads for bg_suburbs and bg_mountains
+    this.load.image('bg_city', 'bg/city.png');
+    this.load.image('bg_suburbs', 'bg/suburbs.png');
+    this.load.image('bg_mountains', 'bg/mountains.png');
+    this.load.image('bg_night_city', 'bg/anime_city.png');
   }
 
   create() {
@@ -91,6 +95,7 @@ export class BootScene extends Phaser.Scene {
     const dayRoofs = [0x489ad8, 0xd8587b, 0x58c078];
     
     // Legacy backgrounds (keep for MapScene/Garage if needed)
+    // We loaded real images in preload, so these won't run.
     if (!this.textures.exists('bg_city')) {
       TextureGenerator.generateAnimeCity(this, 'bg_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
     }
