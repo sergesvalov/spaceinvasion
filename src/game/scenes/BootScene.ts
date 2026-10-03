@@ -117,6 +117,9 @@ export class BootScene extends Phaser.Scene {
     if (!this.textures.exists('ocean_enemy')) {
       TextureGenerator.generateOceanEnemy(this, 'ocean_enemy');
     }
+    if (!this.textures.exists('alien_aagun')) {
+      TextureGenerator.generateAlienAAGun(this, 'alien_aagun');
+    }
 
     this.scene.start('MenuScene');
   }

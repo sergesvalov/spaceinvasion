@@ -244,4 +244,59 @@ export class TextureGenerator {
     graphics.generateTexture(key, 64, 64);
     graphics.destroy();
   }
+  public static generateAlienAAGun(scene: Phaser.Scene, key: string) {
+    const graphics = scene.add.graphics();
+    
+    // Destroyed building base (crater)
+    graphics.fillStyle(0x333333, 1);
+    graphics.fillCircle(32, 32, 28);
+    
+    // Rubble and cracks
+    for (let i = 0; i < 6; i++) {
+      graphics.lineStyle(2, 0x111111, 0.8);
+      graphics.beginPath();
+      graphics.moveTo(32, 32);
+      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      const dist = Phaser.Math.Between(15, 28);
+      graphics.lineTo(32 + Math.cos(angle) * dist, 32 + Math.sin(angle) * dist);
+      graphics.strokePath();
+    }
+    
+    // Some broken building blocks around
+    for (let i = 0; i < 5; i++) {
+      graphics.fillStyle(0x8899aa, 1);
+      const bx = Phaser.Math.Between(5, 50);
+      const by = Phaser.Math.Between(5, 50);
+      graphics.fillRect(bx, by, Phaser.Math.Between(5, 12), Phaser.Math.Between(5, 12));
+    }
+
+    // Alien Turret Base (Hexagonal, alien purple)
+    graphics.fillStyle(0x3a104a, 1);
+    graphics.beginPath();
+    graphics.moveTo(32, 16);
+    graphics.lineTo(48, 24);
+    graphics.lineTo(48, 40);
+    graphics.lineTo(32, 48);
+    graphics.lineTo(16, 40);
+    graphics.lineTo(16, 24);
+    graphics.closePath();
+    graphics.fillPath();
+
+    // Alien Cannon (Neon green accents)
+    graphics.fillStyle(0x111111, 1);
+    graphics.fillCircle(32, 32, 10);
+    
+    graphics.lineStyle(3, 0x00ff00, 1);
+    graphics.beginPath();
+    graphics.moveTo(32, 22);
+    graphics.lineTo(32, 4);
+    graphics.strokePath();
+    
+    // Cannon tip glowing
+    graphics.fillStyle(0x00ffcc, 1);
+    graphics.fillCircle(32, 4, 4);
+
+    graphics.generateTexture(key, 64, 64);
+    graphics.destroy();
+  }
 }

@@ -2,22 +2,27 @@ import Phaser from 'phaser';
 import { EntityManager } from './EntityManager';
 
 import { Boss } from '../entities/Boss';
+import { Player } from '../entities/Player';
 import { PowerUpType } from '../entities/PowerUp';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
   private entityManager: EntityManager;
   private boss: Boss;
+  private player: Player;
   
   private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
+  private lastAlienAAGunSpawn: number = 0;
   private lastPowerUpSpawn: number = 0;
   private spawnCount: number = 0;
+  private alienAAGunCount: number = 0;
 
-  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss) {
+  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss, player: Player) {
     this.scene = scene;
     this.entityManager = entityManager;
     this.boss = boss;
+    this.player = player;
   }
 
   public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0, currentPhaseKey: string | null = null) {
@@ -83,6 +88,27 @@ export class EntitySpawner {
       const gun = this.entityManager.getAAGun();
       if (gun) {
         gun.setReferences(this.entityManager, this.boss);
+        const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
+        gun.spawn(x, -100, 500, time);
+      }
+    }
+  }
+
+  public spawnAlienAAGun(time: number, currentPhaseKey: string | null) {
+    if (currentPhaseKey !== 'bg_night_city') {
+      this.alienAAGunCount = 0;
+      return;
+    }
+
+    if (this.alienAAGunCount >= 8) return;
+
+    // Spawns one every 4500ms during the 36000ms bg_night_city phase
+    if (time > this.lastAlienAAGunSpawn + 4500) {
+      this.lastAlienAAGunSpawn = time;
+      this.alienAAGunCount++;
+      const gun = this.entityManager.getAlienAAGun();
+      if (gun) {
+        gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
         gun.spawn(x, -100, 500, time);
       }

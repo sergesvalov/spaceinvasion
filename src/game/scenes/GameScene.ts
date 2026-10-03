@@ -97,7 +97,7 @@ export class GameScene extends Phaser.Scene {
     );
     this.playerActionManager.setupEvents();
 
-    this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss);
+    this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss, this.player);
     
     this.autopilot = new Autopilot(this, this.player, this.entityManager, this.boss);
     const w = window as any;
@@ -216,6 +216,9 @@ export class GameScene extends Phaser.Scene {
 
     const levelProgress = this.levelManager.getLevelProgress(time);
     this.entitySpawner.spawnAAGun(time, levelProgress);
+    
+    const currentPhaseKey = this.levelManager.getCurrentPhaseKey();
+    this.entitySpawner.spawnAlienAAGun(time, currentPhaseKey);
 
     const baseModifier = this.levelManager.getCurrentSpawnModifier();
     // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)
@@ -224,7 +227,6 @@ export class GameScene extends Phaser.Scene {
     
     const finalModifier = baseModifier * scoreModifier * ddaModifier;
 
-    const currentPhaseKey = this.levelManager.getCurrentPhaseKey();
     this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier, currentPhaseKey);
   }
 }

@@ -9,6 +9,7 @@ import { AAGun } from '../entities/AAGun';
 import { PowerUp } from '../entities/PowerUp';
 import { ObjectPool } from './ObjectPool';
 import { BaseEntity } from '../entities/BaseEntity';
+import { AlienAAGun } from '../entities/AlienAAGun';
 
 export class EntityManager {
   public projectiles: ObjectPool<Projectile>;
@@ -18,6 +19,7 @@ export class EntityManager {
   public antimatterContainers: ObjectPool<AntimatterContainer>;
   public aaProjectiles: ObjectPool<AAGunProjectile>;
   public aaGuns: ObjectPool<AAGun>;
+  public alienAAGuns: ObjectPool<AlienAAGun>;
   public powerUps: ObjectPool<PowerUp>;
 
   constructor(private scene: Phaser.Scene) {
@@ -28,6 +30,7 @@ export class EntityManager {
     this.antimatterContainers = new ObjectPool<AntimatterContainer>(this.scene, AntimatterContainer, 50);
     this.aaProjectiles = new ObjectPool<AAGunProjectile>(this.scene, AAGunProjectile, 100);
     this.aaGuns = new ObjectPool<AAGun>(this.scene, AAGun, 10);
+    this.alienAAGuns = new ObjectPool<AlienAAGun>(this.scene, AlienAAGun, 10);
     this.powerUps = new ObjectPool<PowerUp>(this.scene, PowerUp, 10);
   }
 
@@ -50,6 +53,7 @@ export class EntityManager {
     };
     applyToGroup(this.enemies);
     applyToGroup(this.oceanEnemies);
+    applyToGroup(this.alienAAGuns);
   }
 
   public clearEnemyProjectiles(radius?: number, centerX?: number, centerY?: number) {
@@ -95,6 +99,10 @@ export class EntityManager {
 
   public getAAGun(): AAGun | null {
     return this.aaGuns.get();
+  }
+
+  public getAlienAAGun(): AlienAAGun | null {
+    return this.alienAAGuns.get();
   }
 
   public getPowerUp(): PowerUp | null {
