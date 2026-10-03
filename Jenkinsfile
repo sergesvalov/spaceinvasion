@@ -47,7 +47,7 @@ pipeline {
                     sh "docker build -t ${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest -f Dockerfile.test ."
                     
                     withTestBuilder {
-                        sh "npm install"
+                        sh "npm ci"
                         sh "npm run test:e2e"
                     }
                 }
@@ -62,7 +62,7 @@ pipeline {
                 script {
                     echo "Сборка Vite/Phaser веб-приложения..."
                     withBuilder {
-                        sh "npm install"
+                        sh "npm ci"
                         sh "npm run build"
                     }
                 }
@@ -170,13 +170,13 @@ pipeline {
 }
 
 def withBuilder(Closure body) {
-    docker.image("${env.BUILDER_IMAGE}:latest").inside('-u root') {
+    docker.image("${env.BUILDER_IMAGE}:latest").inside('-u root -v /tmp/npm-cache:/root/.npm') {
         body()
     }
 }
 
 def withTestBuilder(Closure body) {
-    docker.image("${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest").inside('-u root') {
+    docker.image("${REGISTRY_IP}:${REGISTRY_PORT}/spaceinvasion-test:latest").inside('-u root -v /tmp/npm-cache:/root/.npm') {
         body()
     }
 }

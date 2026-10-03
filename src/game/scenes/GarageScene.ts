@@ -16,6 +16,7 @@ export class GarageScene extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.fadeIn(1000, 0, 0, 0);
     const { width, height } = this.scale;
 
     // Hologram Background

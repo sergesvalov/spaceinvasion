@@ -45,6 +45,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.fadeIn(1000, 0, 0, 0);
     AnalyticsService.getInstance().levelStart(`level_${this.currentLevel}`);
     const state = GameState.getInstance();
     if (this.currentLevel === 1) {
