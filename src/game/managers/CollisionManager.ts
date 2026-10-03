@@ -35,99 +35,43 @@ export class CollisionManager {
   public setupCollisions() {
     const { projectiles, enemies, aaProjectiles, enemyProjectiles, antimatterContainers, powerUps } = this.entityManager;
 
-    this.scene.physics.add.overlap(projectiles, enemies, this.handlePlayerProjectileVsEnemy.bind(this));
-    this.scene.physics.add.overlap(projectiles, this.boss, this.handlePlayerProjectileVsBoss.bind(this));
-    this.scene.physics.add.overlap(aaProjectiles, enemies, this.handleAAProjectileVsEnemy.bind(this));
-    this.scene.physics.add.overlap(aaProjectiles, this.boss, this.handleAAProjectileVsBoss.bind(this));
-    this.scene.physics.add.overlap(enemyProjectiles, this.player, this.handleEnemyProjectileVsPlayer.bind(this));
-    this.scene.physics.add.overlap(enemies, this.player, this.handleEnemyVsPlayer.bind(this));
+    this.scene.physics.add.overlap(projectiles.getGroup(), enemies.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(projectiles.getGroup(), this.boss, this.handlePlayerProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(aaProjectiles.getGroup(), enemies.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(aaProjectiles.getGroup(), this.boss, this.handleAAProjectileVsDamageable.bind(this));
+    this.scene.physics.add.overlap(enemyProjectiles.getGroup(), this.player, this.handleEnemyProjectileVsPlayer.bind(this));
+    this.scene.physics.add.overlap(enemies.getGroup(), this.player, this.handleEnemyVsPlayer.bind(this));
     this.scene.physics.add.overlap(this.boss, this.player, this.handleBossVsPlayer.bind(this));
-    this.scene.physics.add.overlap(this.player, antimatterContainers, this.handlePlayerVsAntimatter.bind(this));
-    this.scene.physics.add.overlap(this.player, powerUps, this.handlePlayerVsPowerUp.bind(this));
+    this.scene.physics.add.overlap(this.player, antimatterContainers.getGroup(), this.handlePlayerVsAntimatter.bind(this));
+    this.scene.physics.add.overlap(this.player, powerUps.getGroup(), this.handlePlayerVsPowerUp.bind(this));
   }
 
-  private handlePlayerProjectileVsEnemy(obj1: any, obj2: any) {
-    const p = obj1 as Projectile;
-    const e = obj2 as Enemy;
+  private handlePlayerProjectileVsDamageable(obj1: any, obj2: any) {
+    const p = (obj1 instanceof Projectile ? obj1 : obj2) as Projectile;
+    const target = (obj1 instanceof Projectile ? obj2 : obj1) as import('../entities/BaseEntity').BaseEntity;
     
-    if (p.active && e.active) {
+    if (p.active && target.active) {
       if (p.piercing) {
-        if (p.hitTargets && p.hitTargets.has(e)) return;
-        if (p.hitTargets) p.hitTargets.add(e);
+        if (p.hitTargets && p.hitTargets.has(target)) return;
+        if (p.hitTargets) p.hitTargets.add(target);
       } else {
         p.setActive(false);
         p.setVisible(false);
-        // Hit spark
-        burst(this.scene, p.x, p.y, 5, { scale: { start: 0.5, end: 0 }, lifespan: 200, speed: { min: 50, max: 150 }, tint: 0x00ffff });
+        burst(this.scene, p.x, p.y, p.damage > 2 ? 10 : 5, { scale: { start: p.damage > 2 ? 0.8 : 0.5, end: 0 }, lifespan: p.damage > 2 ? 300 : 200, speed: { min: 50, max: 200 }, tint: 0x00ffff });
       }
       
-      const destroyed = e.takeDamage(p.damage);
-      if (destroyed) {
-        // Small screen shake on enemy death
-        this.scene.cameras.main.shake(100, 0.005);
-        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
-        if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
-          const container = this.entityManager.getAntimatterContainer();
-          if (container) {
-            container.spawn(e.x, e.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
-          }
-        }
-      }
+      target.takeDamage(p.damage);
     }
   }
 
-  private handlePlayerProjectileVsBoss(obj1: any, obj2: any) {
-    const p = (obj1 === this.boss ? obj2 : obj1) as Projectile;
-    const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
+  private handleAAProjectileVsDamageable(obj1: any, obj2: any) {
+    const p = (obj1 instanceof BaseProjectile ? obj1 : obj2) as BaseProjectile;
+    const target = (obj1 instanceof BaseProjectile ? obj2 : obj1) as import('../entities/BaseEntity').BaseEntity;
     
-    if (p.active && bossObj.active) {
-      if (p.piercing) {
-        if (p.hitTargets && p.hitTargets.has(bossObj)) return;
-        if (p.hitTargets) p.hitTargets.add(bossObj);
-      } else {
-        p.setActive(false);
-        p.setVisible(false);
-        // Hit spark
-        burst(this.scene, p.x, p.y, 10, { scale: { start: 0.8, end: 0 }, lifespan: 300, speed: { min: 100, max: 200 }, tint: 0x00ffff });
-      }
-      
-      const destroyed = bossObj.takeDamage(p.damage);
-      // Small screen shake for boss hit
-      this.scene.cameras.main.shake(100, 0.003);
-      
-      if (destroyed) {
-        for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
-          const container = this.entityManager.getAntimatterContainer();
-          if (container) {
-            container.spawn(bossObj.x, bossObj.y, Phaser.Math.Between(-100, 100), Phaser.Math.Between(-50, 50));
-          }
-        }
-        EventBus.emit('boss_destroyed');
-      }
-    }
-  }
-
-  private handleAAProjectileVsEnemy(obj1: any, obj2: any) {
-    const p = obj1 as BaseProjectile;
-    const e = obj2 as Enemy;
-    if (p.active && e.active) {
+    if (p.active && target.active) {
       p.setActive(false);
       p.setVisible(false);
-      if (e.takeDamage(p.damage)) {
-        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
-      }
-    }
-  }
-
-  private handleAAProjectileVsBoss(obj1: any, obj2: any) {
-    const p = (obj1 === this.boss ? obj2 : obj1) as BaseProjectile;
-    const bossObj = (obj1 === this.boss ? obj1 : obj2) as Boss;
-    if (p.active && bossObj.active) {
-      p.setActive(false);
-      p.setVisible(false);
-      if (bossObj.takeDamage(p.damage)) {
-        EventBus.emit('boss_destroyed');
-      }
+      target.takeDamage(p.damage);
     }
   }
 

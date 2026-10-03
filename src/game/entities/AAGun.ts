@@ -65,7 +65,7 @@ export class AAGun extends BaseEntity {
     let target: Phaser.GameObjects.Sprite | null = null;
 
     // Check enemies
-    this.entityManager.enemies.getChildren().forEach((child) => {
+    this.entityManager.enemies.getGroup().getChildren().forEach((child) => {
       const enemy = child as Enemy;
       if (enemy.active) {
         const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
@@ -88,7 +88,7 @@ export class AAGun extends BaseEntity {
     if (target) {
       this.lastFired = time;
       
-      const proj = this.entityManager.getAAGunProjectile();
+      const proj = this.entityManager.aaProjectiles.get();
       if (proj) {
         proj.fire(this.x, this.y - 20, 0, GameConfig.AAGun.Damage); // Fire upwards initially, then correct velocity
         

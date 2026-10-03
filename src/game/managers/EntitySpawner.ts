@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { Enemy } from '../entities/Enemy';
 import { EntityManager } from './EntityManager';
 
 import { Boss } from '../entities/Boss';
@@ -51,17 +50,7 @@ export class EntitySpawner {
       }
     }
 
-    // Enemy firing
-    this.entityManager.enemies.children.iterate((child) => {
-      const enemy = child as Enemy;
-      if (enemy.active && enemy.canFire(time) && enemy.y > 0) {
-        const ep = this.entityManager.getEnemyProjectile();
-        if (ep) {
-          ep.fire(enemy.x, enemy.y + 20, 300);
-        }
-      }
-      return true;
-    });
+
 
     // Spawn powerups
     if (time > this.lastPowerUpSpawn + Phaser.Math.Between(10000, 20000)) {

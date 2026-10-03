@@ -72,6 +72,8 @@ export class GameController {
     this.boundHandlers['enemy_destroyed'] = (points: number) => this.handleEnemyDestroyed(points);
     this.boundHandlers['boss_destroyed'] = () => this.handleVictory();
     this.boundHandlers['antimatter_collected'] = () => this.handleAntimatterCollected();
+    this.boundHandlers['spawn_antimatter'] = (x: number, y: number, vx: number, vy: number) => this.handleSpawnAntimatter(x, y, vx, vy);
+    this.boundHandlers['enemy_fire'] = (x: number, y: number, speed: number) => this.handleEnemyFire(x, y, speed);
     this.boundHandlers['player_hit'] = () => this.handlePlayerDamage();
     this.boundHandlers['powerup_collected'] = (type: string) => this.handlePowerUpCollected(type);
 
@@ -120,6 +122,21 @@ export class GameController {
     this.antimatter = state.antimatter;
     this.hudManager.update(this.score, this.health, this.antimatter);
     this.hudManager.showFloatingText(this.scene, this.player.x, this.player.y, '+1 AM', StyleConfig.Colors.NeonPink);
+  }
+
+  private handleSpawnAntimatter(x: number, y: number, vx: number, vy: number) {
+    const container = this.entityManager.getAntimatterContainer();
+    if (container) {
+      container.spawn(x, y, vx, vy);
+    }
+  }
+
+  private handleEnemyFire(x: number, y: number, speed: number) {
+    if (!this.isPlaying) return;
+    const ep = this.entityManager.getEnemyProjectile();
+    if (ep) {
+      ep.fire(x, y, speed);
+    }
   }
 
   private handlePowerUpCollected(type: string) {

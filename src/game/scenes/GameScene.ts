@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
-    this.boss = new Boss(this, width / 2, -200, this.entityManager.enemyProjectiles, (x, y) => {
+    this.boss = new Boss(this, width / 2, -200, this.entityManager.enemyProjectiles.getGroup(), (x, y) => {
       const enemy = this.entityManager.getEnemy();
       if (enemy) enemy.spawn(x, y);
     });

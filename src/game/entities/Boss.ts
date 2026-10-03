@@ -3,6 +3,7 @@ import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
 import { BossMovementComponent } from './components/BossMovementComponent';
 import { BossAttackComponent } from './components/BossAttackComponent';
+import { EventBus } from '../../services/EventBus';
 
 export class Boss extends BaseEntity {
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -69,5 +70,21 @@ export class Boss extends BaseEntity {
       this.exhaustEmitter.stop();
     }
     return this;
+  }
+
+  takeDamage(amount: number): boolean {
+    const died = super.takeDamage(amount);
+    if (!died) {
+      this.scene.cameras.main.shake(100, 0.003);
+    }
+    return died;
+  }
+
+  protected die() {
+    super.die();
+    for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
+      EventBus.emit('spawn_antimatter', this.x, this.y, Phaser.Math.Between(-100, 100), Phaser.Math.Between(-50, 50));
+    }
+    EventBus.emit('boss_destroyed');
   }
 }

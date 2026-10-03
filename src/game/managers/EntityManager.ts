@@ -6,60 +6,25 @@ import { AntimatterContainer } from '../entities/AntimatterContainer';
 import { AAGunProjectile } from '../entities/AAGunProjectile';
 import { AAGun } from '../entities/AAGun';
 import { PowerUp } from '../entities/PowerUp';
+import { ObjectPool } from './ObjectPool';
 
 export class EntityManager {
-  public projectiles: Phaser.Physics.Arcade.Group;
-  public enemies: Phaser.Physics.Arcade.Group;
-  public enemyProjectiles: Phaser.Physics.Arcade.Group;
-  public antimatterContainers: Phaser.Physics.Arcade.Group;
-  public aaProjectiles: Phaser.Physics.Arcade.Group;
-  public aaGuns: Phaser.Physics.Arcade.Group;
-  public powerUps: Phaser.Physics.Arcade.Group;
+  public projectiles: ObjectPool<Projectile>;
+  public enemies: ObjectPool<Enemy>;
+  public enemyProjectiles: ObjectPool<EnemyProjectile>;
+  public antimatterContainers: ObjectPool<AntimatterContainer>;
+  public aaProjectiles: ObjectPool<AAGunProjectile>;
+  public aaGuns: ObjectPool<AAGun>;
+  public powerUps: ObjectPool<PowerUp>;
 
   constructor(private scene: Phaser.Scene) {
-    this.projectiles = this.createGroup(Projectile, 150);
-    this.enemies = this.createGroup(Enemy, 20);
-    this.enemyProjectiles = this.createGroup(EnemyProjectile, 50);
-    this.antimatterContainers = this.createGroup(AntimatterContainer, 50);
-    this.aaProjectiles = this.createGroup(AAGunProjectile, 100);
-    this.aaGuns = this.createGroup(AAGun, 10);
-    this.powerUps = this.createGroup(PowerUp, 10);
-  }
-
-  private createGroup(classType: Function, maxSize: number): Phaser.Physics.Arcade.Group {
-    return this.scene.physics.add.group({
-      classType,
-      maxSize,
-      runChildUpdate: true
-    });
-  }
-
-  public getProjectile(): Projectile | null {
-    return this.projectiles.get() as Projectile | null;
-  }
-
-  public getEnemy(): Enemy | null {
-    return this.enemies.get() as Enemy | null;
-  }
-
-  public getEnemyProjectile(): EnemyProjectile | null {
-    return this.enemyProjectiles.get() as EnemyProjectile | null;
-  }
-
-  public getAntimatterContainer(): AntimatterContainer | null {
-    return this.antimatterContainers.get() as AntimatterContainer | null;
-  }
-
-  public getAAGunProjectile(): AAGunProjectile | null {
-    return this.aaProjectiles.get() as AAGunProjectile | null;
-  }
-
-  public getAAGun(): AAGun | null {
-    return this.aaGuns.get() as AAGun | null;
-  }
-
-  public getPowerUp(): PowerUp | null {
-    return this.powerUps.get() as PowerUp | null;
+    this.projectiles = new ObjectPool<Projectile>(this.scene, Projectile, 150);
+    this.enemies = new ObjectPool<Enemy>(this.scene, Enemy, 20);
+    this.enemyProjectiles = new ObjectPool<EnemyProjectile>(this.scene, EnemyProjectile, 50);
+    this.antimatterContainers = new ObjectPool<AntimatterContainer>(this.scene, AntimatterContainer, 50);
+    this.aaProjectiles = new ObjectPool<AAGunProjectile>(this.scene, AAGunProjectile, 100);
+    this.aaGuns = new ObjectPool<AAGun>(this.scene, AAGun, 10);
+    this.powerUps = new ObjectPool<PowerUp>(this.scene, PowerUp, 10);
   }
 
   public applyDamageToAllEnemies(damage: number, radius?: number, centerX?: number, centerY?: number) {
@@ -94,5 +59,33 @@ export class EntityManager {
       }
       return true;
     });
+  }
+
+  public getProjectile(): Projectile | null {
+    return this.projectiles.get();
+  }
+
+  public getEnemy(): Enemy | null {
+    return this.enemies.get();
+  }
+
+  public getEnemyProjectile(): EnemyProjectile | null {
+    return this.enemyProjectiles.get();
+  }
+
+  public getAntimatterContainer(): AntimatterContainer | null {
+    return this.antimatterContainers.get();
+  }
+
+  public getAAGunProjectile(): AAGunProjectile | null {
+    return this.aaProjectiles.get();
+  }
+
+  public getAAGun(): AAGun | null {
+    return this.aaGuns.get();
+  }
+
+  public getPowerUp(): PowerUp | null {
+    return this.powerUps.get();
   }
 }

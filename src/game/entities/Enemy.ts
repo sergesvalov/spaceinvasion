@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
+import { EventBus } from '../../services/EventBus';
 
 export class Enemy extends BaseEntity {
   private startX: number = 0;
@@ -53,19 +54,28 @@ export class Enemy extends BaseEntity {
 
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
+    if (!this.active) return;
     
     // Sinewave horizontal movement
     this.x = this.startX + Math.sin((time + this.timeOffset) * 0.002) * 50;
+
+    if (this.y > 0 && this.canFire(time)) {
+      EventBus.emit('enemy_fire', this.x, this.y + 20, 300);
+    }
 
     if (this.y > this.scene.scale.height + 50) {
       this.setActive(false);
       this.setVisible(false);
       this.exhaustEmitter.stop();
     }
-    
-    // Also stop emitter if destroyed by player
-    if (!this.active) {
-      this.exhaustEmitter.stop();
+  }
+
+  protected die() {
+    super.die();
+    this.scene.cameras.main.shake(100, 0.005);
+    EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
+    if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
+      EventBus.emit('spawn_antimatter', this.x, this.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
     }
   }
 

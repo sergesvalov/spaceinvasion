@@ -35,7 +35,7 @@ export class Autopilot {
     let threats: {x: number, y: number, danger: number}[] = [];
 
     // Add projectiles as threats
-    this.entityManager.enemyProjectiles.getChildren().forEach((child) => {
+    this.entityManager.enemyProjectiles.getGroup().getChildren().forEach((child) => {
       const p = child as EnemyProjectile;
       if (p.active) {
         threats.push({ x: p.x, y: p.y, danger: 1000 });
@@ -43,7 +43,7 @@ export class Autopilot {
     });
 
     // Add enemies as threats
-    this.entityManager.enemies.getChildren().forEach((child) => {
+    this.entityManager.enemies.getGroup().getChildren().forEach((child) => {
       const e = child as Enemy;
       if (e.active) {
         threats.push({ x: e.x, y: e.y, danger: 500 });
