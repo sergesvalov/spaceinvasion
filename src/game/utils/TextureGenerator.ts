@@ -20,43 +20,42 @@ export class TextureGenerator {
   public static generateAnimeMountains(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number) {
     const graphics = scene.add.graphics();
     
-    // Base ground
-    graphics.fillStyle(0x050a14, 1);
+    // Base ground (Forest green)
+    graphics.fillStyle(0x6ec060, 1);
     graphics.fillRect(0, 0, texWidth, texHeight);
 
-    // Draw some glowing grid lines (faded)
-    graphics.lineStyle(1, 0x00ffcc, 0.1);
-    for(let y=0; y<texHeight; y+=200) {
-      graphics.moveTo(0, y); graphics.lineTo(texWidth, y);
-    }
-    for(let x=0; x<texWidth; x+=200) {
-      graphics.moveTo(x, 0); graphics.lineTo(x, texHeight);
+    // Forest trees (small dark green triangles)
+    for(let t=0; t<200; t++) {
+       const tx = Phaser.Math.Between(0, texWidth);
+       const ty = Phaser.Math.Between(0, texHeight);
+       graphics.fillStyle(0x4a9b40, 0.8);
+       graphics.fillTriangle(tx, ty, tx + 10, ty - 20, tx + 20, ty);
     }
 
-    // Draw procedural mountains (triangles with neon edges)
+    // Draw procedural mountains
     for (let i = 0; i < 40; i++) {
       const mx = Phaser.Math.Between(-100, texWidth + 100);
       const my = Phaser.Math.Between(0, texHeight);
       const mw = Phaser.Math.Between(150, 400);
       const mh = Phaser.Math.Between(100, 300);
 
-      // Dark shadow side
-      graphics.fillStyle(0x0a1020, 1);
+      // Dark shadow side (Rocky)
+      graphics.fillStyle(0x8e9aa5, 1);
       graphics.fillTriangle(mx, my, mx + mw/2, my - mh, mx + mw, my);
 
       // Light side
-      graphics.fillStyle(0x102030, 1);
+      graphics.fillStyle(0xb6c3d0, 1);
       graphics.fillTriangle(mx, my, mx + mw/2, my - mh, mx + mw/2, my);
 
-      // Neon ridge (cyberpunk touch)
-      graphics.lineStyle(2, Phaser.Math.RND.pick([0x00ffff, 0x00ffcc]), 0.4);
+      // Snow ridge
+      graphics.lineStyle(2, 0xffffff, 0.8);
       graphics.beginPath();
       graphics.moveTo(mx + mw/2, my - mh);
-      graphics.lineTo(mx + mw/2, my + mh/4); // crack going down
+      graphics.lineTo(mx + mw/2, my - mh + Phaser.Math.Between(40, 80)); 
       graphics.strokePath();
 
-      // Peak highlight
-      graphics.fillStyle(0x00ffcc, 0.3);
+      // Snow Peak
+      graphics.fillStyle(0xffffff, 0.9);
       graphics.fillTriangle(mx + mw/2 - 20, my - mh + 40, mx + mw/2, my - mh, mx + mw/2 + 20, my - mh + 40);
     }
 
@@ -64,19 +63,18 @@ export class TextureGenerator {
     graphics.destroy();
   }
 
-  public static generateAnimeCity(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number, buildingCount: number, colors: number[], roofColors: number[]) {
+  public static generateAnimeCity(scene: Phaser.Scene, key: string, texWidth: number, texHeight: number, buildingCount: number, colors: number[], roofColors: number[], minHeight: number = 30, maxHeight: number = 90) {
     const graphics = scene.add.graphics();
     
-    // Base ground / roads (dark purple/blue)
-    graphics.fillStyle(0x0a0514, 1);
+    // Base ground / roads (Daytime light grey/blue)
+    graphics.fillStyle(0xa0abb8, 1);
     graphics.fillRect(0, 0, texWidth, texHeight);
 
-    // Draw glowing road lines grid
-    graphics.lineStyle(2, 0xff0055, 0.2);
+    // Draw white road lines grid
+    graphics.lineStyle(2, 0xffffff, 0.5);
     for(let y=0; y<texHeight; y+=150) {
       graphics.moveTo(0, y); graphics.lineTo(texWidth, y);
     }
-    graphics.lineStyle(2, 0x00ffff, 0.2);
     for(let x=0; x<texWidth; x+=150) {
       graphics.moveTo(x, 0); graphics.lineTo(x, texHeight);
     }
@@ -87,7 +85,7 @@ export class TextureGenerator {
       const by = Phaser.Math.Between(-50, texHeight);
       const bw = Phaser.Math.Between(40, 120);
       const bh = Phaser.Math.Between(40, 120);
-      const bHeight = Phaser.Math.Between(30, 90); // How tall the building is (Y offset for roof)
+      const bHeight = Phaser.Math.Between(minHeight, maxHeight); // Height driven by parameters
 
       const colIdx = Phaser.Math.Between(0, colors.length - 1);
       

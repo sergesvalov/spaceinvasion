@@ -42,7 +42,7 @@ export class LevelManager {
 
     this.activeBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.activeBg.setDepth(-100);
-    this.activeBg.setAlpha(0.8);
+    this.activeBg.setAlpha(1.0);
 
     // Handle resize events
     this.resizeHandler = (gameSize: Phaser.Structs.Size) => {
@@ -102,7 +102,7 @@ export class LevelManager {
       }
       
       // Crossfade
-      if (nextPhase && this.nextBg.alpha < 0.8) {
+      if (nextPhase && this.nextBg.alpha < 1.0) {
         this.nextBg.setAlpha(this.nextBg.alpha + 0.001 * delta);
         this.activeBg.setAlpha(this.activeBg.alpha - 0.001 * delta);
       }
@@ -119,7 +119,7 @@ export class LevelManager {
         this.activeBg = this.nextBg;
         this.nextBg = temp;
         this.nextBg.setAlpha(0);
-        this.activeBg.setAlpha(0.8);
+        this.activeBg.setAlpha(1.0);
       }
       
       if (this.currentPhaseIndex >= this.phases.length) {

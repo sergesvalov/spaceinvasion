@@ -86,18 +86,22 @@ export class BootScene extends Phaser.Scene {
       TileGenerator.generateTileset(this);
     }
     
+    // Daytime Anime City Colors
+    const dayBuildings = [0xe0e6ed, 0xc6d0dc, 0xd0d5da];
+    const dayRoofs = [0x489ad8, 0xd8587b, 0x58c078];
+    
     // Legacy backgrounds (keep for MapScene/Garage if needed)
     if (!this.textures.exists('bg_city')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_city', 800, 1200, 200, [0x2a1b54, 0x1b2854, 0x3d1b54, 0x173a4a], [0x3c2a70, 0x273b70, 0x512a70, 0x225566]);
+      TextureGenerator.generateAnimeCity(this, 'bg_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
     }
     if (!this.textures.exists('bg_suburbs')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_suburbs', 800, 1200, 50, [0x1a2b34, 0x1b2824, 0x1d3b24, 0x173a3a], [0x2c3a50, 0x273b40, 0x314a40, 0x225546]);
+      TextureGenerator.generateAnimeCity(this, 'bg_suburbs', 800, 1200, 100, dayBuildings, dayRoofs, 10, 40);
     }
     if (!this.textures.exists('bg_mountains')) {
       TextureGenerator.generateAnimeMountains(this, 'bg_mountains', 800, 1200);
     }
     if (!this.textures.exists('bg_anime_city')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_anime_city', 800, 1200, 200, [0x4a1b34, 0x2b1844, 0x1d1b54, 0x471a4a], [0x5c2a50, 0x372b60, 0x312a70, 0x622546]);
+      TextureGenerator.generateAnimeCity(this, 'bg_anime_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
     }
 
     this.scene.start('MenuScene');
