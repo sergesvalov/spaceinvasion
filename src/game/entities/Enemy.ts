@@ -22,7 +22,7 @@ export class Enemy extends BaseEntity {
       // Kept identical to the pre-resize value (48 on the old 1024px texture).
     }
 
-    this.setScale(1.1);
+    this.setScale(EntityConfig.Enemy.scaleBase);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },
@@ -42,12 +42,12 @@ export class Enemy extends BaseEntity {
     this.enemyType = type;
     if (type === 'scout_0') {
       this.setTexture('enemy_scout_0');
-      this.setScale(1.1);
+      this.setScale(EntityConfig.Enemy.scaleBase);
       this.hp = GameConfig.Enemy.HP;
       this.clearTint();
     } else if (type === 'scout_1') {
       this.setTexture('enemy_scout_1');
-      this.setScale(1.1);
+      this.setScale(EntityConfig.Enemy.scaleBase);
       this.hp = GameConfig.Enemy.HP * 2;
       this.clearTint();
     } else if (type === 'carrier') {

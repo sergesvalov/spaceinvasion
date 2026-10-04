@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
+import { EntityConfig } from '../config/EntityConfig';
 import { Enemy } from '../entities/Enemy';
 
 export interface WeaponContext {
@@ -17,7 +18,7 @@ export abstract class BaseWeaponStrategy {
   }
 
   protected getBaseSpeed(isMecha: boolean): number {
-    return isMecha ? -340 : -510;
+    return isMecha ? EntityConfig.Projectiles.mechaSpeed : EntityConfig.Projectiles.fighterSpeed;
   }
 
   protected fireProj(
@@ -109,7 +110,7 @@ export class WaveWeapon extends BaseWeaponStrategy implements WeaponStrategy {
 export class BeamWeapon extends BaseWeaponStrategy implements WeaponStrategy {
   fire(context: WeaponContext, entityManager: EntityManager): void {
     const damage = this.getBaseDamage(context.isMecha) * 2;
-    const speed = -850;
+    const speed = EntityConfig.Projectiles.beamSpeed;
     this.fireStandardLines(entityManager, context, damage, speed, 'beam');
   }
   getFireRateModifier(): number {

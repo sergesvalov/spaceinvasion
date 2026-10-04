@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { AnalyticsService } from '../../services/AnalyticsService';
+import { EntityConfig } from '../config/EntityConfig';
 import { EntityManager } from '../managers/EntityManager';
 import { burst } from '../effects/burst';
 
@@ -18,7 +19,7 @@ export type PlayerForm = 'fighter' | 'mecha';
 
 export class Player extends Phaser.GameObjects.Container {
   /** 18px NES sprite x2 = 36px (~13% of the 270px-wide virtual screen). */
-  public static readonly SPRITE_SCALE = 2.2;
+  public static readonly SPRITE_SCALE = EntityConfig.Player.scale;
   /** Forgiving shmup-style hitbox, smaller than the visible ship. */
   public static readonly HITBOX_SIZE = 24;
   public weaponLevel: number;
