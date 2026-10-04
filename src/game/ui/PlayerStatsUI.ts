@@ -50,34 +50,32 @@ export class PlayerStatsUI {
           this.currentDisplayedScore = score;
         }
         this.scoreEl.textContent = `SCORE: ${this.currentDisplayedScore}`;
-        
+
         this.scoreEl.style.transform = 'scale(1.2)';
-        this.scoreEl.style.color = '#ffffff';
+        this.scoreEl.style.color = '#ffce00';
         setTimeout(() => {
           if (this.scoreEl) {
             this.scoreEl.style.transform = 'scale(1)';
-            this.scoreEl.style.color = '#00ffcc';
+            this.scoreEl.style.color = '#ffffff';
           }
         }, 100);
       }
     }
-    
+
     if (this.antimatterEl) {
-      this.antimatterEl.textContent = `Antimatter: ${antimatter}`;
+      this.antimatterEl.textContent = `AM: ${antimatter}`;
       if (antimatter >= GameConfig.Player.MechaCost) {
-        this.antimatterEl.style.color = '#ffdd00';
-        this.antimatterEl.style.textShadow = '0 0 10px #ffaa00';
-        this.antimatterEl.innerHTML = `Antimatter: ${antimatter} <span style="font-size: 0.8em; color: #ffaa00;">[DOUBLE-TAP TO TRANSFORM]</span>`;
+        this.antimatterEl.style.color = '#ff5a00';
+        this.antimatterEl.innerHTML = `AM: ${antimatter} <span style="font-size: 8px; color: #ffce00;">[MECHA]</span>`;
       } else {
         this.antimatterEl.style.color = '';
-        this.antimatterEl.style.textShadow = '';
       }
     }
-    
+
     if (this.healthContainerEl) {
       const maxHp = GameState.getInstance().maxHp;
       this.healthContainerEl.innerHTML = '';
-      
+
       for (let i = 0; i < maxHp; i++) {
         const seg = document.createElement('div');
         seg.className = 'health-segment';
@@ -93,13 +91,13 @@ export class PlayerStatsUI {
 
     if (this.shieldBtnEl) {
       const shields = GameState.getInstance().shields;
-      this.shieldBtnEl.textContent = `🛡️ SHIELD (${shields})`;
+      this.shieldBtnEl.textContent = `SHIELD (${shields})`;
       this.shieldBtnEl.style.display = shields > 0 ? 'block' : 'none';
     }
 
     if (this.bombBtnEl) {
       const bombs = GameState.getInstance().bombs;
-      this.bombBtnEl.textContent = `💣 BOMB (${bombs})`;
+      this.bombBtnEl.textContent = `BOMB (${bombs})`;
       this.bombBtnEl.style.display = bombs > 0 ? 'block' : 'none';
     }
   }
