@@ -78,26 +78,24 @@ html, body {
 }
 
 .btn-primary:active:not(:disabled) {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.5), inset 0 0 10px rgba(0, 243, 255, 0.4);
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 0 #000;
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ccc;
+  background: #000;
+  border: 4px solid #0038ce;
+  color: #fff;
   text-transform: uppercase;
-  letter-spacing: 2px;
   padding: 10px 24px;
-  transition: all 0.2s ease;
   cursor: pointer;
-  border-radius: 4px;
-  font-family: 'Press Start 2P', monospace; image-rendering: pixelated;
-  font-size: 16px;
+  border-radius: 0;
+  font-size: 12px;
+  box-shadow: 4px 4px 0 0 #000;
 }
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #fff;
+  background: #ff5a00;
+  border-color: #ffce00;
   color: #fff;
 }
 
@@ -127,15 +125,15 @@ html, body {
   color: #00F3FF;
   font-size: 48px;
   font-weight: 900;
-  text-shadow: 0 0 20px rgba(0, 243, 255, 0.8), 0 0 40px rgba(0, 243, 255, 0.4);
+  text-shadow: 0 0 20px transparent, 0 0 40px transparent;
   letter-spacing: 6px;
   margin-bottom: 20px;
   animation: float-title 3s ease-in-out infinite;
 }
 
 @keyframes float-title {
-  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px rgba(0, 243, 255, 0.8); }
-  50% { transform: translateY(-5px); text-shadow: 0 0 30px rgba(0, 243, 255, 1); }
+  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px transparent; }
+  50% { transform: translateY(-5px); text-shadow: 0 0 30px transparent; }
 }
 
 .main-menu-buttons {
@@ -190,7 +188,7 @@ html, body {
   color: #00F3FF;
   font-size: 36px;
   text-align: center;
-  text-shadow: 0 0 15px rgba(0, 243, 255, 0.8);
+  text-shadow: 0 0 15px transparent;
   letter-spacing: 4px;
 }
 
@@ -211,10 +209,10 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(0,0,0,0.4);
+  background: transparent;
   padding: 20px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid transparent;
 }
 
 .stat-item {
@@ -228,8 +226,8 @@ html, body {
 .stat-label { color: #8899aa; }
 .stat-value { color: #fff; }
 
-.text-am { color: #ffaa00; text-shadow: 0 0 8px rgba(255,170,0,0.5); }
-.text-cr { color: #ffff00; text-shadow: 0 0 8px rgba(255,255,0,0.5); }
+.text-am { color: #ffaa00; text-shadow: 0 0 8px transparent; }
+.text-cr { color: #ffff00; text-shadow: 0 0 8px transparent; }
 .text-hp { color: #00FF9D; }
 .text-sh { color: #00F3FF; }
 .text-bm { color: #FF2E63; }
@@ -249,30 +247,30 @@ html, body {
 .btn-garage-action.cant-afford {
   border-color: #FF2E63;
   color: #FF2E63;
-  background: rgba(255, 46, 99, 0.1);
+  background: transparent;
   box-shadow: none;
 }
 .btn-garage-action.cant-afford:hover {
-  background: rgba(255, 46, 99, 0.2);
-  box-shadow: 0 0 15px rgba(255, 46, 99, 0.4);
+  background: transparent;
+  box-shadow: 0 0 15px transparent;
   color: #fff;
 }
 
 .btn-garage-action.disabled.maxed {
   border-color: #555;
   color: #777;
-  background: rgba(0,0,0,0.3);
+  background: transparent;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .btn-repair {
   border-color: #00FF9D;
-  background: rgba(0, 255, 157, 0.1);
+  background: transparent;
 }
 .btn-repair:hover:not(:disabled) {
-  background: rgba(0, 255, 157, 0.3);
-  box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+  background: transparent;
+  box-shadow: 0 0 20px transparent;
 }
 
 .garage-footer {
@@ -316,21 +314,21 @@ html, body {
 
 .health-segment {
   flex: 1;
-  background-color: rgba(0, 20, 30, 0.6);
-  border: 1px solid rgba(0, 255, 157, 0.3);
+  background-color: transparent;
+  border: 1px solid transparent;
   border-radius: 2px;
   transition: all 0.3s ease;
   transform: skewX(-20deg);
 }
 .health-segment.active {
-  background-color: rgba(0, 255, 157, 0.8);
+  background-color: transparent;
   border: 1px solid #00FF9D;
-  box-shadow: 0 0 8px rgba(0, 255, 157, 0.6);
+  box-shadow: 0 0 8px transparent;
 }
 .health-segment.active.danger {
-  background-color: rgba(255, 46, 99, 0.9);
+  background-color: transparent;
   border-color: #FF2E63;
-  box-shadow: 0 0 12px rgba(255, 46, 99, 0.8);
+  box-shadow: 0 0 12px transparent;
   animation: blink 0.5s infinite;
 }
 
@@ -346,7 +344,7 @@ html, body {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  text-shadow: 0 0 10px transparent;
 }
 
 .hud-pause-btn {
@@ -360,11 +358,11 @@ html, body {
   color: #fff;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid rgba(0,243,255,0.5);
+  border: 1px solid transparent;
 }
 .hud-pause-btn:hover {
-  background: rgba(0,243,255,0.2);
-  box-shadow: 0 0 15px rgba(0,243,255,0.4);
+  background: transparent;
+  box-shadow: 0 0 15px transparent;
 }
 
 .hud-actions-container {
@@ -378,10 +376,10 @@ html, body {
 }
 
 .btn-hud-action {
-  background: rgba(10, 15, 30, 0.7);
+  background: transparent;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid transparent;
   color: #fff;
   padding: 12px 20px;
   font-family: 'Press Start 2P', monospace; image-rendering: pixelated;
@@ -392,17 +390,17 @@ html, body {
   transition: all 0.2s;
 }
 
-.shield-action { border-color: #00F3FF; box-shadow: 0 0 10px rgba(0,243,255,0.2); }
-.shield-action:active { background: rgba(0,243,255,0.3); }
+.shield-action { border-color: #00F3FF; box-shadow: 0 0 10px transparent; }
+.shield-action:active { background: transparent; }
 
-.bomb-action { border-color: #FF2E63; box-shadow: 0 0 10px rgba(255,46,99,0.2); }
-.bomb-action:active { background: rgba(255,46,99,0.3); }
+.bomb-action { border-color: #FF2E63; box-shadow: 0 0 10px transparent; }
+.bomb-action:active { background: transparent; }
 
 /* Pause Menu */
 .pause-overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 5, 15, 0.7);
+  background: transparent;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   display: flex;
@@ -426,7 +424,7 @@ html, body {
   font-weight: 900;
   letter-spacing: 8px;
   margin-bottom: 30px;
-  text-shadow: 0 0 20px rgba(0, 243, 255, 0.8);
+  text-shadow: 0 0 20px transparent;
 }
 
 .warning-overlay {
@@ -436,20 +434,20 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: inset 0 0 0 rgba(255, 0, 0, 0);
+  box-shadow: inset 0 0 0 transparent;
   transition: all 0.5s ease;
   z-index: 50;
   opacity: 0;
 }
 .warning-overlay.active {
   opacity: 1;
-  box-shadow: inset 0 0 100px rgba(255, 46, 99, 0.4);
+  box-shadow: inset 0 0 100px transparent;
   animation: pulse-border 1s infinite;
 }
 
 @keyframes pulse-border {
-  0%, 100% { box-shadow: inset 0 0 50px rgba(255, 46, 99, 0.3); }
-  50% { box-shadow: inset 0 0 150px rgba(255, 46, 99, 0.6); }
+  0%, 100% { box-shadow: inset 0 0 50px transparent; }
+  50% { box-shadow: inset 0 0 150px transparent; }
 }
 
 .boss-bar-container {
@@ -464,25 +462,25 @@ html, body {
   color: #FF2E63;
   letter-spacing: 3px;
   margin-bottom: 6px;
-  text-shadow: 0 0 8px rgba(255, 46, 99, 0.8);
+  text-shadow: 0 0 8px transparent;
   animation: blink 1s infinite;
 }
 .boss-bar-track {
   width: 60%;
   max-width: 600px;
   height: 10px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 46, 99, 0.5);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+  box-shadow: inset 0 0 5px transparent;
 }
 .boss-bar-fill {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #FF2E63, #ff8800);
   transition: width 0.2s ease-out;
-  box-shadow: 0 0 10px rgba(255, 46, 99, 0.6);
+  box-shadow: 0 0 10px transparent;
 }
 
 /* =========================================
@@ -491,7 +489,7 @@ html, body {
 .story-overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 10, 20, 0.85);
+  background: transparent;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   pointer-events: auto;
@@ -525,7 +523,7 @@ html, body {
   font-size: 28px;
   margin-bottom: 20px;
   letter-spacing: 4px;
-  text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+  text-shadow: 0 0 15px transparent;
 }
 
 .story-image {
@@ -533,8 +531,8 @@ html, body {
   max-height: 35vh;
   object-fit: contain;
   margin-bottom: 25px;
-  border: 1px solid rgba(0, 243, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+  border: 1px solid transparent;
+  box-shadow: 0 0 20px transparent;
   border-radius: 4px;
   display: none;
 }
@@ -546,7 +544,7 @@ html, body {
   max-height: 25vh;
   overflow-y: auto;
   padding: 15px;
-  text-shadow: 0 0 5px rgba(0, 243, 255, 0.3);
+  text-shadow: 0 0 5px transparent;
   color: #e0ffff;
 }
 
@@ -556,7 +554,7 @@ html, body {
   color: #9D00FF;
   font-weight: 700;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(157, 0, 255, 0.8);
+  text-shadow: 0 0 10px transparent;
   animation: pulse-hint 1.5s infinite;
 }
 
