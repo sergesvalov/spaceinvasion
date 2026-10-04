@@ -19,6 +19,8 @@ export class ScoreManager {
   }
 
   public chainCount: number = 0;
+  public maxChain: number = 0;
+  public kills: number = 0;
 
   public resetChain() {
     this.chainCount = 0;
@@ -30,6 +32,8 @@ export class ScoreManager {
     showFloatingText?: (text: string, color: string) => void,
   ) {
     this.chainCount++;
+    this.kills++;
+    this.maxChain = Math.max(this.maxChain, this.chainCount);
     const multiplier = Math.min(this.chainCount, 8); // max x8
 
     this.score += points * multiplier;
