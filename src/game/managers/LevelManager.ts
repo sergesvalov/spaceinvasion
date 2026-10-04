@@ -11,11 +11,11 @@ export class LevelManager {
   private phases: LevelPhase[];
   private currentPhaseIndex: number = 0;
   private phaseStartTime: number = 0;
-  
+
   private isLevelComplete: boolean = false;
   private onBossPhaseCallback: () => void;
-  
-  private scrollSpeed = 0.5;
+
+  private scrollSpeed = 1.5;
   private activeBg!: Phaser.GameObjects.TileSprite;
   private nextBg!: Phaser.GameObjects.TileSprite;
   private resizeHandler!: (gameSize: Phaser.Structs.Size) => void;
@@ -28,14 +28,14 @@ export class LevelManager {
 
   public setupBackgrounds() {
     const { width, height } = this.scene.scale;
-    
+
     // Starfield at the very back
     const starBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, 'starfield');
     starBg.setDepth(-200);
 
     // Initial background
     const initialKey = this.phases[0] ? this.phases[0].textureKey : 'bg_city';
-    
+
     this.nextBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.nextBg.setDepth(-101);
     this.nextBg.setAlpha(0);
@@ -54,7 +54,7 @@ export class LevelManager {
       this.nextBg.setPosition(width / 2, height / 2);
       this.nextBg.setSize(width, height);
     };
-    
+
     this.scene.scale.on('resize', this.resizeHandler, this);
   }
 
@@ -70,7 +70,9 @@ export class LevelManager {
 
   public update(time: number, delta: number) {
     // Scroll starfield
-    const starBg = this.scene.children.list.find(c => (c as any).texture?.key === 'starfield') as Phaser.GameObjects.TileSprite;
+    const starBg = this.scene.children.list.find(
+      (c) => (c as any).texture?.key === 'starfield',
+    ) as Phaser.GameObjects.TileSprite;
     if (starBg) {
       starBg.tilePositionY -= this.scrollSpeed * 0.2 * delta;
     }
@@ -100,7 +102,7 @@ export class LevelManager {
           this.nextBg.tilePositionY = this.activeBg.tilePositionY;
         }
       }
-      
+
       // Crossfade
       if (nextPhase && this.nextBg.alpha < 1.0) {
         this.nextBg.setAlpha(this.nextBg.alpha + 0.001 * delta);
@@ -112,7 +114,7 @@ export class LevelManager {
     if (timeInPhase > currentPhase.duration) {
       this.currentPhaseIndex++;
       this.phaseStartTime = time;
-      
+
       // Swap backgrounds logic if we crossfaded
       if (this.nextBg.alpha > 0) {
         const temp = this.activeBg;
@@ -121,7 +123,7 @@ export class LevelManager {
         this.nextBg.setAlpha(0);
         this.activeBg.setAlpha(1.0);
       }
-      
+
       if (this.currentPhaseIndex >= this.phases.length) {
         this.isLevelComplete = true;
         this.onBossPhaseCallback();
@@ -143,18 +145,18 @@ export class LevelManager {
 
   public getLevelProgress(time: number): number {
     if (this.isLevelComplete) return 1.0;
-    
+
     let totalDuration = 0;
     for (const phase of this.phases) {
       totalDuration += phase.duration;
     }
-    
+
     let timePassed = 0;
     for (let i = 0; i < this.currentPhaseIndex; i++) {
       timePassed += this.phases[i].duration;
     }
-    timePassed += (time - this.phaseStartTime);
-    
+    timePassed += time - this.phaseStartTime;
+
     return Phaser.Math.Clamp(timePassed / totalDuration, 0, 1);
   }
 }

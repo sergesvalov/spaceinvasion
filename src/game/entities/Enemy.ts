@@ -11,16 +11,16 @@ export class Enemy extends BaseEntity {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'game_atlas', 'enemy');
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       // Texture pixels, multiplied by the sprite scale below -> ~3px hitbox.
       // Kept identical to the pre-resize value (48 on the old 1024px texture).
       body.setSize(6, 6);
     }
-    
+
     this.setScale(0.5488);
-    
+
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },
       speedX: { min: -15, max: 15 },
@@ -29,7 +29,7 @@ export class Enemy extends BaseEntity {
       blendMode: 'ADD',
       lifespan: 300,
       tint: [0xff0000, 0xff5500],
-      frequency: 20
+      frequency: 20,
     });
     this.exhaustEmitter.startFollow(this, 0, -30);
     this.exhaustEmitter.stop();
@@ -44,20 +44,20 @@ export class Enemy extends BaseEntity {
     this.timeOffset = Phaser.Math.Between(0, 1000);
     this.hp = GameConfig.Enemy.HP;
     this.clearTint();
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(100);
+      body.setVelocityY(250); // Faster falling like in Crisis Force
     }
   }
 
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
     if (!this.active) return;
-    
-    // Sinewave horizontal movement
-    this.x = this.startX + Math.sin((time + this.timeOffset) * 0.002) * 50;
+
+    // Aggressive sweeping movement
+    this.x = this.startX + Math.sin((time + this.timeOffset) * 0.003) * 100;
 
     if (this.y > 0 && this.canFire(time)) {
       EventBus.emit('enemy_fire', this.x, this.y + 20, 300);
@@ -75,12 +75,18 @@ export class Enemy extends BaseEntity {
     this.scene.cameras.main.shake(100, 0.005);
     EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
     if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
-      EventBus.emit('spawn_antimatter', this.x, this.y, Phaser.Math.Between(-20, 20), Phaser.Math.Between(30, 70));
+      EventBus.emit(
+        'spawn_antimatter',
+        this.x,
+        this.y,
+        Phaser.Math.Between(-20, 20),
+        Phaser.Math.Between(30, 70),
+      );
     }
   }
 
   canFire(time: number): boolean {
-    if (time > this.lastFired + 1500) {
+    if (time > this.lastFired + GameConfig.Enemy.FireRate) {
       this.lastFired = time;
       return true;
     }

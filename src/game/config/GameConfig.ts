@@ -1,11 +1,11 @@
 export const GameConfig = {
   Player: {
-    FireRateFighter: 150,
-    FireRateMecha: 300,
+    FireRateFighter: 120,
+    FireRateMecha: 80,
     DamageFighter: 1,
-    DamageMecha: 1.5,
-    MechaCost: 5, // Antimatter spent per transformation
-    MechaDuration: 15000,
+    DamageMecha: 3,
+    MechaCost: 3, // Antimatter spent per transformation
+    MechaDuration: 12000,
   },
   Enemy: {
     HP: 1,
@@ -27,13 +27,13 @@ export const GameConfig = {
   },
   Levels: {
     1: [
-      { textureKey: 'bg_city', duration: 18000, spawnRateModifier: 1.0 },
-      { textureKey: 'bg_suburbs', duration: 18000, spawnRateModifier: 0.8 },
-      { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.5 },
+      { textureKey: 'bg_city', duration: 18000, spawnRateModifier: 0.8 },
+      { textureKey: 'bg_suburbs', duration: 18000, spawnRateModifier: 0.6 },
+      { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.4 },
     ],
     2: [
-      { textureKey: 'bg_night_city', duration: 36000, spawnRateModifier: 0.7 },
-      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.4 },
+      { textureKey: 'bg_night_city', duration: 36000, spawnRateModifier: 0.5 },
+      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.3 },
     ],
   },
   Runtime: {
