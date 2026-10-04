@@ -10,7 +10,7 @@ export class EntitySpawner {
   private entityManager: EntityManager;
   private boss: Boss;
   private player: Player;
-  
+
   private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
   private lastAlienAAGunSpawn: number = 0;
@@ -25,7 +25,12 @@ export class EntitySpawner {
     this.player = player;
   }
 
-  public update(time: number, isPlaying: boolean, spawnRateModifier: number = 1.0, currentPhaseKey: string | null = null) {
+  public update(
+    time: number,
+    isPlaying: boolean,
+    spawnRateModifier: number = 1.0,
+    currentPhaseKey: string | null = null,
+  ) {
     if (!isPlaying) return;
 
     const spawnDelay = 2000 * spawnRateModifier;
@@ -39,9 +44,9 @@ export class EntitySpawner {
       if (this.spawnCount % 5 === 0) {
         startX = this.scene.scale.width / 2;
       } else if (this.spawnCount % 5 === 1) {
-        startX = 50 + (this.scene.scale.width / 4);
+        startX = 50 + this.scene.scale.width / 4;
       } else if (this.spawnCount % 5 === 2) {
-        startX = this.scene.scale.width - 50 - (this.scene.scale.width / 4);
+        startX = this.scene.scale.width - 50 - this.scene.scale.width / 4;
       } else {
         startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
       }
@@ -56,8 +61,6 @@ export class EntitySpawner {
       }
     }
 
-
-
     // Spawn powerups
     if (time > this.lastPowerUpSpawn + Phaser.Math.Between(10000, 20000)) {
       this.lastPowerUpSpawn = time;
@@ -69,7 +72,7 @@ export class EntitySpawner {
         if (rand < 0.2) type = 'spread';
         else if (rand < 0.4) type = 'homing';
         else if (rand < 0.7) type = 'health';
-        
+
         powerUp.spawn(x, -50, type);
       }
     }
@@ -77,19 +80,19 @@ export class EntitySpawner {
 
   public spawnAAGun(time: number, progress: number) {
     if (progress > 0.6) return; // Stop spawning after 60% of the level
-    
+
     // Spawn delay increases from 1500ms (at start) to 5000ms (at 60%)
     const baseDelay = 1500;
     const maxDelay = 5000;
     const delay = Phaser.Math.Linear(baseDelay, maxDelay, progress / 0.6);
-    
+
     if (time > this.lastAAGunSpawn + delay) {
       this.lastAAGunSpawn = time;
       const gun = this.entityManager.getAAGun();
       if (gun) {
         gun.setReferences(this.entityManager, this.boss);
         const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
-        gun.spawn(x, -100, 500, time);
+        gun.spawn(x, -100, 1500, time);
       }
     }
   }
@@ -110,7 +113,7 @@ export class EntitySpawner {
       if (gun) {
         gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
-        gun.spawn(x, -100, 500, time);
+        gun.spawn(x, -100, 1500, time);
       }
     }
   }

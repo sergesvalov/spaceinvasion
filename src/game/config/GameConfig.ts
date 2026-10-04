@@ -15,8 +15,8 @@ export const GameConfig = {
   },
   Boss: {
     HP: 100,
-    BulletHellFireRate: 800,
-    KamikazeSpawnRate: 5000,
+    BulletHellFireRate: 400,
+    KamikazeSpawnRate: 3000,
     AntimatterDrops: 10,
     Points: 5000,
   },
