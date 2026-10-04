@@ -4,7 +4,7 @@ import { EntityConfig } from '../config/EntityConfig';
 import { GameConfig } from '../config/GameConfig';
 import { EventBus } from '../../services/EventBus';
 
-export type EnemyType = 'scout_0' | 'scout_1' | 'carrier';
+export type EnemyType = 'scout_0' | 'scout_1' | 'carrier' | 'kamikaze' | 'zigzag';
 
 export class Enemy extends BaseEntity {
   private enemyType: EnemyType = 'scout_0';
@@ -12,6 +12,7 @@ export class Enemy extends BaseEntity {
   private timeOffset: number = 0;
   private lastFired: number = 0;
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+  private target: Phaser.GameObjects.Container | null = null;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'enemy_scout_0');
@@ -38,6 +39,10 @@ export class Enemy extends BaseEntity {
     this.exhaustEmitter.stop();
   }
 
+  setTarget(target: Phaser.GameObjects.Container) {
+    this.target = target;
+  }
+
   spawn(x: number, y: number, type: EnemyType = 'scout_0') {
     this.enemyType = type;
     if (type === 'scout_0') {
@@ -55,6 +60,16 @@ export class Enemy extends BaseEntity {
       this.setScale(EntityConfig.Enemy.scaleCarrier);
       this.hp = GameConfig.Enemy.HP * 10;
       this.setTint(0xff8800);
+    } else if (type === 'kamikaze') {
+      this.setTexture('enemy_scout_0');
+      this.setScale(EntityConfig.Enemy.scaleBase);
+      this.hp = GameConfig.Enemy.HP * 1.5;
+      this.setTint(0xff0000);
+    } else if (type === 'zigzag') {
+      this.setTexture('enemy_scout_1');
+      this.setScale(EntityConfig.Enemy.scaleBase);
+      this.hp = GameConfig.Enemy.HP;
+      this.setTint(0xff00ff);
     }
 
     this.setPosition(x, y);
@@ -87,9 +102,29 @@ export class Enemy extends BaseEntity {
       this.x =
         this.startX + Math.sin((time + this.timeOffset) * EntityConfig.Enemy.carrierFreq) * 30;
       this.y += delta * EntityConfig.Enemy.carrierYDelta; // very slow descent
+    } else if (this.enemyType === 'kamikaze') {
+      // Accelerate towards player
+      if (this.target && this.target.active) {
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y);
+        const speed = EntityConfig.Enemy.diveSpeed * 1.5;
+        this.x += Math.cos(angle) * speed * (delta / 1000);
+        this.y += Math.sin(angle) * speed * (delta / 1000);
+      } else {
+        this.y += delta * EntityConfig.Enemy.scout1YDelta * 1.5;
+      }
+    } else if (this.enemyType === 'zigzag') {
+      // Sharp zigzags
+      this.y += delta * EntityConfig.Enemy.scout1YDelta * 0.8;
+      const cycle = ((time + this.timeOffset) % 2000) / 2000;
+      this.x = this.startX + (cycle < 0.5 ? 1 : -1) * 80 * (cycle < 0.25 || cycle >= 0.75 ? 1 : -1);
     }
 
-    if (this.y > 0 && this.canFire(time) && this.enemyType !== 'carrier') {
+    if (
+      this.y > 0 &&
+      this.canFire(time) &&
+      this.enemyType !== 'carrier' &&
+      this.enemyType !== 'kamikaze'
+    ) {
       EventBus.emit('enemy_fire', this.x, this.y + 20, EntityConfig.Enemy.projectileSpeed);
     }
 
@@ -106,6 +141,14 @@ export class Enemy extends BaseEntity {
     EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points, this.x, this.y);
 
     if (this.enemyType === 'carrier') {
+      // Hit-stop for juicy effect on elite kills
+      this.scene.physics.world.isPaused = true;
+      setTimeout(() => {
+        if (this.scene && this.scene.physics) {
+          this.scene.physics.world.isPaused = false;
+        }
+      }, 40);
+
       // Carriers drop weapons!
       EventBus.emit('spawn_powerup', this.x, this.y, 'weapon');
     } else {

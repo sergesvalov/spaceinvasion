@@ -46,7 +46,10 @@ export class EntitySpawner {
 
   public spawnSpecificEnemy(x: number, y: number, type: EnemyType) {
     const enemy = this.entityManager.getEnemy();
-    if (enemy) enemy.spawn(x, y, type);
+    if (enemy) {
+      enemy.setTarget(this.player);
+      enemy.spawn(x, y, type);
+    }
   }
 
   public spawnAAGun(time: number, progress: number) {
