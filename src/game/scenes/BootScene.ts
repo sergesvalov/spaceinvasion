@@ -55,9 +55,7 @@ export class BootScene extends Phaser.Scene {
     aapGraphics.generateTexture('aagun-projectile', 30, 30);
     aapGraphics.destroy();
 
-    // Load sounds
-    this.load.audio('pew', 'pew.wav');
-    this.load.audio('explosion', 'explosion.wav');
+    // Load sounds (now using zzfx for sfx, keeping this comment as placeholder for future music)
 
     // Load main game atlas
     this.load.atlas('game_atlas', 'game_atlas.png', 'game_atlas.json');

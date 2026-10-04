@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { zzfx, ZZFX } from 'zzfx';
 
 export class AudioManager {
   private static instance: AudioManager;
@@ -8,6 +9,8 @@ export class AudioManager {
   public static getInstance(): AudioManager {
     if (!AudioManager.instance) {
       AudioManager.instance = new AudioManager();
+      // Adjust default volume to match previous wav volumes
+      ZZFX.volume = 0.3;
     }
     return AudioManager.instance;
   }
@@ -27,19 +30,33 @@ export class AudioManager {
   }
 
   public play(scene: Phaser.Scene, key: string, config?: Phaser.Types.Sound.SoundConfig) {
+    // Keep for backward compatibility with music or other sounds if needed, but not used for sfx anymore
     if (this.isSoundEnabled()) {
       scene.sound.play(key, config);
     }
   }
 
-  public playPew(scene: Phaser.Scene, config?: Phaser.Types.Sound.SoundConfig) {
-    this.play(scene, 'pew', config);
+  public playPew(_scene: Phaser.Scene, config?: { volume?: number; rate?: number }) {
+    if (!this.isSoundEnabled()) return;
+
+    // Base pew parameters
+    const v = (config?.volume || 1.0) * ZZFX.volume;
+    const r = config?.rate || 1.0;
+    const freq = 1046 * r; // C6
+
+    // Simple synth pew: zzfx(volume, randomness, freq, attack, decay, pitch jump, pitch shape, shape, noise, etc...)
+    zzfx(v, 0.05, freq, 0.01, 0.1, 0, 0, 0.5, 0, 0, -100, 0, 0, 0, 0, 0, 0, 0.5, 0, 0);
   }
 
-  public playExplosion(scene: Phaser.Scene, config?: Phaser.Types.Sound.SoundConfig) {
-    this.play(scene, 'explosion', config);
+  public playExplosion(_scene: Phaser.Scene, config?: { volume?: number; rate?: number }) {
+    if (!this.isSoundEnabled()) return;
+
+    const v = (config?.volume || 1.0) * ZZFX.volume;
+
+    // Simple noise explosion
+    zzfx(v, 0.1, 100, 0.05, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0.7, 0, 0);
   }
-  
+
   // High-level semantic methods
   public playShieldSound(scene: Phaser.Scene) {
     this.playPew(scene, { volume: 0.5, rate: 0.8 });
@@ -58,7 +75,7 @@ export class AudioManager {
   }
 
   public playPowerupSound(scene: Phaser.Scene, type: 'health' | 'weapon' | 'spread') {
-    switch(type) {
+    switch (type) {
       case 'health':
         this.playPew(scene, { volume: 0.5, rate: 2.0 });
         break;
