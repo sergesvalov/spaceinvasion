@@ -17,6 +17,8 @@ export class MenuScene extends Phaser.Scene {
 
     // Export for E2E tests
     (window as any).__START_GAME__ = () => {
+      const overlay = document.querySelector('.main-menu-overlay') as HTMLElement;
+      if (overlay) overlay.style.display = 'none';
       import('../../services/StoryManager').then(({ StoryManager }) => {
         StoryManager.getInstance().showBriefing('level_1', () => {
           this.cameras.main.fadeOut(10, 0, 0, 0); // Fast fade for tests
@@ -66,6 +68,7 @@ export class MenuScene extends Phaser.Scene {
       };
 
       bindButton('btn-play', () => {
+        menuDiv.style.display = 'none';
         // Trigger normal play which uses fade out
         import('../../services/StoryManager').then(({ StoryManager }) => {
           StoryManager.getInstance().showBriefing('level_1', () => {
