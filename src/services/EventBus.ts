@@ -13,6 +13,11 @@ export interface GameEvents {
   powerup_collected: (type: string) => void;
   enemy_fire: (x: number, y: number, speed: number) => void;
   spawn_antimatter: (x: number, y: number, vx: number, vy: number) => void;
+  spawn_powerup: (
+    x: number,
+    y: number,
+    type: import('../game/entities/PowerUp').PowerUpType,
+  ) => void;
   mecha_shockwave: (data: { x: number; y: number; radius: number }) => void;
   boss_destroyed: () => void;
 }

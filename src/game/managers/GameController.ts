@@ -80,6 +80,8 @@ export class GameController {
       this.handleEnemyFire(x, y, speed);
     this.boundHandlers['player_hit'] = () => this.handlePlayerDamage();
     this.boundHandlers['powerup_collected'] = (type: string) => this.handlePowerUpCollected(type);
+    this.boundHandlers['spawn_powerup'] = (x: number, y: number, type: string) =>
+      this.handleSpawnPowerup(x, y, type);
 
     Object.entries(this.boundHandlers).forEach(([event, handler]) => {
       EventBus.on(event as any, handler as any, this);
@@ -179,6 +181,14 @@ export class GameController {
 
   private handlePlayerDamage() {
     this.damageManager.handlePlayerDamage(this.scene.time.now);
+  }
+
+  private handleSpawnPowerup(x: number, y: number, type: string) {
+    if (!this.isPlaying) return;
+    const powerUp = this.entityManager.getPowerUp();
+    if (powerUp) {
+      powerUp.spawn(x, y, type as any);
+    }
   }
 
   private handlePlayerDeath() {

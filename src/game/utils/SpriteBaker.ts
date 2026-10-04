@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
-export const NESPalette: Record<string, string> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const NESPalette: any = {
   '.': '#00000000', // transparent
   '0': '#000000', // black
   '1': '#ffffff', // white

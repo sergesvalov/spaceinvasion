@@ -8,38 +8,67 @@ export class InputManager {
   private lastTapTime: number = 0;
   public isActive: boolean = false;
 
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasd!: any;
+
+  private pointerIsDown: boolean = false;
+  private lastPointerPos: { x: number; y: number } = { x: 0, y: 0 };
+
   constructor(scene: Phaser.Scene, player: Player) {
     this.scene = scene;
     this.player = player;
   }
 
   public setupInput() {
-    this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.isDown && this.isActive) {
-        const targetX = pointer.x;
-        const targetY = pointer.y - 50; // offset so finger doesn't cover ship
-        
-        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, targetX, targetY);
-        
-        if (dist > 5) { // Dead zone
-          this.player.x = Phaser.Math.Linear(this.player.x, targetX, 0.8);
-          this.player.y = Phaser.Math.Linear(this.player.y, targetY, 0.8);
-        }
-      }
+    this.cursors = this.scene.input.keyboard!.createCursorKeys();
+    this.wasd = this.scene.input.keyboard!.addKeys({
+      W: Phaser.Input.Keyboard.KeyCodes.W,
+      A: Phaser.Input.Keyboard.KeyCodes.A,
+      S: Phaser.Input.Keyboard.KeyCodes.S,
+      D: Phaser.Input.Keyboard.KeyCodes.D,
     });
 
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (!this.isActive) return;
+
       if (pointer.rightButtonDown()) {
         EventBus.emit('transform_request');
-      } else {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastTapTime < 300) {
-          EventBus.emit('transform_request');
-        }
-        this.lastTapTime = currentTime;
-        this.player.x = pointer.x;
-        this.player.y = pointer.y - 50;
+        return;
+      }
+
+      const currentTime = this.scene.time.now;
+      if (currentTime - this.lastTapTime < 300) {
+        EventBus.emit('transform_request');
+      }
+      this.lastTapTime = currentTime;
+
+      this.pointerIsDown = true;
+      this.lastPointerPos = { x: pointer.x, y: pointer.y };
+    });
+
+    this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (!this.isActive || !this.pointerIsDown) return;
+
+      const dx = pointer.x - this.lastPointerPos.x;
+      const dy = pointer.y - this.lastPointerPos.y;
+
+      this.player.x += dx * 1.5;
+      this.player.y += dy * 1.5;
+
+      this.lastPointerPos = { x: pointer.x, y: pointer.y };
+    });
+
+    this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      this.pointerIsDown = false;
+
+      const swipeTime = pointer.upTime - pointer.downTime;
+      const dx = pointer.upX - pointer.downX;
+      const dy = pointer.upY - pointer.downY;
+
+      // Keep dash feature for quick swipes!
+      if (swipeTime < 300 && (Math.abs(dx) > 100 || Math.abs(dy) > 100)) {
+        const len = Math.sqrt(dx * dx + dy * dy);
+        EventBus.emit('dash_request', { dx: dx / len, dy: dy / len });
       }
     });
 
@@ -50,17 +79,50 @@ export class InputManager {
       }
     });
 
-    this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (!this.isActive) return;
-      
-      const swipeTime = pointer.upTime - pointer.downTime;
-      const dx = pointer.upX - pointer.downX;
-      const dy = pointer.upY - pointer.downY;
-      
-      if (swipeTime < 300 && (Math.abs(dx) > 100 || Math.abs(dy) > 100)) {
-        const len = Math.sqrt(dx * dx + dy * dy);
-        EventBus.emit('dash_request', { dx: dx / len, dy: dy / len });
+    const bKey = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+    bKey?.on('down', () => {
+      if (this.isActive) {
+        EventBus.emit('bomb_request');
       }
     });
+
+    const eKey = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    eKey?.on('down', () => {
+      if (this.isActive) {
+        EventBus.emit('transform_request');
+      }
+    });
+  }
+
+  public update() {
+    if (!this.isActive || this.player.isDashing) return;
+
+    const speed = 250;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    if (!body) return;
+
+    let vx = 0;
+    let vy = 0;
+
+    if (this.cursors.left.isDown || this.wasd.A.isDown) vx -= speed;
+    if (this.cursors.right.isDown || this.wasd.D.isDown) vx += speed;
+    if (this.cursors.up.isDown || this.wasd.W.isDown) vy -= speed;
+    if (this.cursors.down.isDown || this.wasd.S.isDown) vy += speed;
+
+    if (vx !== 0 || vy !== 0) {
+      body.setVelocity(vx, vy);
+    } else {
+      body.setVelocity(0, 0);
+    }
+
+    // Boundary check since we modify .x and .y directly in touch drag
+    const halfWidth = 10;
+    const halfHeight = 10;
+    if (this.player.x < halfWidth) this.player.x = halfWidth;
+    if (this.player.x > this.scene.scale.width - halfWidth)
+      this.player.x = this.scene.scale.width - halfWidth;
+    if (this.player.y < halfHeight) this.player.y = halfHeight;
+    if (this.player.y > this.scene.scale.height - halfHeight)
+      this.player.y = this.scene.scale.height - halfHeight;
   }
 }

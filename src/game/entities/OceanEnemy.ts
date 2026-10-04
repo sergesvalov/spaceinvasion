@@ -10,9 +10,6 @@ export class OceanEnemy extends BaseEntity {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'ocean_enemy');
-
-    const body = this.body as Phaser.Physics.Arcade.Body;
-    // Body settings removed for auto-sizing
   }
 
   spawn(x: number, y: number) {

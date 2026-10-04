@@ -209,6 +209,9 @@ export class GameScene extends Phaser.Scene {
   update(time: number, delta: number) {
     this.autopilot.update(time, delta);
     this.waveManager.update(time, delta);
+    if (this.inputManager) {
+      this.inputManager.update();
+    }
 
     if (!this.gameController.getIsPlaying()) return;
 

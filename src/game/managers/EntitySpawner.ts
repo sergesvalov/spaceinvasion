@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { EntityManager } from './EntityManager';
-
 import { Boss } from '../entities/Boss';
 import { Player } from '../entities/Player';
 import { PowerUpType } from '../entities/PowerUp';
+import { EnemyType } from '../entities/Enemy';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -11,11 +11,9 @@ export class EntitySpawner {
   private boss: Boss;
   private player: Player;
 
-  private lastEnemySpawn: number = 0;
   private lastAAGunSpawn: number = 0;
   private lastAlienAAGunSpawn: number = 0;
   private lastPowerUpSpawn: number = 0;
-  private spawnCount: number = 0;
   private alienAAGunCount: number = 0;
 
   constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss, player: Player) {
@@ -25,44 +23,11 @@ export class EntitySpawner {
     this.player = player;
   }
 
-  public update(
-    time: number,
-    isPlaying: boolean,
-    spawnRateModifier: number = 1.0,
-    currentPhaseKey: string | null = null,
-  ) {
+  public update(time: number, isPlaying: boolean) {
     if (!isPlaying) return;
 
-    const spawnDelay = 2000 * spawnRateModifier;
-
-    // Spawn enemies
-    if (time > this.lastEnemySpawn + spawnDelay) {
-      this.lastEnemySpawn = time;
-      this.spawnCount++;
-      // Alternate between random and pattern-based spawns
-      let startX: number;
-      if (this.spawnCount % 5 === 0) {
-        startX = this.scene.scale.width / 2;
-      } else if (this.spawnCount % 5 === 1) {
-        startX = 50 + this.scene.scale.width / 4;
-      } else if (this.spawnCount % 5 === 2) {
-        startX = this.scene.scale.width - 50 - this.scene.scale.width / 4;
-      } else {
-        startX = Phaser.Math.Between(50, this.scene.scale.width - 50);
-      }
-
-      // Determine which enemy to spawn based on level phase
-      if (currentPhaseKey === 'bg_ocean') {
-        const oceanEnemy = this.entityManager.getOceanEnemy();
-        if (oceanEnemy) oceanEnemy.spawn(startX, -50);
-      } else {
-        const enemy = this.entityManager.getEnemy();
-        if (enemy) enemy.spawn(startX, -50);
-      }
-    }
-
-    // Spawn powerups
-    if (time > this.lastPowerUpSpawn + Phaser.Math.Between(10000, 20000)) {
+    // We only spawn random powerups here now. Waves are handled by WaveManager.
+    if (time > this.lastPowerUpSpawn + Phaser.Math.Between(15000, 25000)) {
       this.lastPowerUpSpawn = time;
       const powerUp = this.entityManager.getPowerUp();
       if (powerUp) {
@@ -78,10 +43,13 @@ export class EntitySpawner {
     }
   }
 
-  public spawnAAGun(time: number, progress: number) {
-    if (progress > 0.6) return; // Stop spawning after 60% of the level
+  public spawnSpecificEnemy(x: number, y: number, type: EnemyType) {
+    const enemy = this.entityManager.getEnemy();
+    if (enemy) enemy.spawn(x, y, type);
+  }
 
-    // Spawn delay increases from 1500ms (at start) to 5000ms (at 60%)
+  public spawnAAGun(time: number, progress: number) {
+    if (progress > 0.6) return;
     const baseDelay = 1500;
     const maxDelay = 5000;
     const delay = Phaser.Math.Linear(baseDelay, maxDelay, progress / 0.6);
@@ -91,7 +59,7 @@ export class EntitySpawner {
       const gun = this.entityManager.getAAGun();
       if (gun) {
         gun.setReferences(this.entityManager, this.boss);
-        const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
+        const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
         gun.spawn(x, -100, 1500, time);
       }
     }
@@ -105,14 +73,13 @@ export class EntitySpawner {
 
     if (this.alienAAGunCount >= 8) return;
 
-    // Spawns one every 4500ms during the 36000ms bg_night_city phase
     if (time > this.lastAlienAAGunSpawn + 4500) {
       this.lastAlienAAGunSpawn = time;
       this.alienAAGunCount++;
       const gun = this.entityManager.getAlienAAGun();
       if (gun) {
         gun.setReferences(this.entityManager, this.player);
-        const x = Phaser.Math.Between(100, this.scene.scale.width - 100);
+        const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
         gun.spawn(x, -100, 1500, time);
       }
     }

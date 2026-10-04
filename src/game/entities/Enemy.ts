@@ -3,7 +3,10 @@ import { BaseEntity } from './BaseEntity';
 import { GameConfig } from '../config/GameConfig';
 import { EventBus } from '../../services/EventBus';
 
+export type EnemyType = 'scout_0' | 'scout_1' | 'carrier';
+
 export class Enemy extends BaseEntity {
+  private enemyType: EnemyType = 'scout_0';
   private startX: number = 0;
   private timeOffset: number = 0;
   private lastFired: number = 0;
@@ -34,15 +37,31 @@ export class Enemy extends BaseEntity {
     this.exhaustEmitter.stop();
   }
 
-  spawn(x: number, y: number) {
+  spawn(x: number, y: number, type: EnemyType = 'scout_0') {
+    this.enemyType = type;
+    if (type === 'scout_0') {
+      this.setTexture('enemy_scout_0');
+      this.setScale(1);
+      this.hp = GameConfig.Enemy.HP;
+      this.clearTint();
+    } else if (type === 'scout_1') {
+      this.setTexture('enemy_scout_1');
+      this.setScale(1);
+      this.hp = GameConfig.Enemy.HP * 2;
+      this.clearTint();
+    } else if (type === 'carrier') {
+      this.setTexture('enemy_scout_1');
+      this.setScale(1.5);
+      this.hp = GameConfig.Enemy.HP * 10;
+      this.setTint(0xff8800);
+    }
+
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
     this.exhaustEmitter.start();
     this.startX = x;
     this.timeOffset = Phaser.Math.Between(0, 1000);
-    this.hp = GameConfig.Enemy.HP;
-    this.clearTint();
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -55,10 +74,19 @@ export class Enemy extends BaseEntity {
     super.preUpdate(time, delta);
     if (!this.active) return;
 
-    // Aggressive sweeping movement
-    this.x = this.startX + Math.sin((time + this.timeOffset) * 0.003) * 100;
+    // Movement based on type
+    if (this.enemyType === 'scout_0') {
+      this.x = this.startX + Math.sin((time + this.timeOffset) * 0.003) * 60;
+    } else if (this.enemyType === 'scout_1') {
+      // Dive straight down, faster
+      this.y += delta * 0.1;
+    } else if (this.enemyType === 'carrier') {
+      // Slow hover
+      this.x = this.startX + Math.sin((time + this.timeOffset) * 0.001) * 30;
+      this.y += delta * 0.02; // very slow descent
+    }
 
-    if (this.y > 0 && this.canFire(time)) {
+    if (this.y > 0 && this.canFire(time) && this.enemyType !== 'carrier') {
       EventBus.emit('enemy_fire', this.x, this.y + 20, 300);
     }
 
@@ -73,14 +101,20 @@ export class Enemy extends BaseEntity {
     super.die();
     this.scene.cameras.main.shake(100, 0.005);
     EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
-    if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
-      EventBus.emit(
-        'spawn_antimatter',
-        this.x,
-        this.y,
-        Phaser.Math.Between(-20, 20),
-        Phaser.Math.Between(30, 70),
-      );
+
+    if (this.enemyType === 'carrier') {
+      // Carriers drop weapons!
+      EventBus.emit('spawn_powerup', this.x, this.y, 'weapon');
+    } else {
+      if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance) {
+        EventBus.emit(
+          'spawn_antimatter',
+          this.x,
+          this.y,
+          Phaser.Math.Between(-20, 20),
+          Phaser.Math.Between(30, 70),
+        );
+      }
     }
   }
 
