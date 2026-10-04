@@ -125,15 +125,15 @@ html, body {
   color: #00F3FF;
   font-size: 48px;
   font-weight: 900;
-  text-shadow: 0 0 20px transparent, 0 0 40px transparent;
+  text-shadow: 0 0 20px #000000, 0 0 40px #000000;
   letter-spacing: 6px;
   margin-bottom: 20px;
   animation: float-title 3s ease-in-out infinite;
 }
 
 @keyframes float-title {
-  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px transparent; }
-  50% { transform: translateY(-5px); text-shadow: 0 0 30px transparent; }
+  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px #000000; }
+  50% { transform: translateY(-5px); text-shadow: 0 0 30px #000000; }
 }
 
 .main-menu-buttons {
@@ -188,7 +188,7 @@ html, body {
   color: #00F3FF;
   font-size: 36px;
   text-align: center;
-  text-shadow: 0 0 15px transparent;
+  text-shadow: 0 0 15px #000000;
   letter-spacing: 4px;
 }
 
@@ -209,10 +209,10 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: transparent;
+  background: #000000;
   padding: 20px;
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid #000000;
 }
 
 .stat-item {
@@ -226,8 +226,8 @@ html, body {
 .stat-label { color: #8899aa; }
 .stat-value { color: #fff; }
 
-.text-am { color: #ffaa00; text-shadow: 0 0 8px transparent; }
-.text-cr { color: #ffff00; text-shadow: 0 0 8px transparent; }
+.text-am { color: #ffaa00; text-shadow: 0 0 8px #000000; }
+.text-cr { color: #ffff00; text-shadow: 0 0 8px #000000; }
 .text-hp { color: #00FF9D; }
 .text-sh { color: #00F3FF; }
 .text-bm { color: #FF2E63; }
@@ -247,30 +247,30 @@ html, body {
 .btn-garage-action.cant-afford {
   border-color: #FF2E63;
   color: #FF2E63;
-  background: transparent;
+  background: #000000;
   box-shadow: none;
 }
 .btn-garage-action.cant-afford:hover {
-  background: transparent;
-  box-shadow: 0 0 15px transparent;
+  background: #000000;
+  box-shadow: 0 0 15px #000000;
   color: #fff;
 }
 
 .btn-garage-action.disabled.maxed {
   border-color: #555;
   color: #777;
-  background: transparent;
+  background: #000000;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .btn-repair {
   border-color: #00FF9D;
-  background: transparent;
+  background: #000000;
 }
 .btn-repair:hover:not(:disabled) {
-  background: transparent;
-  box-shadow: 0 0 20px transparent;
+  background: #000000;
+  box-shadow: 0 0 20px #000000;
 }
 
 .garage-footer {
@@ -314,21 +314,21 @@ html, body {
 
 .health-segment {
   flex: 1;
-  background-color: transparent;
-  border: 1px solid transparent;
+  background-color: #000000;
+  border: 1px solid #000000;
   border-radius: 2px;
   transition: all 0.3s ease;
   transform: skewX(-20deg);
 }
 .health-segment.active {
-  background-color: transparent;
+  background-color: #000000;
   border: 1px solid #00FF9D;
-  box-shadow: 0 0 8px transparent;
+  box-shadow: 0 0 8px #000000;
 }
 .health-segment.active.danger {
-  background-color: transparent;
+  background-color: #000000;
   border-color: #FF2E63;
-  box-shadow: 0 0 12px transparent;
+  box-shadow: 0 0 12px #000000;
   animation: blink 0.5s infinite;
 }
 
@@ -344,7 +344,7 @@ html, body {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
-  text-shadow: 0 0 10px transparent;
+  text-shadow: 0 0 10px #000000;
 }
 
 .hud-pause-btn {
@@ -358,11 +358,11 @@ html, body {
   color: #fff;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid transparent;
+  border: 1px solid #000000;
 }
 .hud-pause-btn:hover {
-  background: transparent;
-  box-shadow: 0 0 15px transparent;
+  background: #000000;
+  box-shadow: 0 0 15px #000000;
 }
 
 .hud-actions-container {
@@ -376,10 +376,10 @@ html, body {
 }
 
 .btn-hud-action {
-  background: transparent;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid transparent;
+  background: #000000;
+  
+  -webkit-
+  border: 1px solid #000000;
   color: #fff;
   padding: 12px 20px;
   font-family: 'Press Start 2P', monospace; image-rendering: pixelated;
@@ -390,19 +390,19 @@ html, body {
   transition: all 0.2s;
 }
 
-.shield-action { border-color: #00F3FF; box-shadow: 0 0 10px transparent; }
-.shield-action:active { background: transparent; }
+.shield-action { border-color: #00F3FF; box-shadow: 0 0 10px #000000; }
+.shield-action:active { background: #000000; }
 
-.bomb-action { border-color: #FF2E63; box-shadow: 0 0 10px transparent; }
-.bomb-action:active { background: transparent; }
+.bomb-action { border-color: #FF2E63; box-shadow: 0 0 10px #000000; }
+.bomb-action:active { background: #000000; }
 
 /* Pause Menu */
 .pause-overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: transparent;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #000000;
+  
+  -webkit-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -424,7 +424,7 @@ html, body {
   font-weight: 900;
   letter-spacing: 8px;
   margin-bottom: 30px;
-  text-shadow: 0 0 20px transparent;
+  text-shadow: 0 0 20px #000000;
 }
 
 .warning-overlay {
@@ -434,20 +434,20 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: inset 0 0 0 transparent;
+  box-shadow: inset 0 0 0 #000000;
   transition: all 0.5s ease;
   z-index: 50;
   opacity: 0;
 }
 .warning-overlay.active {
   opacity: 1;
-  box-shadow: inset 0 0 100px transparent;
+  box-shadow: inset 0 0 100px #000000;
   animation: pulse-border 1s infinite;
 }
 
 @keyframes pulse-border {
-  0%, 100% { box-shadow: inset 0 0 50px transparent; }
-  50% { box-shadow: inset 0 0 150px transparent; }
+  0%, 100% { box-shadow: inset 0 0 50px #000000; }
+  50% { box-shadow: inset 0 0 150px #000000; }
 }
 
 .boss-bar-container {
@@ -462,25 +462,25 @@ html, body {
   color: #FF2E63;
   letter-spacing: 3px;
   margin-bottom: 6px;
-  text-shadow: 0 0 8px transparent;
+  text-shadow: 0 0 8px #000000;
   animation: blink 1s infinite;
 }
 .boss-bar-track {
   width: 60%;
   max-width: 600px;
   height: 10px;
-  background: transparent;
-  border: 1px solid transparent;
+  background: #000000;
+  border: 1px solid #000000;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: inset 0 0 5px transparent;
+  box-shadow: inset 0 0 5px #000000;
 }
 .boss-bar-fill {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #FF2E63, #ff8800);
   transition: width 0.2s ease-out;
-  box-shadow: 0 0 10px transparent;
+  box-shadow: 0 0 10px #000000;
 }
 
 /* =========================================
@@ -489,9 +489,9 @@ html, body {
 .story-overlay {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #000000;
+  
+  -webkit-
   pointer-events: auto;
   display: flex;
   flex-direction: column;
@@ -523,7 +523,7 @@ html, body {
   font-size: 28px;
   margin-bottom: 20px;
   letter-spacing: 4px;
-  text-shadow: 0 0 15px transparent;
+  text-shadow: 0 0 15px #000000;
 }
 
 .story-image {
@@ -531,8 +531,8 @@ html, body {
   max-height: 35vh;
   object-fit: contain;
   margin-bottom: 25px;
-  border: 1px solid transparent;
-  box-shadow: 0 0 20px transparent;
+  border: 1px solid #000000;
+  box-shadow: 0 0 20px #000000;
   border-radius: 4px;
   display: none;
 }
@@ -544,7 +544,7 @@ html, body {
   max-height: 25vh;
   overflow-y: auto;
   padding: 15px;
-  text-shadow: 0 0 5px transparent;
+  text-shadow: 0 0 5px #000000;
   color: #e0ffff;
 }
 
@@ -554,7 +554,7 @@ html, body {
   color: #9D00FF;
   font-weight: 700;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px transparent;
+  text-shadow: 0 0 10px #000000;
   animation: pulse-hint 1.5s infinite;
 }
 
@@ -576,3 +576,4 @@ html, body {
   .story-text { font-size: 14px; max-height: none; line-height: 1.5; padding: 5px; min-height: 50px; }
   .story-hint { margin-top: 15px; font-size: 14px; }
 }
+

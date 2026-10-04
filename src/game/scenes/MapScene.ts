@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 export class MapScene extends Phaser.Scene {
   private levelData: any;
   private redMarker!: Phaser.GameObjects.Graphics;
-  
+
   constructor() {
     super({ key: 'MapScene' });
   }
@@ -14,7 +14,7 @@ export class MapScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    
+
     // Background
     this.cameras.main.setBackgroundColor('#000a12'); // Dark tactical blue/black
 
@@ -71,14 +71,14 @@ export class MapScene extends Phaser.Scene {
 
     // Markers Configuration
     const markers = [
-      { id: 1, name: "SECTOR 1: COASTLINE", x: width * 0.25, y: height * 0.3 },
-      { id: 2, name: "SECTOR 2: NEO-TOKYO", x: width * 0.65, y: height * 0.45 },
+      { id: 1, name: 'SECTOR 1: COASTLINE', x: width * 0.25, y: height * 0.3 },
+      { id: 2, name: 'SECTOR 2: NEO-TOKYO', x: width * 0.65, y: height * 0.45 },
     ];
 
-    const activeMarker = markers.find(m => m.id === this.levelData.level) || markers[0];
+    const activeMarker = markers.find((m) => m.id === this.levelData.level) || markers[0];
 
     // Draw inactive markers
-    markers.forEach(m => {
+    markers.forEach((m) => {
       if (m.id !== activeMarker.id) {
         this.add.circle(m.x, m.y, 4, 0x00ffcc, 0.4);
       }
@@ -98,7 +98,7 @@ export class MapScene extends Phaser.Scene {
     this.redMarker = this.add.graphics();
     this.redMarker.lineStyle(2, 0xff0033, 0.8);
     this.redMarker.strokeCircle(activeMarker.x, activeMarker.y, 15);
-    
+
     this.add.circle(activeMarker.x, activeMarker.y, 6, 0xff0033, 1);
 
     // Label
@@ -109,10 +109,9 @@ export class MapScene extends Phaser.Scene {
     labelBox.strokeRect(activeMarker.x + 20, activeMarker.y - 30, 180, 25);
 
     this.add.text(activeMarker.x + 25, activeMarker.y - 25, activeMarker.name, {
-      fontFamily: 'Orbitron',
-      fontSize: '12px',
+      fontFamily: '"Press Start 2P"',
+      fontSize: '8px',
       color: '#ff0033',
-      fontStyle: '900'
     });
 
     // Connector Line
@@ -130,7 +129,7 @@ export class MapScene extends Phaser.Scene {
       alpha: 0,
       duration: 1000,
       repeat: -1,
-      ease: 'Sine.easeOut'
+      ease: 'Sine.easeOut',
     });
 
     // Start zoomed out and fade in

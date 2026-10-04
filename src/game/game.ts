@@ -8,11 +8,11 @@ import { DefeatScene } from './scenes/DefeatScene';
 
 export const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 270,
+  height: 480,
   parent: 'game-container',
   scale: {
-    mode: Phaser.Scale.RESIZE,
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
@@ -24,4 +24,5 @@ export const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [BootScene, MenuScene, MapScene, GameScene, GarageScene, DefeatScene],
   pixelArt: true,
+  roundPixels: true,
 };
