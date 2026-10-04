@@ -23,7 +23,7 @@ export class CollisionManager {
     player: Player,
     boss: Boss,
     entityManager: EntityManager,
-    isPlayingGetter: () => boolean
+    isPlayingGetter: () => boolean,
   ) {
     this.scene = scene;
     this.player = player;
@@ -33,31 +33,109 @@ export class CollisionManager {
   }
 
   public setupCollisions() {
-    const { projectiles, enemies, oceanEnemies, alienAAGuns, aaProjectiles, enemyProjectiles, antimatterContainers, powerUps } = this.entityManager;
+    const {
+      projectiles,
+      enemies,
+      oceanEnemies,
+      alienAAGuns,
+      aaProjectiles,
+      enemyProjectiles,
+      antimatterContainers,
+      powerUps,
+      bossParts,
+    } = this.entityManager;
 
-    this.scene.physics.add.overlap(projectiles.getGroup(), enemies.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(projectiles.getGroup(), oceanEnemies.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(projectiles.getGroup(), alienAAGuns.getGroup(), this.handlePlayerProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(projectiles.getGroup(), this.boss, this.handlePlayerProjectileVsDamageable.bind(this));
-    
-    this.scene.physics.add.overlap(aaProjectiles.getGroup(), enemies.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(aaProjectiles.getGroup(), oceanEnemies.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(aaProjectiles.getGroup(), alienAAGuns.getGroup(), this.handleAAProjectileVsDamageable.bind(this));
-    this.scene.physics.add.overlap(aaProjectiles.getGroup(), this.boss, this.handleAAProjectileVsDamageable.bind(this));
-    
-    this.scene.physics.add.overlap(enemyProjectiles.getGroup(), this.player, this.handleEnemyProjectileVsPlayer.bind(this));
-    this.scene.physics.add.overlap(enemies.getGroup(), this.player, this.handleEnemyVsPlayer.bind(this));
-    this.scene.physics.add.overlap(oceanEnemies.getGroup(), this.player, this.handleOceanEnemyVsPlayer.bind(this));
-    this.scene.physics.add.overlap(alienAAGuns.getGroup(), this.player, this.handleAlienAAGunVsPlayer.bind(this));
+    this.scene.physics.add.overlap(
+      projectiles.getGroup(),
+      enemies.getGroup(),
+      this.handlePlayerProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      projectiles.getGroup(),
+      oceanEnemies.getGroup(),
+      this.handlePlayerProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      projectiles.getGroup(),
+      alienAAGuns.getGroup(),
+      this.handlePlayerProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      projectiles.getGroup(),
+      bossParts.getGroup(),
+      this.handlePlayerProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      projectiles.getGroup(),
+      this.boss,
+      this.handlePlayerProjectileVsDamageable.bind(this),
+    );
+
+    this.scene.physics.add.overlap(
+      aaProjectiles.getGroup(),
+      enemies.getGroup(),
+      this.handleAAProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      aaProjectiles.getGroup(),
+      oceanEnemies.getGroup(),
+      this.handleAAProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      aaProjectiles.getGroup(),
+      alienAAGuns.getGroup(),
+      this.handleAAProjectileVsDamageable.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      aaProjectiles.getGroup(),
+      this.boss,
+      this.handleAAProjectileVsDamageable.bind(this),
+    );
+
+    this.scene.physics.add.overlap(
+      enemyProjectiles.getGroup(),
+      this.player,
+      this.handleEnemyProjectileVsPlayer.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      enemies.getGroup(),
+      this.player,
+      this.handleEnemyVsPlayer.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      oceanEnemies.getGroup(),
+      this.player,
+      this.handleOceanEnemyVsPlayer.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      alienAAGuns.getGroup(),
+      this.player,
+      this.handleAlienAAGunVsPlayer.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      bossParts.getGroup(),
+      this.player,
+      this.handleEnemyVsPlayer.bind(this),
+    );
     this.scene.physics.add.overlap(this.boss, this.player, this.handleBossVsPlayer.bind(this));
-    this.scene.physics.add.overlap(this.player, antimatterContainers.getGroup(), this.handlePlayerVsAntimatter.bind(this));
-    this.scene.physics.add.overlap(this.player, powerUps.getGroup(), this.handlePlayerVsPowerUp.bind(this));
+    this.scene.physics.add.overlap(
+      this.player,
+      antimatterContainers.getGroup(),
+      this.handlePlayerVsAntimatter.bind(this),
+    );
+    this.scene.physics.add.overlap(
+      this.player,
+      powerUps.getGroup(),
+      this.handlePlayerVsPowerUp.bind(this),
+    );
   }
 
   private handlePlayerProjectileVsDamageable(obj1: any, obj2: any) {
     const p = (obj1 instanceof Projectile ? obj1 : obj2) as Projectile;
-    const target = (obj1 instanceof Projectile ? obj2 : obj1) as import('../entities/BaseEntity').BaseEntity;
-    
+    const target = (
+      obj1 instanceof Projectile ? obj2 : obj1
+    ) as import('../entities/BaseEntity').BaseEntity;
+
     if (p.active && target.active) {
       if (p.piercing) {
         if (p.hitTargets && p.hitTargets.has(target)) return;
@@ -65,17 +143,24 @@ export class CollisionManager {
       } else {
         p.setActive(false);
         p.setVisible(false);
-        burst(this.scene, p.x, p.y, p.damage > 2 ? 10 : 5, { scale: { start: p.damage > 2 ? 0.8 : 0.5, end: 0 }, lifespan: p.damage > 2 ? 300 : 200, speed: { min: 50, max: 200 }, tint: 0x00ffff });
+        burst(this.scene, p.x, p.y, p.damage > 2 ? 10 : 5, {
+          scale: { start: p.damage > 2 ? 0.8 : 0.5, end: 0 },
+          lifespan: p.damage > 2 ? 300 : 200,
+          speed: { min: 50, max: 200 },
+          tint: 0x00ffff,
+        });
       }
-      
+
       target.takeDamage(p.damage);
     }
   }
 
   private handleAAProjectileVsDamageable(obj1: any, obj2: any) {
     const p = (obj1 instanceof BaseProjectile ? obj1 : obj2) as BaseProjectile;
-    const target = (obj1 instanceof BaseProjectile ? obj2 : obj1) as import('../entities/BaseEntity').BaseEntity;
-    
+    const target = (
+      obj1 instanceof BaseProjectile ? obj2 : obj1
+    ) as import('../entities/BaseEntity').BaseEntity;
+
     if (p.active && target.active) {
       p.setActive(false);
       p.setVisible(false);
@@ -168,7 +253,7 @@ export class CollisionManager {
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
       blendMode: 'ADD',
-      lifespan: 300
+      lifespan: 300,
     });
   }
 }

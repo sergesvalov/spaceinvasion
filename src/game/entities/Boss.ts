@@ -4,17 +4,20 @@ import { GameConfig } from '../config/GameConfig';
 import { BossMovementComponent } from './components/BossMovementComponent';
 import { BossAttackComponent } from './components/BossAttackComponent';
 import { EventBus } from '../../services/EventBus';
+import { EntityManager } from '../managers/EntityManager';
+import { BossPart } from './BossPart';
 
 export class Boss extends BaseEntity {
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
   private movementComponent: BossMovementComponent;
   private attackComponent: BossAttackComponent;
+  public parts: BossPart[] = [];
 
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
-    enemyProjectiles: Phaser.Physics.Arcade.Group,
+    private entityManager: EntityManager,
     onSpawnKamikaze: (x: number, y: number) => void,
   ) {
     super(scene, x, y, 'boss');
@@ -41,7 +44,11 @@ export class Boss extends BaseEntity {
     this.exhaustEmitter.stop(); // default stopped until spawned
 
     this.movementComponent = new BossMovementComponent(this);
-    this.attackComponent = new BossAttackComponent(this, enemyProjectiles, onSpawnKamikaze);
+    this.attackComponent = new BossAttackComponent(
+      this,
+      entityManager.enemyProjectiles.getGroup(),
+      onSpawnKamikaze,
+    );
   }
 
   spawn(x: number, y: number) {
@@ -53,6 +60,28 @@ export class Boss extends BaseEntity {
 
     this.movementComponent.spawn(x, y);
     this.exhaustEmitter.start();
+
+    this.parts = [];
+    const t1 = this.entityManager.getBossPart();
+    if (t1) {
+      t1.spawn(this, -50, 30, 'turret');
+      this.parts.push(t1);
+    }
+    const t2 = this.entityManager.getBossPart();
+    if (t2) {
+      t2.spawn(this, 50, 30, 'turret');
+      this.parts.push(t2);
+    }
+    const gen = this.entityManager.getBossPart();
+    if (gen) {
+      gen.spawn(this, 0, -40, 'generator');
+      this.parts.push(gen);
+    }
+  }
+
+  onPartDestroyed(part: BossPart) {
+    this.parts = this.parts.filter((p) => p !== part);
+    this.takeDamage(20);
   }
 
   preUpdate(time: number, delta: number) {

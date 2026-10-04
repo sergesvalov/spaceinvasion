@@ -10,6 +10,7 @@ import { PowerUp } from '../entities/PowerUp';
 import { ObjectPool } from './ObjectPool';
 import { BaseEntity } from '../entities/BaseEntity';
 import { AlienAAGun } from '../entities/AlienAAGun';
+import { BossPart } from '../entities/BossPart';
 
 export class EntityManager {
   public projectiles: ObjectPool<Projectile>;
@@ -21,20 +22,31 @@ export class EntityManager {
   public aaGuns: ObjectPool<AAGun>;
   public alienAAGuns: ObjectPool<AlienAAGun>;
   public powerUps: ObjectPool<PowerUp>;
+  public bossParts: ObjectPool<BossPart>;
 
   constructor(private scene: Phaser.Scene) {
     this.projectiles = new ObjectPool<Projectile>(this.scene, Projectile, 150);
     this.enemies = new ObjectPool<Enemy>(this.scene, Enemy, 20);
     this.oceanEnemies = new ObjectPool<OceanEnemy>(this.scene, OceanEnemy, 20);
     this.enemyProjectiles = new ObjectPool<EnemyProjectile>(this.scene, EnemyProjectile, 50);
-    this.antimatterContainers = new ObjectPool<AntimatterContainer>(this.scene, AntimatterContainer, 50);
+    this.antimatterContainers = new ObjectPool<AntimatterContainer>(
+      this.scene,
+      AntimatterContainer,
+      50,
+    );
     this.aaProjectiles = new ObjectPool<AAGunProjectile>(this.scene, AAGunProjectile, 100);
     this.aaGuns = new ObjectPool<AAGun>(this.scene, AAGun, 10);
     this.alienAAGuns = new ObjectPool<AlienAAGun>(this.scene, AlienAAGun, 10);
     this.powerUps = new ObjectPool<PowerUp>(this.scene, PowerUp, 10);
+    this.bossParts = new ObjectPool<BossPart>(this.scene, BossPart, 6);
   }
 
-  public applyDamageToAllEnemies(damage: number, radius?: number, centerX?: number, centerY?: number) {
+  public applyDamageToAllEnemies(
+    damage: number,
+    radius?: number,
+    centerX?: number,
+    centerY?: number,
+  ) {
     const applyToGroup = (pool: ObjectPool<any>) => {
       pool.children.iterate((c) => {
         const e = c as BaseEntity;
@@ -54,6 +66,7 @@ export class EntityManager {
     applyToGroup(this.enemies);
     applyToGroup(this.oceanEnemies);
     applyToGroup(this.alienAAGuns);
+    applyToGroup(this.bossParts);
   }
 
   public clearEnemyProjectiles(radius?: number, centerX?: number, centerY?: number) {
@@ -107,5 +120,9 @@ export class EntityManager {
 
   public getPowerUp(): PowerUp | null {
     return this.powerUps.get();
+  }
+
+  public getBossPart(): BossPart | null {
+    return this.bossParts.get();
   }
 }
