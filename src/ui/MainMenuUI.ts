@@ -4,6 +4,7 @@ import { GameState } from '../services/GameState';
 
 export interface MainMenuCallbacks {
   onPlay: () => void;
+  onContinue: (level: number) => void;
   onGarage: () => void;
   onAIDemo: () => void;
   onExit: () => void;
@@ -16,12 +17,19 @@ export class MainMenuUI extends UIComponent {
   }
 
   protected template(): string {
+    const state = GameState.getInstance();
+    const level = state.unlockedLevel;
+    const continueBtn =
+      level > 1
+        ? `<button id="btn-continue" class="btn-primary">CONTINUE: LV ${level}</button>`
+        : '';
     return `
       <div class="main-menu-panel ui-panel">
         <h1 class="main-menu-title">SPACE INVASION</h1>
-        <div class="main-menu-subtitle">HI-SCORE: ${GameState.getInstance().hiScore}</div>
+        <div class="main-menu-subtitle">HI-SCORE: ${state.hiScore}</div>
         <div class="main-menu-buttons">
-          <button id="btn-play" class="btn-primary">START MISSION</button>
+          ${continueBtn}
+          <button id="btn-play" class="btn-primary">${level > 1 ? 'NEW GAME' : 'START MISSION'}</button>
           <button id="btn-garage" class="btn-primary">GARAGE</button>
           <button id="btn-settings" class="btn-primary">SETTINGS</button>
           <button id="btn-ai" class="btn-primary">AI DEMO</button>
@@ -41,6 +49,13 @@ export class MainMenuUI extends UIComponent {
       this.container.style.display = 'none';
       this.callbacks.onPlay();
     });
+
+    if (this.$('#btn-continue')) {
+      this.bindButton('#btn-continue', () => {
+        this.container.style.display = 'none';
+        this.callbacks.onContinue(GameState.getInstance().unlockedLevel);
+      });
+    }
 
     this.bindButton('#btn-garage', () => this.callbacks.onGarage());
 

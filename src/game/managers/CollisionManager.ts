@@ -187,7 +187,7 @@ export class CollisionManager {
       e.setActive(false);
       e.setVisible(false);
       if (this.player.getForm() === 'mecha') {
-        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points);
+        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points, e.x, e.y);
       } else if (!this.player.isShielded()) {
         EventBus.emit('player_hit');
       }
@@ -201,7 +201,7 @@ export class CollisionManager {
       e.setActive(false);
       e.setVisible(false);
       if (this.player.getForm() === 'mecha') {
-        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2);
+        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2, e.x, e.y);
       } else if (!this.player.isShielded()) {
         EventBus.emit('player_hit');
       }
@@ -215,7 +215,7 @@ export class CollisionManager {
       e.setActive(false);
       e.setVisible(false);
       if (this.player.getForm() === 'mecha') {
-        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 5);
+        EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 5, e.x, e.y);
       } else if (!this.player.isShielded()) {
         EventBus.emit('player_hit');
       }

@@ -112,4 +112,31 @@ describe('GameState', () => {
     expect(state.equippedWeapon).toBe('wave');
     expect(state.hasDrone).toBe(true);
   });
+
+  it('should unlock levels monotonically and clamp to MAX_LEVEL', () => {
+    const state = GameState.getInstance();
+    expect(state.unlockedLevel).toBe(1);
+
+    state.unlockLevel(2);
+    expect(state.unlockedLevel).toBe(2);
+
+    state.unlockLevel(1); // replaying an earlier level must not lose progress
+    expect(state.unlockedLevel).toBe(2);
+
+    state.unlockLevel(99);
+    expect(state.unlockedLevel).toBe(GameState.MAX_LEVEL);
+
+    vi.advanceTimersByTime(500);
+    expect(localStorage.getItem('si_unlocked_level')).toBe(String(GameState.MAX_LEVEL));
+  });
+
+  it('should sanitise a corrupted saved level', () => {
+    localStorage.setItem('si_unlocked_level', 'garbage');
+    expect(GameState.getInstance().unlockedLevel).toBe(1);
+
+    localStorage.setItem('si_unlocked_level', '42');
+    // @ts-ignore
+    GameState.instance = undefined;
+    expect(GameState.getInstance().unlockedLevel).toBe(GameState.MAX_LEVEL);
+  });
 });

@@ -51,7 +51,7 @@ export class OceanEnemy extends BaseEntity {
   protected die() {
     super.die();
     this.scene.cameras.main.shake(150, 0.008);
-    EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2);
+    EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 2, this.x, this.y);
     if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance * 1.5) {
       EventBus.emit(
         'spawn_antimatter',

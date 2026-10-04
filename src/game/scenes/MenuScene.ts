@@ -17,16 +17,8 @@ export class MenuScene extends Phaser.Scene {
     this.background = this.add.tileSprite(width / 2, height / 2, width, height, 'starfield');
 
     this.ui = new MainMenuUI({
-      onPlay: () => {
-        import('../../services/StoryManager').then(({ StoryManager }) => {
-          StoryManager.getInstance().showBriefing('level_1', () => {
-            this.cameras.main.fadeOut(1000, 0, 0, 0);
-            this.cameras.main.once('camerafadeoutcomplete', () => {
-              this.scene.start('MapScene', { level: 1 });
-            });
-          });
-        });
-      },
+      onPlay: () => this.startLevel(1),
+      onContinue: (level) => this.startLevel(level),
       onGarage: () => {
         this.scene.start('GarageScene');
       },
@@ -55,18 +47,22 @@ export class MenuScene extends Phaser.Scene {
     // Export for E2E tests
     (window as any).__START_GAME__ = () => {
       this.ui.hide();
-      import('../../services/StoryManager').then(({ StoryManager }) => {
-        StoryManager.getInstance().showBriefing('level_1', () => {
-          this.cameras.main.fadeOut(10, 0, 0, 0); // Fast fade for tests
-          this.cameras.main.once('camerafadeoutcomplete', () => {
-            this.scene.start('MapScene', { level: 1 });
-          });
-        });
-      });
+      this.startLevel(1, 10); // Fast fade for tests
     };
 
     this.events.once('shutdown', () => {
       this.ui.unmount();
+    });
+  }
+
+  private startLevel(level: number, fadeMs = 1000) {
+    import('../../services/StoryManager').then(({ StoryManager }) => {
+      StoryManager.getInstance().showBriefing(`level_${level}`, () => {
+        this.cameras.main.fadeOut(fadeMs, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+          this.scene.start('MapScene', { level });
+        });
+      });
     });
   }
 

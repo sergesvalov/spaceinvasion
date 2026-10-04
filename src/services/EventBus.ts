@@ -8,7 +8,7 @@ export interface GameEvents {
   transform_request: () => void;
   dash_request: (dir: { dx: number; dy: number }) => void;
   player_hit: () => void;
-  enemy_destroyed: (points: number) => void;
+  enemy_destroyed: (points: number, x?: number, y?: number) => void;
   antimatter_collected: () => void;
   powerup_collected: (type: string) => void;
   enemy_fire: (x: number, y: number, speed: number) => void;

@@ -12,6 +12,9 @@ export class GameState {
   private _equippedWeapon: 'plasma' | 'ion' | 'wave' = 'plasma';
   private _hasDrone: boolean = false;
   private _hiScore: number = 0;
+  private _unlockedLevel: number = 1;
+
+  public static readonly MAX_LEVEL = 3;
 
   private saveTimeout: number | null = null;
 
@@ -71,6 +74,11 @@ export class GameState {
 
     const savedHiScore = localStorage.getItem('si_hi_score');
     if (savedHiScore) this._hiScore = parseInt(savedHiScore, 10);
+
+    const savedLevel = parseInt(localStorage.getItem('si_unlocked_level') || '1', 10);
+    this._unlockedLevel = Number.isFinite(savedLevel)
+      ? Math.max(1, Math.min(savedLevel, GameState.MAX_LEVEL))
+      : 1;
   }
 
   private saveState() {
@@ -102,6 +110,7 @@ export class GameState {
     localStorage.setItem('si_equipped_weapon', this._equippedWeapon);
     localStorage.setItem('si_has_drone', this._hasDrone.toString());
     localStorage.setItem('si_hi_score', this._hiScore.toString());
+    localStorage.setItem('si_unlocked_level', this._unlockedLevel.toString());
   }
 
   public get credits(): number {
@@ -240,5 +249,23 @@ export class GameState {
       this._hiScore = score;
       this.saveState();
     }
+  }
+
+  /** Furthest level the player may start from (1..MAX_LEVEL). */
+  public get unlockedLevel(): number {
+    return this._unlockedLevel;
+  }
+
+  public unlockLevel(level: number) {
+    const clamped = Math.max(1, Math.min(level, GameState.MAX_LEVEL));
+    if (clamped > this._unlockedLevel) {
+      this._unlockedLevel = clamped;
+      this.saveState();
+    }
+  }
+
+  public resetProgress() {
+    this._unlockedLevel = 1;
+    this.saveState();
   }
 }

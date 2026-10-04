@@ -71,7 +71,8 @@ export class GameController {
   private boundHandlers: Record<string, (...args: any[]) => void> = {};
 
   public setupEvents() {
-    this.boundHandlers['enemy_destroyed'] = (points: number) => this.handleEnemyDestroyed(points);
+    this.boundHandlers['enemy_destroyed'] = (points: number, x?: number, y?: number) =>
+      this.handleEnemyDestroyed(points, x, y);
     this.boundHandlers['boss_destroyed'] = () => this.handleVictory();
     this.boundHandlers['antimatter_collected'] = () => this.handleAntimatterCollected();
     this.boundHandlers['spawn_antimatter'] = (x: number, y: number, vx: number, vy: number) =>
@@ -132,26 +133,32 @@ export class GameController {
     );
   }
 
-  private handleEnemyDestroyed(points: number) {
+  private handleEnemyDestroyed(points: number, x?: number, y?: number) {
+    const popupX = x ?? this.player.x;
+    const popupY = y !== undefined ? y - 10 : this.player.y - 30;
     this.scoreManager.addScore(points, this.damageManager.health, (text, color) =>
-      this.hudManager.showFloatingText(
-        this.scene,
-        this.player.x,
-        this.player.y - 30,
-        text,
-        color,
-        1500,
-        1.2,
-      ),
+      this.hudManager.showFloatingText(this.scene, popupX, popupY, text, color, 1500, 1.2),
     );
 
     // Hit-stop on large enemies
     if (points >= GameConfig.Enemy.Points * 2) {
-      this.scene.scene.pause();
-      setTimeout(() => {
-        if (this.isPlaying) this.scene.scene.resume();
-      }, 40);
+      this.hitStop(40);
     }
+  }
+
+  /**
+   * Freeze the scene for a few real-time milliseconds. Scene timers are paused
+   * too, so the resume must use a wall-clock timeout and must ALWAYS run:
+   * gating it on `isPlaying` left the scene frozen forever when the player
+   * died in the same frame as the kill.
+   */
+  private hitStop(ms: number) {
+    const sys = this.scene.sys;
+    if (!sys.isActive()) return; // already paused (stacked hit-stop) or shutting down
+    sys.pause();
+    window.setTimeout(() => {
+      if (sys.isPaused()) sys.resume();
+    }, ms);
   }
 
   private handleAntimatterCollected() {
@@ -237,6 +244,7 @@ export class GameController {
 
     const state = GameState.getInstance();
     state.addCredits(this.scoreManager.score);
+    state.updateHiScore(this.scoreManager.score);
     // Hand back a barely-flyable hull instead of a free full repair: the
     // Garage is what restores HP. 1 HP guarantees the player is never stuck.
     state.setHp(1);
@@ -280,6 +288,7 @@ export class GameController {
     const state = GameState.getInstance();
     state.addCredits(this.scoreManager.score + 5000);
     state.updateHiScore(this.scoreManager.score);
+    state.unlockLevel(this.currentLevel + 1);
 
     const score = this.scoreManager.score;
     let rank = 'C';
