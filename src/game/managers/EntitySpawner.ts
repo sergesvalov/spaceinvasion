@@ -4,6 +4,7 @@ import { Boss } from '../entities/Boss';
 import { Player } from '../entities/Player';
 import { PowerUpType } from '../entities/PowerUp';
 import { EnemyType } from '../entities/Enemy';
+import { GameConfig } from '../config/GameConfig';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -71,9 +72,9 @@ export class EntitySpawner {
       return;
     }
 
-    if (this.alienAAGunCount >= 8) return;
+    if (this.alienAAGunCount >= GameConfig.AlienAAGun.MaxCount) return;
 
-    if (time > this.lastAlienAAGunSpawn + 4500) {
+    if (time > this.lastAlienAAGunSpawn + GameConfig.Spawns.AlienAAGunDelay) {
       this.lastAlienAAGunSpawn = time;
       this.alienAAGunCount++;
       const gun = this.entityManager.getAlienAAGun();

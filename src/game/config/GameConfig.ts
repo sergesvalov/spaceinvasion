@@ -6,6 +6,8 @@ export const GameConfig = {
     DamageMecha: 3,
     MechaCost: 3, // Antimatter spent per transformation
     MechaDuration: 12000,
+    MeleeCooldown: 1000,
+    MeleeRange: 150,
   },
   Enemy: {
     HP: 1,
@@ -25,6 +27,11 @@ export const GameConfig = {
     Damage: 5,
     MaxRange: 800,
   },
+  AlienAAGun: {
+    FireRate: 1200,
+    MaxRange: 800,
+    MaxCount: 8,
+  },
   Levels: {
     1: [
       { textureKey: 'bg_city', duration: 18000, spawnRateModifier: 0.8 },
@@ -32,6 +39,10 @@ export const GameConfig = {
     ],
     2: [{ textureKey: 'bg_ocean', duration: 36000, spawnRateModifier: 0.6 }],
     3: [{ textureKey: 'starfield', duration: 40000, spawnRateModifier: 0.5 }],
+  },
+  Spawns: {
+    AAGunDelay: 3000,
+    AlienAAGunDelay: 4500,
   },
   Runtime: {
     get isE2ETestMode() {

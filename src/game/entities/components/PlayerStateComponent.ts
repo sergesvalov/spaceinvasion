@@ -108,7 +108,7 @@ export class MechaState implements PlayerStateComponent {
   }
 
   update(context: PlayerContext, entityManager: EntityManager, time: number): void {
-    if (time < this.lastMeleeFired + 1000) return; // 1s cooldown
+    if (time < this.lastMeleeFired + GameConfig.Player.MeleeCooldown) return;
 
     let nearestDist = Infinity;
     entityManager.enemies.children.iterate((c) => {
@@ -122,7 +122,7 @@ export class MechaState implements PlayerStateComponent {
       return true;
     });
 
-    if (nearestDist < 150) {
+    if (nearestDist < GameConfig.Player.MeleeRange) {
       this.lastMeleeFired = time;
       this.performMeleeSlash(context, entityManager);
     }
@@ -157,7 +157,7 @@ export class MechaState implements PlayerStateComponent {
       const e = c as Enemy;
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(context.x, context.y - 20, e.x, e.y);
-        if (dist < 150 && e.y < context.y) {
+        if (dist < GameConfig.Player.MeleeRange && e.y < context.y) {
           e.takeDamage(GameConfig.Player.DamageMecha * 5);
         }
       }
