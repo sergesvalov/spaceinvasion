@@ -2,11 +2,11 @@ import Phaser from 'phaser';
 
 export class AntimatterContainer extends Phaser.Physics.Arcade.Sprite {
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'game_atlas', 'antimatter');
+    super(scene, x, y, 'antimatter');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setScale(0.64);
+    this.setScale(1);
   }
 
   spawn(x: number, y: number, vx: number = 0, vy: number = 250) {

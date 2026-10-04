@@ -11,12 +11,12 @@ export class Drone extends Phaser.GameObjects.Sprite {
   private timeAlive: number = 0;
 
   constructor(scene: Phaser.Scene, player: Player, entityManager: EntityManager) {
-    super(scene, player.x + 50, player.y, 'game_atlas', 'ship');
+    super(scene, player.x + 50, player.y, 'player_fighter');
     this.player = player;
     this.entityManager = entityManager;
 
     scene.add.existing(this);
-    this.setScale(0.24); // Smaller than player
+    this.setScale(1); // Smaller than player
     this.setTint(0x00ff00); // Green tint to distinguish
   }
 
@@ -69,14 +69,14 @@ export class Drone extends Phaser.GameObjects.Sprite {
         if (body) {
           body.setVelocityX(vx);
         }
-        proj.setScale(0.24); // Half the size of a normal plasma shot (0.48)
+        proj.setScale(1); // Half the size of a normal plasma shot (0.48)
         proj.setTint(0x00ff00);
       }
     } else {
       const proj = this.entityManager.getProjectile();
       if (proj) {
         proj.fire(this.x, this.y, -400, 1, 'plasma');
-        proj.setScale(0.24);
+        proj.setScale(1);
         proj.setTint(0x00ff00);
       }
     }

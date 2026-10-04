@@ -43,12 +43,10 @@ export class Player extends Phaser.GameObjects.Container {
     if (body) {
       body.setCollideWorldBounds(true);
       // Adjust hitbox size
-      body.setSize(30, 30);
-      body.setOffset(-15, -15);
     }
 
-    this.sprite = scene.add.sprite(0, 0, 'game_atlas', 'ship');
-    this.sprite.setScale(0.5488);
+    this.sprite = scene.add.sprite(0, 0, 'player_fighter');
+    this.sprite.setScale(1);
     this.add(this.sprite);
 
     this.shieldGraphics = scene.add.graphics();

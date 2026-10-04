@@ -12,9 +12,7 @@ export class OceanEnemy extends BaseEntity {
     super(scene, x, y, 'ocean_enemy');
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    if (body) {
-      body.setSize(40, 40);
-    }
+    // Body settings removed for auto-sizing
   }
 
   spawn(x: number, y: number) {

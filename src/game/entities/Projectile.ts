@@ -10,7 +10,7 @@ export class Projectile extends BaseProjectile {
   private timeAlive: number = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'game_atlas', 'projectile_fighter'); // Default to fighter sprite
+    super(scene, x, y, 'projectile_plasma'); // Default to fighter sprite
   }
 
   fire(x: number, y: number, velocityY: number, damage?: number, weaponType: string = 'plasma') {
@@ -24,41 +24,41 @@ export class Projectile extends BaseProjectile {
 
     // Use additive blending for a nice neon glow
     this.setBlendMode(Phaser.BlendModes.ADD);
-    
+
     // Default config (Fighter)
-    this.setTexture('game_atlas', 'projectile_fighter');
-    this.setScale(0.48);
+    this.setTexture('projectile_plasma');
+    this.setScale(1);
     this.clearTint();
 
     if (weaponType === 'ion') {
-      this.setScale(0.8);
+      this.setScale(1);
       this.setTint(0xaa00ff);
     } else if (weaponType === 'wave') {
-      this.setScale(0.64);
+      this.setScale(1);
       this.setTint(0x00ffaa);
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
-      this.setScale(0.56);
+      this.setScale(1);
     } else if (weaponType === 'beam') {
       // Mecha config
-      this.setTexture('game_atlas', 'projectile_mecha');
+      this.setTexture('projectile_plasma');
       this.setTint(0xffffff);
-      this.setScale(0.64);
+      this.setScale(1);
       this.piercing = true;
     }
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       // Hitbox in texture pixels; Arcade multiplies it by the sprite scale.
-      body.setSize(25, 25); // 25 * 0.48 -> ~12px
-      body.setOffset(19.5, 19.5); // Center it: (64 - 25) / 2
+      // 25 * 0.48 -> ~12px
+      // Center it: (64 - 25) / 2
     }
   }
 
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
     if (!this.active) return;
-    
+
     if (this.weaponType === 'wave') {
       this.timeAlive += delta;
       this.x = this.startX + Math.sin(this.timeAlive * 0.01) * 80; // 80px amplitude
@@ -68,13 +68,13 @@ export class Projectile extends BaseProjectile {
       const body = this.body as Phaser.Physics.Arcade.Body;
       const desiredVx = Math.cos(angle) * speed;
       const desiredVy = Math.sin(angle) * speed;
-      
+
       body.setVelocityX(Phaser.Math.Linear(body.velocity.x, desiredVx, 0.1));
       body.setVelocityY(Phaser.Math.Linear(body.velocity.y, desiredVy, 0.1));
     }
   }
 
   protected isOutOfBounds(): boolean {
-    return this.y < -50 || this.x < -100 || this.x > (this.scene.scale.width + 100);
+    return this.y < -50 || this.x < -100 || this.x > this.scene.scale.width + 100;
   }
 }

@@ -20,7 +20,7 @@ export class GarageScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // Hologram Background
-    const bg = this.add.image(width / 2, height / 2, 'game_atlas', 'hangar');
+    const bg = this.add.image(width / 2, height / 2, 'hangar_bg');
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
     const scale = Math.max(scaleX, scaleY);

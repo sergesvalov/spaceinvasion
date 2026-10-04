@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { TextureGenerator } from '../utils/TextureGenerator';
+import { SpriteBaker } from '../utils/SpriteBaker';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -87,6 +88,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
+    SpriteBaker.bake(this);
     // Procedural generation removed in favor of pre-baked assets
 
     // Daytime Anime City Colors

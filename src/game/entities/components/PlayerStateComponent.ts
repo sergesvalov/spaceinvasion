@@ -24,9 +24,9 @@ export interface PlayerStateComponent {
 
 export class FighterState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
-    context.sprite.setTexture('game_atlas', 'ship');
+    context.sprite.setTexture('player_fighter');
     context.sprite.setTint(0xffffff); // Normal color
-    context.sprite.setScale(0.5488);
+    context.sprite.setScale(1);
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
@@ -39,8 +39,7 @@ export class FighterState implements PlayerStateComponent {
     }
 
     if (context.body) {
-      context.body.setSize(40, 46);
-      context.body.setOffset(-20, -26);
+      // Body settings removed for auto-sizing
     }
 
     context.shieldGraphics.setVisible(false);
@@ -61,9 +60,9 @@ export class MechaState implements PlayerStateComponent {
   private lastMeleeFired: number = 0;
 
   enter(context: PlayerContext): void {
-    context.sprite.setTexture('game_atlas', 'mecha');
+    context.sprite.setTexture('player_mecha');
     context.sprite.setTint(0xffffff);
-    context.sprite.setScale(0.528); // 10% larger than the old 0.12 baseline
+    context.sprite.setScale(1); // 10% larger than the old 0.12 baseline
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
@@ -76,8 +75,7 @@ export class MechaState implements PlayerStateComponent {
     }
 
     if (context.body) {
-      context.body.setSize(53, 53);
-      context.body.setOffset(-26, -26);
+      // Body settings removed for auto-sizing
     }
 
     context.shieldGraphics.setVisible(true);

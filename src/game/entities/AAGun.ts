@@ -15,12 +15,12 @@ export class AAGun extends BaseEntity {
     super(scene, x, y, 'aagun');
 
     // Scale down the generated asset if needed
-    this.setScale(0.6); 
+    this.setScale(1);
     this.setDepth(-10); // Sit on top of buildings but below flying ships
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(50, 50); // adjust as needed based on scale
+      // adjust as needed based on scale
       body.setImmovable(true);
     }
   }
@@ -35,7 +35,7 @@ export class AAGun extends BaseEntity {
     this.setActive(true);
     this.setVisible(true);
     this.lastFired = time; // Reset fire timer when spawned
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
@@ -65,16 +65,20 @@ export class AAGun extends BaseEntity {
     let target: Phaser.GameObjects.Sprite | null = null;
 
     // Check enemies
-    this.entityManager.enemies.getGroup().getChildren().forEach((child) => {
-      const enemy = child as Enemy;
-      if (enemy.active) {
-        const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
-        if (dist < nearestDist && dist < 800) { // Max range
-          nearestDist = dist;
-          target = enemy;
+    this.entityManager.enemies
+      .getGroup()
+      .getChildren()
+      .forEach((child) => {
+        const enemy = child as Enemy;
+        if (enemy.active) {
+          const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
+          if (dist < nearestDist && dist < 800) {
+            // Max range
+            nearestDist = dist;
+            target = enemy;
+          }
         }
-      }
-    });
+      });
 
     // Check boss
     if (this.boss && this.boss.active) {
@@ -87,17 +91,17 @@ export class AAGun extends BaseEntity {
 
     if (target) {
       this.lastFired = time;
-      
+
       const proj = this.entityManager.aaProjectiles.get();
       if (proj) {
         proj.fire(this.x, this.y - 20, 0, GameConfig.AAGun.Damage); // Fire upwards initially, then correct velocity
-        
+
         // Calculate velocity vector
         const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
         const speed = 600;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
-        
+
         const body = proj.body as Phaser.Physics.Arcade.Body;
         if (body) {
           body.setVelocity(vx, vy);

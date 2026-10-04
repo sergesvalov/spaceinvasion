@@ -14,7 +14,6 @@ export class EnemyProjectile extends BaseProjectile {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       // Give some tiny collision box
-      body.setSize(10, 10);
     }
   }
 

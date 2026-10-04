@@ -10,16 +10,15 @@ export class Enemy extends BaseEntity {
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'game_atlas', 'enemy');
+    super(scene, x, y, 'enemy_scout_0');
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       // Texture pixels, multiplied by the sprite scale below -> ~3px hitbox.
       // Kept identical to the pre-resize value (48 on the old 1024px texture).
-      body.setSize(6, 6);
     }
 
-    this.setScale(0.5488);
+    this.setScale(1);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },

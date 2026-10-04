@@ -24,10 +24,9 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
       })
       .setOrigin(0.5);
 
-    this.setScale(0.4);
+    this.setScale(1);
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setSize(this.width * 0.8, this.height * 0.8);
       body.setVelocityY(200); // Faster falling down
     }
   }
