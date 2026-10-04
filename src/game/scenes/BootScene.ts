@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { TextureGenerator } from '../utils/TextureGenerator';
+import { TileGenerator } from '../utils/TileGenerator';
 
 export class BootScene extends Phaser.Scene {
   constructor() {

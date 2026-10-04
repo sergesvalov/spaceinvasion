@@ -16,6 +16,7 @@ import { GameConfig } from '../config/GameConfig';
 import { GameController } from '../managers/GameController';
 import { PlayerActionManager } from '../managers/PlayerActionManager';
 import { Autopilot } from '../managers/Autopilot';
+import { WaveManager } from '../managers/WaveManager';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -32,6 +33,7 @@ export class GameScene extends Phaser.Scene {
   private gameController!: GameController;
   private playerActionManager!: PlayerActionManager;
   private autopilot!: Autopilot;
+  private waveManager!: WaveManager;
   private isPaused: boolean = false;
   private visibilityHandler!: () => void;
   private togglePauseHandler!: () => void;
@@ -129,6 +131,8 @@ export class GameScene extends Phaser.Scene {
     );
     this.levelManager.setupBackgrounds();
 
+    this.waveManager = new WaveManager(this.levelManager, this.entitySpawner, this.gameController);
+
     // Speed lines effect
     this.add.particles(0, 0, 'star', {
       x: { min: 0, max: width },
@@ -203,8 +207,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    this.levelManager.update(time, delta);
     this.autopilot.update(time, delta);
+    this.waveManager.update(time, delta);
 
     if (!this.gameController.getIsPlaying()) return;
 
@@ -218,28 +222,5 @@ export class GameScene extends Phaser.Scene {
 
     this.player.updateMelee(this.entityManager, time);
     this.gameController.updateBossHUD();
-
-    const levelProgress = this.levelManager.getLevelProgress(time);
-    this.entitySpawner.spawnAAGun(time, levelProgress);
-
-    const currentPhaseKey = this.levelManager.getCurrentPhaseKey();
-    this.entitySpawner.spawnAlienAAGun(time, currentPhaseKey);
-
-    const baseModifier = this.levelManager.getCurrentSpawnModifier();
-    // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)
-    const scoreModifier = Math.max(
-      0.3,
-      1 - Math.floor(this.gameController.getScore() / 1000) * 0.05,
-    );
-    const ddaModifier = this.gameController.getDDAModifier(time);
-
-    const finalModifier = baseModifier * scoreModifier * ddaModifier;
-
-    this.entitySpawner.update(
-      time,
-      this.gameController.getIsPlaying(),
-      finalModifier,
-      currentPhaseKey,
-    );
   }
 }

@@ -7,11 +7,9 @@ const path = require('path');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   
-  // Navigate to dev server
   console.log('Connecting to dev server...');
   await page.goto('http://localhost:5173');
   
-  // Wait for BootScene to finish and __PHASER_GAME__ to be available
   console.log('Waiting for BootScene textures to generate...');
   await page.waitForTimeout(3000); 
   
@@ -26,20 +24,21 @@ const path = require('path');
         if (!tex || tex.key === '__MISSING') return 'ERROR: no tex ' + k;
         
         let src = tex.getSourceImage();
-        if (src && src.toDataURL) {
-          return src.toDataURL('image/png');
-        }
+        if (src && src.toDataURL) return src.toDataURL('image/png');
         
         if (tex.frames['__BASE'] && tex.frames['__BASE'].source) {
             const image = tex.frames['__BASE'].source.image;
             if (image && image.toDataURL) return image.toDataURL('image/png');
-            if (image) src = image;
         }
 
-        return 'ERROR: no toDataURL on ' + (src ? src.constructor.name : 'null');
+        return 'ERROR: no toDataURL';
       }, key);
 
       if (dataURL) {
+        if (dataURL.startsWith('ERROR:')) {
+          console.error(`Failed to extract ${key}: ${dataURL}`);
+          continue;
+        }
         const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
         let dir = 'public/bg';
         if (['aagun', 'ocean_enemy', 'alien_aagun'].includes(key)) {
@@ -53,8 +52,6 @@ const path = require('path');
         const filePath = path.join(dir, `${key}.png`);
         fs.writeFileSync(filePath, base64Data, 'base64');
         console.log(`Successfully baked ${key} to ${filePath}`);
-      } else {
-        console.warn(`Failed to extract data URL for ${key}`);
       }
     } catch (e) {
       console.error(`Error processing ${key}:`, e);
