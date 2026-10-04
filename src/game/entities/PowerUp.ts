@@ -14,29 +14,31 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.label = scene.add.text(x, y - 20, '', {
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 3
-    }).setOrigin(0.5);
+    this.label = scene.add
+      .text(x, y - 20, '', {
+        fontSize: '10px',
+        fontFamily: '"Press Start 2P", monospace',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5);
 
     this.setScale(0.4);
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.setSize(this.width * 0.8, this.height * 0.8);
-      body.setVelocityY(80); // Slowly fall down
+      body.setVelocityY(200); // Faster falling down
     }
   }
 
   spawn(x: number, y: number, type: PowerUpType) {
     this.type = type;
     this.setTexture(type === 'health' ? 'powerup_health' : 'powerup_weapon');
-    
+
     this.clearTint();
     let textStr = '';
-    
+
     if (type === 'health') {
       textStr = '+ HP';
       this.label.setColor('#00ff00');
@@ -56,22 +58,22 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
     this.label.setText(textStr);
     this.setPosition(x, y);
     this.label.setPosition(x, y - 20);
-    
+
     this.setActive(true);
     this.setVisible(true);
     this.label.setActive(true);
     this.label.setVisible(true);
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(80);
+      body.setVelocityY(200);
     }
   }
 
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
-    
+
     if (this.active && this.label) {
       this.label.setPosition(this.x, this.y - 20);
     }
@@ -90,7 +92,7 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
     }
     return this;
   }
-  
+
   setVisible(value: boolean): this {
     super.setVisible(value);
     if (!value && this.label) {
@@ -98,7 +100,7 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
     }
     return this;
   }
-  
+
   public hide() {
     this.setActive(false);
     this.setVisible(false);
