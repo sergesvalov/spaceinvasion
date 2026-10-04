@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { GameState } from '../../services/GameState';
-import { Player } from '../entities/Player';
 import { StyleConfig } from '../config/StyleConfig';
 import { AudioManager } from '../../services/AudioManager';
 
@@ -10,7 +9,6 @@ export class ScoreManager {
 
   constructor(
     private scene: Phaser.Scene,
-    private player: Player,
     private onUpdateHUD: (score: number, health: number, antimatter: number) => void,
   ) {
     this.antimatter = GameState.getInstance().antimatter;

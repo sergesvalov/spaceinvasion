@@ -41,7 +41,7 @@ export class GameController {
         this.hudManager.update(this.scoreManager.score, newHealth, this.scoreManager.antimatter),
     );
 
-    this.scoreManager = new ScoreManager(scene, player, (score, health, antimatter) => {
+    this.scoreManager = new ScoreManager(scene, (score, health, antimatter) => {
       this.hudManager.update(score, health, antimatter);
       AchievementManager.getInstance().checkScoreAchievements(score);
     });
