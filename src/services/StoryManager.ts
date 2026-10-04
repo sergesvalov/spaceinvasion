@@ -61,11 +61,15 @@ export class StoryManager {
     this.overlayEl.appendChild(panelEl);
     uiContainer.appendChild(this.overlayEl);
 
-    this.overlayEl.addEventListener('pointerdown', (e) => {
+    const handleTapEvent = (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
       this.handleTap();
-    });
+    };
+
+    this.overlayEl.addEventListener('pointerdown', handleTapEvent);
+    this.overlayEl.addEventListener('touchstart', handleTapEvent, { passive: false });
+    this.overlayEl.addEventListener('click', handleTapEvent);
   }
 
   public showBriefing(levelId: string, onComplete: () => void): void {
