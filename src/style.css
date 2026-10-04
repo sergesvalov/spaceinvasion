@@ -92,15 +92,21 @@ html, body {
 }
 
 .pause-overlay { pointer-events: auto; background: rgba(0,0,0,0.8); }
+/* visibility:hidden (not just opacity/pointer-events) is required: the inner
+   .ui-panel sets pointer-events:auto, which would otherwise keep the invisible
+   briefing panel catching touches over the playfield. */
 .story-overlay { 
   background: #000000; 
   opacity: 0; 
+  visibility: hidden;
   pointer-events: none; 
-  transition: opacity 0.5s; 
+  transition: opacity 0.5s, visibility 0s linear 0.5s; 
 }
 .story-overlay.active { 
   opacity: 1; 
+  visibility: visible;
   pointer-events: auto; 
+  transition: opacity 0.5s; 
 }
 
 .main-menu-panel, .pause-panel {

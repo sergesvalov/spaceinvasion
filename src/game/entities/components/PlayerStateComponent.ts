@@ -26,7 +26,7 @@ export class FighterState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
     context.sprite.setTexture('player_fighter');
     context.sprite.setTint(0xffffff); // Normal color
-    context.sprite.setScale(1);
+    context.sprite.setScale(2); // keep in sync with Player.SPRITE_SCALE
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
@@ -35,7 +35,7 @@ export class FighterState implements PlayerStateComponent {
         scale: { start: 1.5, end: 0 },
         tint: [0x00aaff, 0x0044ff],
       });
-      context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 40);
+      context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 20);
     }
 
     if (context.body) {
@@ -62,7 +62,7 @@ export class MechaState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
     context.sprite.setTexture('player_mecha');
     context.sprite.setTint(0xffffff);
-    context.sprite.setScale(1); // 10% larger than the old 0.12 baseline
+    context.sprite.setScale(2); // keep in sync with Player.SPRITE_SCALE
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
@@ -71,7 +71,7 @@ export class MechaState implements PlayerStateComponent {
         scale: { start: 2.5, end: 0 },
         tint: [0xffaa00, 0xff4400],
       });
-      context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 53);
+      context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 18);
     }
 
     if (context.body) {

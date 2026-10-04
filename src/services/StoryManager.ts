@@ -61,15 +61,13 @@ export class StoryManager {
     this.overlayEl.appendChild(panelEl);
     uiContainer.appendChild(this.overlayEl);
 
-    const handleTapEvent = (e: Event) => {
+    // Only pointerdown: it already covers mouse + touch. Adding touchstart/click
+    // as well made a single tap fire handleTap() twice on phones.
+    this.overlayEl.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
       this.handleTap();
-    };
-
-    this.overlayEl.addEventListener('pointerdown', handleTapEvent);
-    this.overlayEl.addEventListener('touchstart', handleTapEvent, { passive: false });
-    this.overlayEl.addEventListener('click', handleTapEvent);
+    });
   }
 
   public showBriefing(levelId: string, onComplete: () => void): void {

@@ -28,11 +28,14 @@ export class AnalyticsService {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       this.telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
     }
-    
+
     // Expand Telegram WebApp to full screen
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
+      // Without this, dragging the ship downward minimizes the Mini App
+      // instead of moving the ship (Bot API 7.7+; no-op on older clients).
+      (window.Telegram.WebApp as any).disableVerticalSwipes?.();
     }
   }
 
@@ -46,7 +49,7 @@ export class AnalyticsService {
   public logEvent(eventName: string, params?: Record<string, any>): void {
     const enrichedParams = {
       ...params,
-      telegramUserId: this.telegramUserId
+      telegramUserId: this.telegramUserId,
     };
     console.log(`[Analytics] ${eventName}`, enrichedParams);
   }

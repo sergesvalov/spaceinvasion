@@ -17,6 +17,10 @@ import { ShieldComponent } from './components/ShieldComponent';
 export type PlayerForm = 'fighter' | 'mecha';
 
 export class Player extends Phaser.GameObjects.Container {
+  /** 18px NES sprite x2 = 36px (~13% of the 270px-wide virtual screen). */
+  public static readonly SPRITE_SCALE = 2;
+  /** Forgiving shmup-style hitbox, smaller than the visible ship. */
+  public static readonly HITBOX_SIZE = 24;
   public weaponLevel: number;
   private form: PlayerForm = 'fighter';
   private sprite: Phaser.GameObjects.Sprite;
@@ -37,23 +41,27 @@ export class Player extends Phaser.GameObjects.Container {
 
     this.weaponLevel = GameState.getInstance().weaponLevel;
 
+    // A Container has no size by default (displayOriginX = 0), so Arcade would
+    // create a 64x64 body anchored at the top-left corner of the ship. Size it
+    // BEFORE enabling physics so the hitbox is small and centered.
+    this.setSize(Player.HITBOX_SIZE, Player.HITBOX_SIZE);
+
     // We add an arcade physics body to the container
     scene.physics.add.existing(this);
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.setCollideWorldBounds(true);
-      // Adjust hitbox size
     }
 
     this.sprite = scene.add.sprite(0, 0, 'player_fighter');
-    this.sprite.setScale(1);
+    this.sprite.setScale(Player.SPRITE_SCALE);
     this.add(this.sprite);
 
     this.shieldGraphics = scene.add.graphics();
-    this.shieldGraphics.lineStyle(6, 0x0038ce, 1); // Thick blue NES border
-    this.shieldGraphics.strokeRect(-40, -40, 80, 80);
+    this.shieldGraphics.lineStyle(4, 0x0038ce, 1); // Thick blue NES border
+    this.shieldGraphics.strokeRect(-24, -24, 48, 48);
     this.shieldGraphics.lineStyle(2, 0xffffffff, 1); // Inner white highlight
-    this.shieldGraphics.strokeRect(-36, -36, 72, 72);
+    this.shieldGraphics.strokeRect(-21, -21, 42, 42);
     this.shieldGraphics.setVisible(false);
     this.add(this.shieldGraphics);
 
@@ -67,7 +75,7 @@ export class Player extends Phaser.GameObjects.Container {
       tint: [0x00aaff, 0x0044ff],
       frequency: 20,
     });
-    this.exhaustEmitter.startFollow(this, 0, 40);
+    this.exhaustEmitter.startFollow(this, 0, 20);
 
     this.fighterState = new FighterState();
     this.mechaState = new MechaState();

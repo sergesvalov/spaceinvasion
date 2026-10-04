@@ -116,8 +116,8 @@ export class InputManager {
     }
 
     // Boundary check since we modify .x and .y directly in touch drag
-    const halfWidth = 10;
-    const halfHeight = 10;
+    const halfWidth = 18;
+    const halfHeight = 18;
     if (this.player.x < halfWidth) this.player.x = halfWidth;
     if (this.player.x > this.scene.scale.width - halfWidth)
       this.player.x = this.scene.scale.width - halfWidth;
