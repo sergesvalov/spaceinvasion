@@ -10,6 +10,7 @@ export class OceanEnemy extends BaseEntity {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'ocean_enemy');
+    this.setScale(1.1);
   }
 
   spawn(x: number, y: number) {
@@ -24,7 +25,7 @@ export class OceanEnemy extends BaseEntity {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(350); // Very fast dive bomber
+      body.setVelocityY(297.5); // Very fast dive bomber
     }
   }
 
@@ -33,13 +34,13 @@ export class OceanEnemy extends BaseEntity {
     if (!this.active) return;
 
     // Zig-zag fast horizontal movement
-    this.x = this.startX + Math.sin((time + this.timeOffset) * 0.005) * 120;
+    this.x = this.startX + Math.sin((time + this.timeOffset) * 0.00425) * 120;
 
     if (this.y > 0 && this.canFire(time)) {
       // Fire 3 bullets in a spread
-      EventBus.emit('enemy_fire', this.x - 15, this.y + 20, 300);
-      EventBus.emit('enemy_fire', this.x, this.y + 30, 300);
-      EventBus.emit('enemy_fire', this.x + 15, this.y + 20, 300);
+      EventBus.emit('enemy_fire', this.x - 15, this.y + 20, 255);
+      EventBus.emit('enemy_fire', this.x, this.y + 30, 255);
+      EventBus.emit('enemy_fire', this.x + 15, this.y + 20, 255);
     }
 
     if (this.y > this.scene.scale.height + 50) {

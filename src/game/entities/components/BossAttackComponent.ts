@@ -119,7 +119,7 @@ export class BossAttackComponent {
       angles = isPhase2 ? [-75, -50, -25, 0, 25, 50, 75, -15, 15] : [-60, -30, 0, 30, 60, -10, 10];
     }
 
-    const speed = isPhase2 ? 350 : 250;
+    const speed = isPhase2 ? 297.5 : 212.5;
 
     angles.forEach((angleDeg) => {
       const ep = this.enemyProjectiles.get() as EnemyProjectile;

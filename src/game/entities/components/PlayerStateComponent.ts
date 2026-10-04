@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EntityConfig } from '../../config/EntityConfig';
 import { EntityManager } from '../../managers/EntityManager';
 import { burst } from '../../effects/burst';
 import { EventBus } from '../../../services/EventBus';
@@ -26,7 +27,7 @@ export class FighterState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
     context.sprite.setTexture('player_fighter');
     context.sprite.setTint(0xffffff); // Normal color
-    context.sprite.setScale(2); // keep in sync with Player.SPRITE_SCALE
+    context.sprite.setScale(EntityConfig.Player.scale); // keep in sync with Player.SPRITE_SCALE
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
@@ -62,7 +63,7 @@ export class MechaState implements PlayerStateComponent {
   enter(context: PlayerContext): void {
     context.sprite.setTexture('player_mecha');
     context.sprite.setTint(0xffffff);
-    context.sprite.setScale(2); // keep in sync with Player.SPRITE_SCALE
+    context.sprite.setScale(EntityConfig.Player.scale); // keep in sync with Player.SPRITE_SCALE
 
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({

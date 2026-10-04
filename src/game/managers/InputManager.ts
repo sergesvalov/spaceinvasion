@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Player } from '../entities/Player';
+import { EntityConfig } from '../config/EntityConfig';
 import { EventBus } from '../../services/EventBus';
 
 export class InputManager {
@@ -97,7 +98,7 @@ export class InputManager {
   public update() {
     if (!this.isActive || this.player.isDashing) return;
 
-    const speed = 250;
+    const speed = EntityConfig.Player.speed;
     const body = this.player.body as Phaser.Physics.Arcade.Body;
     if (!body) return;
 

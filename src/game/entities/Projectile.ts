@@ -27,23 +27,23 @@ export class Projectile extends BaseProjectile {
 
     // Default config (Fighter)
     this.setTexture('projectile_plasma');
-    this.setScale(1);
+    this.setScale(1.15);
     this.clearTint();
 
     if (weaponType === 'ion') {
-      this.setScale(1);
+      this.setScale(1.15);
       this.setTint(0xaa00ff);
     } else if (weaponType === 'wave') {
-      this.setScale(1);
+      this.setScale(1.15);
       this.setTint(0x00ffaa);
     } else if (weaponType === 'spread') {
       this.setTint(0xffaa00);
-      this.setScale(1);
+      this.setScale(1.15);
     } else if (weaponType === 'beam') {
       // Mecha config
       this.setTexture('projectile_plasma');
       this.setTint(0xffffff);
-      this.setScale(1);
+      this.setScale(1.15);
       this.piercing = true;
     }
 
@@ -64,7 +64,7 @@ export class Projectile extends BaseProjectile {
       this.x = this.startX + Math.sin(this.timeAlive * 0.01) * 80; // 80px amplitude
     } else if (this.weaponType === 'homing' && this.target && this.target.active) {
       const angle = Phaser.Math.Angle.Between(this.x, this.y, this.target.x, this.target.y);
-      const speed = 500;
+      const speed = 425;
       const body = this.body as Phaser.Physics.Arcade.Body;
       const desiredVx = Math.cos(angle) * speed;
       const desiredVy = Math.sin(angle) * speed;

@@ -25,11 +25,11 @@ export class BossPart extends BaseEntity {
 
     if (type === 'turret') {
       this.setTexture('enemy_scout_0');
-      this.setScale(1.5);
+      this.setScale(1.65);
       this.setTint(0xff5555);
     } else {
       this.setTexture('enemy_scout_1');
-      this.setScale(2);
+      this.setScale(2.2);
       this.setTint(0x00ffcc);
     }
 

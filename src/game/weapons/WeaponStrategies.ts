@@ -17,10 +17,19 @@ export abstract class BaseWeaponStrategy {
   }
 
   protected getBaseSpeed(isMecha: boolean): number {
-    return isMecha ? -400 : -600;
+    return isMecha ? -340 : -510;
   }
 
-  protected fireProj(entityManager: EntityManager, x: number, y: number, vx: number, vy: number, damage: number, type: string, target?: any) {
+  protected fireProj(
+    entityManager: EntityManager,
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    damage: number,
+    type: string,
+    target?: any,
+  ) {
     const proj = entityManager.getProjectile() as any;
     if (proj && typeof proj.fire === 'function') {
       proj.fire(x, y, vy, damage, type);
@@ -34,9 +43,15 @@ export abstract class BaseWeaponStrategy {
     }
   }
 
-  protected fireStandardLines(entityManager: EntityManager, context: WeaponContext, damage: number, speed: number, type: string) {
+  protected fireStandardLines(
+    entityManager: EntityManager,
+    context: WeaponContext,
+    damage: number,
+    speed: number,
+    type: string,
+  ) {
     const { x, y, weaponLevel, isMecha } = context;
-    const lines = (isMecha || weaponLevel >= 3) ? 2 : 1;
+    const lines = isMecha || weaponLevel >= 3 ? 2 : 1;
 
     if (lines === 2) {
       this.fireProj(entityManager, x - 10, y, 0, speed, damage, type);
@@ -64,7 +79,9 @@ export class PlasmaWeapon extends BaseWeaponStrategy implements WeaponStrategy {
     const speed = this.getBaseSpeed(context.isMecha);
     this.fireStandardLines(entityManager, context, damage, speed, 'plasma');
   }
-  getFireRateModifier(): number { return 1.0; }
+  getFireRateModifier(): number {
+    return 1.0;
+  }
 }
 
 export class IonWeapon extends BaseWeaponStrategy implements WeaponStrategy {
@@ -73,7 +90,9 @@ export class IonWeapon extends BaseWeaponStrategy implements WeaponStrategy {
     const speed = this.getBaseSpeed(context.isMecha) * 0.7;
     this.fireStandardLines(entityManager, context, damage, speed, 'ion');
   }
-  getFireRateModifier(): number { return 2.5; } // slower
+  getFireRateModifier(): number {
+    return 2.5;
+  } // slower
 }
 
 export class WaveWeapon extends BaseWeaponStrategy implements WeaponStrategy {
@@ -82,16 +101,20 @@ export class WaveWeapon extends BaseWeaponStrategy implements WeaponStrategy {
     const speed = this.getBaseSpeed(context.isMecha) * 0.8;
     this.fireStandardLines(entityManager, context, damage, speed, 'wave');
   }
-  getFireRateModifier(): number { return 1.5; } // slightly slower
+  getFireRateModifier(): number {
+    return 1.5;
+  } // slightly slower
 }
 
 export class BeamWeapon extends BaseWeaponStrategy implements WeaponStrategy {
   fire(context: WeaponContext, entityManager: EntityManager): void {
     const damage = this.getBaseDamage(context.isMecha) * 2;
-    const speed = -1000;
+    const speed = -850;
     this.fireStandardLines(entityManager, context, damage, speed, 'beam');
   }
-  getFireRateModifier(): number { return 1.0; }
+  getFireRateModifier(): number {
+    return 1.0;
+  }
 }
 
 export class SpreadWeapon extends BaseWeaponStrategy implements WeaponStrategy {
@@ -99,24 +122,26 @@ export class SpreadWeapon extends BaseWeaponStrategy implements WeaponStrategy {
     const damage = this.getBaseDamage(context.isMecha);
     const speed = this.getBaseSpeed(context.isMecha);
     const angles = [-30, -15, 0, 15, 30];
-    angles.forEach(angle => {
+    angles.forEach((angle) => {
       const rad = Phaser.Math.DegToRad(angle - 90);
       const vx = Math.cos(rad) * Math.abs(speed);
       const vy = Math.sin(rad) * Math.abs(speed);
       this.fireProj(entityManager, context.x, context.y - 20, vx, vy, damage, 'spread');
     });
   }
-  getFireRateModifier(): number { return 1.0; }
+  getFireRateModifier(): number {
+    return 1.0;
+  }
 }
 
 export class HomingWeapon extends BaseWeaponStrategy implements WeaponStrategy {
   fire(context: WeaponContext, entityManager: EntityManager): void {
     const damage = this.getBaseDamage(context.isMecha);
     const speed = this.getBaseSpeed(context.isMecha);
-    
+
     let nearestDist = Infinity;
     let nearestEnemy: Enemy | null = null;
-    
+
     entityManager.enemies.children.iterate((c) => {
       const e = c as Enemy;
       if (e.active) {
@@ -129,7 +154,18 @@ export class HomingWeapon extends BaseWeaponStrategy implements WeaponStrategy {
       return true;
     });
 
-    this.fireProj(entityManager, context.x, context.y - 20, 0, speed, damage, 'homing', nearestEnemy);
+    this.fireProj(
+      entityManager,
+      context.x,
+      context.y - 20,
+      0,
+      speed,
+      damage,
+      'homing',
+      nearestEnemy,
+    );
   }
-  getFireRateModifier(): number { return 1.0; }
+  getFireRateModifier(): number {
+    return 1.0;
+  }
 }

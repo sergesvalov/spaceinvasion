@@ -14,7 +14,7 @@ export class BossMovementComponent {
     if (body) {
       body.reset(x, y);
       // Moves slowly down until it reaches top of screen
-      body.setVelocityY(20);
+      body.setVelocityY(17);
     }
   }
 
@@ -30,7 +30,7 @@ export class BossMovementComponent {
     // Sinewave horizontal movement
     if (this.boss.y >= 100) {
       const isPhase2 = this.boss.getData('phase2');
-      let speedMultiplier = isPhase2 ? 0.0025 : 0.001;
+      let speedMultiplier = isPhase2 ? 0.002125 : 0.00085;
       let widthMultiplier = isPhase2 ? 120 : 80;
 
       if (this.boss.level === 2) {

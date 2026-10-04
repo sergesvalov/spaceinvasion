@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BaseEntity } from './BaseEntity';
+import { EntityConfig } from '../config/EntityConfig';
 import { GameConfig } from '../config/GameConfig';
 import { EventBus } from '../../services/EventBus';
 
@@ -21,7 +22,7 @@ export class Enemy extends BaseEntity {
       // Kept identical to the pre-resize value (48 on the old 1024px texture).
     }
 
-    this.setScale(1);
+    this.setScale(1.1);
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: -100, max: -200 },
@@ -41,17 +42,17 @@ export class Enemy extends BaseEntity {
     this.enemyType = type;
     if (type === 'scout_0') {
       this.setTexture('enemy_scout_0');
-      this.setScale(1);
+      this.setScale(1.1);
       this.hp = GameConfig.Enemy.HP;
       this.clearTint();
     } else if (type === 'scout_1') {
       this.setTexture('enemy_scout_1');
-      this.setScale(1);
+      this.setScale(1.1);
       this.hp = GameConfig.Enemy.HP * 2;
       this.clearTint();
     } else if (type === 'carrier') {
       this.setTexture('enemy_scout_1');
-      this.setScale(1.5);
+      this.setScale(EntityConfig.Enemy.scaleCarrier);
       this.hp = GameConfig.Enemy.HP * 10;
       this.setTint(0xff8800);
     }
@@ -66,7 +67,7 @@ export class Enemy extends BaseEntity {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(250); // Faster falling like in Crisis Force
+      body.setVelocityY(EntityConfig.Enemy.diveSpeed); // Faster falling like in Crisis Force
     }
   }
 
@@ -76,18 +77,20 @@ export class Enemy extends BaseEntity {
 
     // Movement based on type
     if (this.enemyType === 'scout_0') {
-      this.x = this.startX + Math.sin((time + this.timeOffset) * 0.003) * 60;
+      this.x =
+        this.startX + Math.sin((time + this.timeOffset) * EntityConfig.Enemy.scout0Freq) * 60;
     } else if (this.enemyType === 'scout_1') {
       // Dive straight down, faster
-      this.y += delta * 0.1;
+      this.y += delta * EntityConfig.Enemy.scout1YDelta;
     } else if (this.enemyType === 'carrier') {
       // Slow hover
-      this.x = this.startX + Math.sin((time + this.timeOffset) * 0.001) * 30;
-      this.y += delta * 0.02; // very slow descent
+      this.x =
+        this.startX + Math.sin((time + this.timeOffset) * EntityConfig.Enemy.carrierFreq) * 30;
+      this.y += delta * EntityConfig.Enemy.carrierYDelta; // very slow descent
     }
 
     if (this.y > 0 && this.canFire(time) && this.enemyType !== 'carrier') {
-      EventBus.emit('enemy_fire', this.x, this.y + 20, 300);
+      EventBus.emit('enemy_fire', this.x, this.y + 20, EntityConfig.Enemy.projectileSpeed);
     }
 
     if (this.y > this.scene.scale.height + 50) {

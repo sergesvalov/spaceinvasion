@@ -24,10 +24,10 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
       })
       .setOrigin(0.5);
 
-    this.setScale(1);
+    this.setScale(1.15);
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
-      body.setVelocityY(200); // Faster falling down
+      body.setVelocityY(170); // Faster falling down
     }
   }
 
@@ -66,7 +66,7 @@ export class PowerUp extends Phaser.Physics.Arcade.Sprite {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(200);
+      body.setVelocityY(170);
     }
   }
 

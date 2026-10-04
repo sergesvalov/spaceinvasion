@@ -16,7 +16,7 @@ export class Drone extends Phaser.GameObjects.Sprite {
     this.entityManager = entityManager;
 
     scene.add.existing(this);
-    this.setScale(1); // Smaller than player
+    this.setScale(1.15); // Smaller than player
     this.setTint(0x00ff00); // Green tint to distinguish
   }
 
@@ -61,7 +61,7 @@ export class Drone extends Phaser.GameObjects.Sprite {
       const proj = this.entityManager.getProjectile();
       if (proj) {
         const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
-        const speed = 400;
+        const speed = 340;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
         proj.fire(this.x, this.y, vy, 1, 'plasma');
@@ -69,14 +69,14 @@ export class Drone extends Phaser.GameObjects.Sprite {
         if (body) {
           body.setVelocityX(vx);
         }
-        proj.setScale(1); // Half the size of a normal plasma shot (0.48)
+        proj.setScale(1.15); // Half the size of a normal plasma shot (0.48)
         proj.setTint(0x00ff00);
       }
     } else {
       const proj = this.entityManager.getProjectile();
       if (proj) {
-        proj.fire(this.x, this.y, -400, 1, 'plasma');
-        proj.setScale(1);
+        proj.fire(this.x, this.y, -340, 1, 'plasma');
+        proj.setScale(1.15);
         proj.setTint(0x00ff00);
       }
     }

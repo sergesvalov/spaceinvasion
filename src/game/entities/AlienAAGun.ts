@@ -13,7 +13,7 @@ export class AlienAAGun extends BaseEntity {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'alien_aagun');
 
-    this.setScale(1);
+    this.setScale(1.1);
     this.setDepth(-10); // Below flying objects, above ground
 
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -38,7 +38,7 @@ export class AlienAAGun extends BaseEntity {
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
-      body.setVelocityY(scrollSpeed);
+      body.setVelocityY(scrollSpeed * 0.85);
     }
   }
 
@@ -70,7 +70,7 @@ export class AlienAAGun extends BaseEntity {
       proj.fire(this.x, this.y - 20, 0); // initial vy=0 since we'll override below
 
       const angle = Phaser.Math.Angle.Between(this.x, this.y - 20, this.player.x, this.player.y);
-      const speed = 400;
+      const speed = 340;
       const vx = Math.cos(angle) * speed;
       const vy = Math.sin(angle) * speed;
 

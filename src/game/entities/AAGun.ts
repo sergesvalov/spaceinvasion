@@ -15,7 +15,7 @@ export class AAGun extends BaseEntity {
     super(scene, x, y, 'aagun');
 
     // Scale down the generated asset if needed
-    this.setScale(1);
+    this.setScale(1.1);
     this.setDepth(-10); // Sit on top of buildings but below flying ships
 
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -40,7 +40,7 @@ export class AAGun extends BaseEntity {
     if (body) {
       body.reset(x, y);
       // To match background scroll speed exactly, velocityY should be 0.5 * 1000 = 500
-      body.setVelocityY(scrollSpeed);
+      body.setVelocityY(scrollSpeed * 0.85);
     }
   }
 
@@ -98,7 +98,7 @@ export class AAGun extends BaseEntity {
 
         // Calculate velocity vector
         const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
-        const speed = 600;
+        const speed = 510;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
 

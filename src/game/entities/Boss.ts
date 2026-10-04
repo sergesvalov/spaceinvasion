@@ -24,7 +24,7 @@ export class Boss extends BaseEntity {
     super(scene, x, y, 'boss');
 
     // Scale down the large generated image to an appropriate boss size
-    this.setScale(3);
+    this.setScale(3.3);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
