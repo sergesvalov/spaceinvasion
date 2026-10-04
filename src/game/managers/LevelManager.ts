@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { EntityConfig } from '../config/EntityConfig';
 
 export interface LevelPhase {
   textureKey: string; // We'll interpret this as a biome/theme ('bg_city', 'bg_suburbs', 'bg_mountains')
@@ -15,7 +16,7 @@ export class LevelManager {
   private isLevelComplete: boolean = false;
   private onBossPhaseCallback: () => void;
 
-  private scrollSpeed = 1.5;
+  private scrollSpeed = EntityConfig.Background.scrollSpeed;
   private activeBg!: Phaser.GameObjects.TileSprite;
   private nextBg!: Phaser.GameObjects.TileSprite;
   private resizeHandler!: (gameSize: Phaser.Structs.Size) => void;
