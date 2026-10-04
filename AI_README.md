@@ -13,11 +13,11 @@ This document is designed to help any AI agent (or developer) quickly understand
 ## 🏗️ Architecture & Core Components
 
 ### 1. Scenes (`src/game/scenes/`)
-- **`BootScene`**: Loads all assets (images, sounds, generates missing textures). Auto-starts `MenuScene`.
-- **`MenuScene`**: The main menu. Contains buttons for PLAY, GARAGE, SETTINGS, EXIT.
+- **`BootScene`**: Loads all pre-baked assets (images, sounds, etc.) and procedural starfields. Auto-starts `MenuScene`.
+- **`MenuScene`**: The main menu. Uses `MainMenuUI` for its HTML DOM overlay.
 - **`MapScene`**: Shows a tactical map and pans to the current level marker before transitioning to `GameScene`.
 - **`GameScene`**: The core gameplay loop. Initializes all managers and entities.
-- **`GarageScene`**: Serves as the game's "Shop". Players can spend Credits to repair their ship and spend Antimatter to buy consumable Shields.
+- **`GarageScene`**: Serves as the game's "Shop". Uses `GarageUI` for HTML DOM manipulation.
 
 ### 2. Entities (`src/game/entities/`)
 - **`Player`**: The main ship. Has two forms: standard Fighter and Mecha. Mecha form has different physics and damage output. Also handles the purchasable shield visual logic and temp weapon overrides (Spread, Homing).
@@ -27,8 +27,10 @@ This document is designed to help any AI agent (or developer) quickly understand
 - **Projectiles**: `Projectile` (player, supports 'plasma', 'ion', 'wave', 'homing' types), `EnemyProjectile`, `AAGunProjectile`.
 - **Collectibles**: `AntimatterContainer` (dropped by enemies/bosses), `PowerUp` (health, weapon, spread, or homing).
 
-### 3. Managers (`src/game/managers/`)
-- **`GameController`**: The central brain of a game session. Listens to `EventBus` and orchestrates score, health, antimatter logic, and win/loss conditions.
+### 3. Managers (`src/game/managers/` & `src/ui/`)
+- **`GameController`**: The central state machine of a game session. Listens to `EventBus` and orchestrates win/loss conditions.
+- **`WaveManager`**: Handles spawning logic, level phases, and computes Dynamic Difficulty Adjustment (DDA) modifiers.
+- **`ScoreManager` & `DamageManager`**: Handle pure business logic for points, antimatter, and HP.
 - **`EntityManager`**: Holds Phaser Physics Groups for pooling (projectiles, enemies, drops). *Note: Player projectile pool is set to 150 to support high fire rates.*
 - **`EntitySpawner`**: Handles spawning enemies, powerups, and AAGuns based on timers and modifiers.
 - **`CollisionManager`**: Defines overlapping logic for all physical objects (bullets vs ships, player vs collectibles). Uses `EventBus` to notify `GameController`.
@@ -52,6 +54,14 @@ This document is designed to help any AI agent (or developer) quickly understand
 - **`EventBus`**: Phaser Event Emitter used to decouple Collision/Input logic from the GameController (e.g., `enemy_destroyed`, `shield_request`).
 - **`StoryManager`**: Handles the narrative briefings via a DOM overlay. Reads data from `src/data/StoryData.ts`.
 - **`AnalyticsService`**: Mock analytics tracker.
+
+### 6. UI Components (`src/ui/`)
+- **`UIComponent`**: Base abstract class handling DOM mounting, unmounting, and standard state-based UI updates.
+- **`MainMenuUI` & `GarageUI`**: Concrete implementations that isolate HTML DOM manipulation from Phaser Scenes.
+
+## 🛠️ Testing
+- **Unit Tests (`Vitest`)**: Found in `tests/*.test.ts`. Use `npm run test` to run. Mocks `localStorage` via `jsdom`.
+- **E2E Tests (`Playwright`)**: Found in `tests/*.spec.ts` (e.g. `playability.spec.ts`). Validates complete gameplay loop with Autopilot. Use `npm run test:e2e`.
 
 ## 🛠️ Key Mechanics & Gotchas
 
@@ -88,17 +98,17 @@ This document is designed to help any AI agent (or developer) quickly understand
 ## 🤖 AI Agent Guidelines
 
 ### 🛠️ Script Creation & Utility Tools
-- **Directory Rule**: ALL utility scripts (like image processors, data parsers, test helpers) MUST be created inside the `tools/` directory. Do not clutter the project root.
-- **Rules & Usage**: Please refer to [tools/README.md](file:///c:/wndr/repo/spaceinvasion/tools/README.md) for strict guidelines on how to write, structure, and use utility scripts in this project.
+- **Directory Rule**: ALL utility scripts (like image processors, data parsers, texture bakers) MUST be placed inside the `scripts/` directory. Do not clutter the project root.
+- **Baking Textures**: `scripts/bake_textures.cjs` leverages Playwright to extract procedural textures into static PNGs.
 
 ### 🎨 Asset Generation Workflow (Skins & Sprites)
 When the user asks to create a new skin, enemy, weapon, or other sprite, follow this exact workflow:
 1. **Use `generate_image` Tool**: When prompting the image generation tool, *always* append instructions for a solid white background (e.g., `"The background must be pure solid white, NO checkerboard patterns, NO grids, completely solid white background."`). The tool often bakes fake transparency checkerboards if you just ask for a "transparent background".
-2. **Process the Image**: Once generated, the image will be in the `.gemini` artifacts directory. Use the included `c:\wndr\repo\spaceinvasion\tools\remove_bg.mjs` Node script to strip the white background and save it to the `public/` directory. 
-   - Run: `node tools/remove_bg.mjs <input_path_from_artifact> <output_path_in_public>`
+2. **Process the Image**: Once generated, the image will be in the `.gemini` artifacts directory. Use the included `c:\wndr\repo\spaceinvasion\scripts\remove_bg.mjs` Node script to strip the white background and save it to the `public/` directory. 
+   - Run: `node scripts/remove_bg.mjs <input_path_from_artifact> <output_path_in_public>`
    - This script uses `Jimp` to identify white pixels and make them transparent.
-3. **Resize It — do NOT ship a 1024x1024 sprite**: generated images are 1024x1024 and ~1MB each, which is unusable on mobile. Downscale to roughly **2x the size the sprite is actually drawn at** with `tools/optimize_asset.mjs`:
-   - Run: `node tools/optimize_asset.mjs public/foo.png public/foo.png --size 128 --format png`
+3. **Resize It — do NOT ship a 1024x1024 sprite**: generated images are 1024x1024 and ~1MB each, which is unusable on mobile. Downscale to roughly **2x the size the sprite is actually drawn at** with `scripts/optimize_asset.mjs`:
+   - Run: `node scripts/optimize_asset.mjs public/foo.png public/foo.png --size 128 --format png`
    - Sprites that need transparency must stay `png`. Full-frame art (backgrounds, story panels) should be `jpeg --quality 78` — those keep a `.png` filename purely so no code has to change.
 4. **Load and Scale**: In `BootScene.ts`, load the new asset. In the respective entity class, apply `.setScale()` so the sprite ends up at its intended on-screen size (e.g. a 128px texture drawn at ~70px uses `0.5488`).
    - **Careful**: `body.setSize()` / `body.setOffset()` are expressed in *texture* pixels and Arcade multiplies them by the sprite scale. If you change a texture's dimensions by a factor `k`, you must also multiply the scale by `1/k` and the body size/offset by `k` — otherwise the hitbox silently changes size.
