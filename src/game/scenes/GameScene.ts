@@ -147,10 +147,9 @@ export class GameScene extends Phaser.Scene {
     this.hudManager.show();
     this.levelManager.startLevel(this.time.now);
 
-    // Apply PostFX to the camera for sci-fi look
+    // Apply PostFX to the camera for 8-bit retro look
     try {
-      this.cameras.main.postFX.addVignette(0.5, 0.5, 0.7);
-      this.cameras.main.postFX.addBloom(0xffffff, 1, 1, 0.6, 1.2);
+      this.cameras.main.postFX.addPixelate(4); // Blocky pixels
     } catch (e) {
       console.warn('PostFX not supported on this device/browser');
     }

@@ -19,8 +19,9 @@ export const config: Phaser.Types.Core.GameConfig = {
     default: 'arcade',
     arcade: {
       gravity: { x: 0, y: 0 },
-      debug: false
-    }
+      debug: false,
+    },
   },
-  scene: [BootScene, MenuScene, MapScene, GameScene, GarageScene, DefeatScene]
+  scene: [BootScene, MenuScene, MapScene, GameScene, GarageScene, DefeatScene],
+  pixelArt: true,
 };

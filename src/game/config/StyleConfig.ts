@@ -1,66 +1,65 @@
 export const StyleConfig = {
   Fonts: {
-    Main: 'Orbitron',
-    Secondary: 'monospace'
+    Main: '"Press Start 2P", monospace',
+    Secondary: '"Press Start 2P", monospace',
   },
   Colors: {
-    NeonCyan: '#00ffcc',
-    NeonPink: '#ff00ff',
-    NeonYellow: '#ffff00',
-    NeonRed: '#ff0033',
-    NeonOrange: '#ffaa00',
+    NeonCyan: '#00c0ff',
+    NeonPink: '#ff00ff', // Or replace with something like #d50000
+    NeonYellow: '#ffce00',
+    NeonRed: '#d50000',
+    NeonOrange: '#ff5a00',
     White: '#ffffff',
     Black: '#000000',
-    DeepBlue: '#004488'
+    DeepBlue: '#0038ce',
   },
   ColorsHex: {
-    NeonCyan: 0x00ffcc,
-    NeonPink: 0xff00ff,
-    NeonYellow: 0xffff00,
-    NeonRed: 0xff0033,
-    NeonOrange: 0xffaa00,
+    NeonCyan: 0x00c0ff,
+    NeonPink: 0xd50000,
+    NeonYellow: 0xffce00,
+    NeonRed: 0xd50000,
+    NeonOrange: 0xff5a00,
     White: 0xffffff,
     Black: 0x000000,
-    DeepBlue: 0x004488,
-    TransparentDark: 0x110000
+    DeepBlue: 0x0038ce,
+    TransparentDark: 0x111111,
   },
   Text: {
     Title: {
-      fontFamily: 'Orbitron',
-      fontSize: '48px',
-      color: '#00ffcc',
-      fontStyle: '900',
-      shadow: { color: '#00ffcc', blur: 10, fill: true }
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '28px',
+      color: '#ffce00',
+      shadow: { color: '#000000', blur: 0, fill: true, offsetX: 4, offsetY: 4 },
     },
     Subtitle: {
-      fontFamily: 'Orbitron',
-      fontSize: '28px',
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '16px',
       color: '#ffffff',
-      shadow: { color: '#ffffff', blur: 5, fill: true }
+      shadow: { color: '#000000', blur: 0, fill: true, offsetX: 2, offsetY: 2 },
     },
     Normal: {
-      fontFamily: 'Orbitron',
-      fontSize: '18px',
-      color: '#ffffff'
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '10px',
+      color: '#ffffff',
+      shadow: { color: '#000000', blur: 0, fill: true, offsetX: 2, offsetY: 2 },
     },
     Warning: {
-      fontFamily: 'Orbitron',
-      fontSize: '18px',
-      color: '#ffaa00',
-      fontStyle: 'bold'
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '10px',
+      color: '#ff5a00',
+      shadow: { color: '#000000', blur: 0, fill: true, offsetX: 2, offsetY: 2 },
     },
     Critical: {
-      fontFamily: 'Orbitron',
-      fontSize: '24px',
-      color: '#ff0033',
-      fontStyle: '900',
-      shadow: { color: '#ff0033', blur: 15, fill: true }
-    }
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '14px',
+      color: '#d50000',
+      shadow: { color: '#000000', blur: 0, fill: true, offsetX: 3, offsetY: 3 },
+    },
   },
   Button: {
-    DefaultColor: '#00ffcc',
-    HoverColor: '#ffffff',
-    DefaultBg: 'rgba(0, 50, 100, 0.4)',
-    HoverBg: 'rgba(0, 150, 255, 0.6)'
-  }
+    DefaultColor: '#ffffff',
+    HoverColor: '#ffce00',
+    DefaultBg: '#0038ce',
+    HoverBg: '#ff5a00',
+  },
 };
