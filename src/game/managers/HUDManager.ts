@@ -98,8 +98,16 @@ export class HUDManager {
   }
 
   // Proxies for legacy usages
-  public showFloatingText(scene: Phaser.Scene, x: number, y: number, text: string, color: string) {
-    FloatingTextManager.show(scene, x, y, text, color);
+  public showFloatingText(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    text: string,
+    color: string,
+    duration?: number,
+    scale?: number,
+  ) {
+    FloatingTextManager.show(scene, x, y, text, color, duration, scale);
   }
 
   public showAchievement(title: string, desc: string) {

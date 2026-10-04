@@ -218,6 +218,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.player.updateMelee(this.entityManager, time);
+    this.player.updateVisuals();
     this.gameController.updateBossHUD();
   }
 }

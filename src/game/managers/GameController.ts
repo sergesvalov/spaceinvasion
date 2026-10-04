@@ -97,9 +97,23 @@ export class GameController {
 
   public handleBossPhase(width: number) {
     console.log('[GameController] Boss phase started!');
-    this.boss.spawn(width / 2, -100);
-    this.hudManager.showBossBar();
-    this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+    this.hudManager.showFloatingText(
+      this.scene,
+      width / 2,
+      this.scene.scale.height / 2 - 50,
+      'WARNING\nBOSS APPROACHING',
+      '#ff0000',
+      3000,
+      1.5,
+    );
+    this.scene.cameras.main.flash(500, 255, 0, 0);
+
+    this.scene.time.delayedCall(3000, () => {
+      if (!this.isPlaying) return;
+      this.boss.spawn(width / 2, -100);
+      this.hudManager.showBossBar();
+      this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+    });
   }
 
   public updateBossHUD() {
@@ -119,7 +133,25 @@ export class GameController {
   }
 
   private handleEnemyDestroyed(points: number) {
-    this.scoreManager.addScore(points, this.damageManager.health);
+    this.scoreManager.addScore(points, this.damageManager.health, (text, color) =>
+      this.hudManager.showFloatingText(
+        this.scene,
+        this.player.x,
+        this.player.y - 30,
+        text,
+        color,
+        1500,
+        1.2,
+      ),
+    );
+
+    // Hit-stop on large enemies
+    if (points >= GameConfig.Enemy.Points * 2) {
+      this.scene.scene.pause();
+      setTimeout(() => {
+        if (this.isPlaying) this.scene.scene.resume();
+      }, 40);
+    }
   }
 
   private handleAntimatterCollected() {
@@ -180,6 +212,7 @@ export class GameController {
   }
 
   private handlePlayerDamage() {
+    this.scoreManager.resetChain();
     this.damageManager.handlePlayerDamage(this.scene.time.now);
   }
 

@@ -202,4 +202,13 @@ export class Player extends Phaser.GameObjects.Container {
   public fire(entityManager: EntityManager) {
     this.weaponComponent.fire(entityManager);
   }
+
+  public updateVisuals() {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (body) {
+      const vx = body.velocity.x;
+      const targetRotation = (vx / 200) * 0.25;
+      this.sprite.rotation += (targetRotation - this.sprite.rotation) * 0.2;
+    }
+  }
 }

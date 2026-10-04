@@ -18,10 +18,29 @@ export class ScoreManager {
     this.antimatter = GameState.getInstance().antimatter;
   }
 
-  public addScore(points: number, health: number) {
-    this.score += points;
+  public chainCount: number = 0;
+
+  public resetChain() {
+    this.chainCount = 0;
+  }
+
+  public addScore(
+    points: number,
+    health: number,
+    showFloatingText?: (text: string, color: string) => void,
+  ) {
+    this.chainCount++;
+    const multiplier = Math.min(this.chainCount, 8); // max x8
+
+    this.score += points * multiplier;
     AudioManager.getInstance().playEnemyDestroyed(this.scene);
     this.onUpdateHUD(this.score, health, this.antimatter);
+
+    if (showFloatingText && this.chainCount > 1) {
+      if (this.chainCount % 5 === 0) {
+        showFloatingText(`CHAIN x${this.chainCount}!`, '#00ffff');
+      }
+    }
   }
 
   public addAntimatter(
