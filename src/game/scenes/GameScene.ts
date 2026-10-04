@@ -148,11 +148,11 @@ export class GameScene extends Phaser.Scene {
     this.levelManager.startLevel(this.time.now);
 
     // Apply PostFX to the camera for 8-bit retro look
-    try {
-      this.cameras.main.postFX.addPixelate(4); // Blocky pixels
-    } catch (e) {
-      console.warn('PostFX not supported on this device/browser');
-    }
+    // try {
+    //   this.cameras.main.postFX.addPixelate(4); // Blocky pixels
+    // } catch (e) {
+    //   console.warn('PostFX not supported on this device/browser');
+    // }
 
     this.togglePauseHandler = () => this.togglePause();
     EventBus.on('toggle_pause', this.togglePauseHandler);

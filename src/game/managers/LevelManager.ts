@@ -39,10 +39,12 @@ export class LevelManager {
     this.nextBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.nextBg.setDepth(-101);
     this.nextBg.setAlpha(0);
+    this.nextBg.setTint(0x555555);
 
     this.activeBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.activeBg.setDepth(-100);
     this.activeBg.setAlpha(1.0);
+    this.activeBg.setTint(0x555555);
 
     // Handle resize events
     this.resizeHandler = (gameSize: Phaser.Structs.Size) => {
