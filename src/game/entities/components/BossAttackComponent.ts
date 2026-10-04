@@ -28,13 +28,19 @@ export class BossAttackComponent {
     }
 
     if (this.state === 'SPREAD') {
-      const fireRate = isPhase2 ? 400 : 700;
+      let fireRate = isPhase2 ? 400 : 700;
+      if (this.boss.level === 2) fireRate *= 0.8;
+      if (this.boss.level >= 3) fireRate *= 0.6;
+
       if (time > this.lastFired + fireRate) {
         this.lastFired = time;
         this.fireBulletHell(isPhase2);
       }
     } else if (this.state === 'KAMIKAZE') {
-      const spawnRate = isPhase2 ? 800 : 1500;
+      let spawnRate = isPhase2 ? 800 : 1500;
+      if (this.boss.level === 2) spawnRate *= 0.8;
+      if (this.boss.level >= 3) spawnRate *= 0.6;
+
       if (time > this.lastFired + spawnRate) {
         this.lastFired = time;
         this.onSpawnKamikaze(this.boss.x - 60, this.boss.y + 40);
@@ -105,7 +111,14 @@ export class BossAttackComponent {
   }
 
   private fireBulletHell(isPhase2: boolean) {
-    const angles = isPhase2 ? [-45, -30, -15, 0, 15, 30, 45] : [-30, -15, 0, 15, 30];
+    let angles = isPhase2 ? [-45, -30, -15, 0, 15, 30, 45] : [-30, -15, 0, 15, 30];
+
+    if (this.boss.level === 2) {
+      angles = isPhase2 ? [-60, -40, -20, 0, 20, 40, 60] : [-45, -20, 0, 20, 45];
+    } else if (this.boss.level >= 3) {
+      angles = isPhase2 ? [-75, -50, -25, 0, 25, 50, 75, -15, 15] : [-60, -30, 0, 30, 60, -10, 10];
+    }
+
     const speed = isPhase2 ? 350 : 250;
 
     angles.forEach((angleDeg) => {

@@ -4,7 +4,7 @@ import { Boss } from '../Boss';
 export class BossMovementComponent {
   private startX: number = 0;
   private timeOffset: number = 0;
-  
+
   constructor(private boss: Boss) {}
 
   public spawn(x: number, y: number) {
@@ -29,10 +29,20 @@ export class BossMovementComponent {
 
     // Sinewave horizontal movement
     if (this.boss.y >= 100) {
-       const isPhase2 = this.boss.getData('phase2');
-       const speedMultiplier = isPhase2 ? 0.0025 : 0.001;
-       const widthMultiplier = isPhase2 ? 120 : 80;
-       this.boss.x = this.startX + Math.sin((time + this.timeOffset) * speedMultiplier) * widthMultiplier;
+      const isPhase2 = this.boss.getData('phase2');
+      let speedMultiplier = isPhase2 ? 0.0025 : 0.001;
+      let widthMultiplier = isPhase2 ? 120 : 80;
+
+      if (this.boss.level === 2) {
+        speedMultiplier *= 1.3;
+        widthMultiplier *= 1.2;
+      } else if (this.boss.level >= 3) {
+        speedMultiplier *= 1.6;
+        widthMultiplier *= 1.5;
+      }
+
+      this.boss.x =
+        this.startX + Math.sin((time + this.timeOffset) * speedMultiplier) * widthMultiplier;
     }
   }
 }

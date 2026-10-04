@@ -18,6 +18,7 @@ export class Boss extends BaseEntity {
     x: number,
     y: number,
     private entityManager: EntityManager,
+    public level: number,
     onSpawnKamikaze: (x: number, y: number) => void,
   ) {
     super(scene, x, y, 'boss');

@@ -19,14 +19,19 @@ export class ResultScene extends Phaser.Scene {
     // Calculate Rank
     let rank = 'C';
     let rankColor = StyleConfig.Colors.White;
-    // For now simple thresholds. Later can be level-specific.
-    if (data.score >= 15000) {
+
+    // Level-specific rank thresholds
+    const sRank = data.level >= 3 ? 35000 : data.level === 2 ? 25000 : 15000;
+    const aRank = data.level >= 3 ? 25000 : data.level === 2 ? 15000 : 10000;
+    const bRank = data.level >= 3 ? 15000 : data.level === 2 ? 10000 : 5000;
+
+    if (data.score >= sRank) {
       rank = 'S';
       rankColor = StyleConfig.Colors.NeonPink;
-    } else if (data.score >= 10000) {
+    } else if (data.score >= aRank) {
       rank = 'A';
       rankColor = StyleConfig.Colors.NeonCyan;
-    } else if (data.score >= 5000) {
+    } else if (data.score >= bRank) {
       rank = 'B';
       rankColor = StyleConfig.Colors.NeonYellow;
     }
