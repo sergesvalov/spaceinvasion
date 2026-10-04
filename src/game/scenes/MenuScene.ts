@@ -3,7 +3,7 @@ import { AudioManager } from '../../services/AudioManager';
 
 export class MenuScene extends Phaser.Scene {
   private background!: Phaser.GameObjects.TileSprite;
-  
+
   constructor() {
     super({ key: 'MenuScene' });
   }
@@ -56,8 +56,16 @@ export class MenuScene extends Phaser.Scene {
         }
       };
 
-      document.getElementById('btn-play')?.addEventListener('click', () => {
-        haptic();
+      const bindButton = (id: string, handler: () => void) => {
+        document.getElementById(id)?.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          haptic();
+          handler();
+        });
+      };
+
+      bindButton('btn-play', () => {
         // Trigger normal play which uses fade out
         import('../../services/StoryManager').then(({ StoryManager }) => {
           StoryManager.getInstance().showBriefing('level_1', () => {
@@ -69,25 +77,22 @@ export class MenuScene extends Phaser.Scene {
         });
       });
 
-      document.getElementById('btn-garage')?.addEventListener('click', () => {
-        haptic();
+      bindButton('btn-garage', () => {
         this.scene.start('GarageScene');
       });
 
       const settingsPanel = document.getElementById('settings-panel');
-      document.getElementById('btn-settings')?.addEventListener('click', () => {
-        haptic();
-        if (settingsPanel) settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
+      bindButton('btn-settings', () => {
+        if (settingsPanel)
+          settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'flex' : 'none';
       });
 
-      document.getElementById('btn-ai')?.addEventListener('click', () => {
-        haptic();
+      bindButton('btn-ai', () => {
         (window as any).__AI_DEMO_MODE__ = true;
         (window as any).__START_GAME__();
       });
 
-      document.getElementById('btn-exit')?.addEventListener('click', async () => {
-        haptic();
+      bindButton('btn-exit', async () => {
         if ((window as any).Telegram?.WebApp?.initData) {
           (window as any).Telegram.WebApp.close();
         } else if ((window as any).Capacitor?.isNativePlatform()) {
@@ -110,18 +115,16 @@ export class MenuScene extends Phaser.Scene {
         }
       };
       updateSoundBtn();
-      
-      btnSound?.addEventListener('click', () => {
-        haptic();
+
+      bindButton('btn-toggle-sound', () => {
         AudioManager.getInstance().toggleSoundEnabled();
         updateSoundBtn();
       });
 
-      document.getElementById('btn-close-settings')?.addEventListener('click', () => {
-        haptic();
+      bindButton('btn-close-settings', () => {
         if (settingsPanel) settingsPanel.style.display = 'none';
       });
-      
+
       this.events.once('shutdown', () => {
         menuDiv.remove();
       });

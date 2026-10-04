@@ -21,9 +21,9 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private boss!: Boss;
   private entityManager!: EntityManager;
-  
+
   private currentLevel: number = 1;
-  
+
   private hudManager!: HUDManager;
   private inputManager!: InputManager;
   private collisionManager!: CollisionManager;
@@ -72,10 +72,16 @@ export class GameScene extends Phaser.Scene {
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
-    this.boss = new Boss(this, width / 2, -200, this.entityManager.enemyProjectiles.getGroup(), (x, y) => {
-      const enemy = this.entityManager.getEnemy();
-      if (enemy) enemy.spawn(x, y);
-    });
+    this.boss = new Boss(
+      this,
+      width / 2,
+      -200,
+      this.entityManager.enemyProjectiles.getGroup(),
+      (x, y) => {
+        const enemy = this.entityManager.getEnemy();
+        if (enemy) enemy.spawn(x, y);
+      },
+    );
     this.boss.setActive(false).setVisible(false);
 
     this.gameController = new GameController(
@@ -85,7 +91,7 @@ export class GameScene extends Phaser.Scene {
       this.entityManager,
       this.hudManager,
       this.inputManager,
-      this.currentLevel
+      this.currentLevel,
     );
 
     this.playerActionManager = new PlayerActionManager(
@@ -93,15 +99,14 @@ export class GameScene extends Phaser.Scene {
       this.player,
       this.entityManager,
       () => this.gameController.getIsPlaying(),
-      () => this.gameController.syncAndRefreshHUD()
+      () => this.gameController.syncAndRefreshHUD(),
     );
     this.playerActionManager.setupEvents();
 
     this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss, this.player);
-    
+
     this.autopilot = new Autopilot(this, this.player, this.entityManager, this.boss);
-    const w = window as any;
-    if (w.__E2E_TEST_MODE__ || w.__AI_DEMO_MODE__) {
+    if (GameConfig.Runtime.isE2ETestMode || GameConfig.Runtime.isAIDemoMode) {
       this.autopilot.enable();
     }
 
@@ -110,18 +115,17 @@ export class GameScene extends Phaser.Scene {
       this.player,
       this.boss,
       this.entityManager,
-      () => this.gameController.getIsPlaying()
+      () => this.gameController.getIsPlaying(),
     );
     this.collisionManager.setupCollisions();
 
     this.gameController.setupEvents();
 
-    const levelPhases = (GameConfig.Levels as any)[this.currentLevel] || (GameConfig.Levels as any)[1];
+    const levelPhases =
+      (GameConfig.Levels as any)[this.currentLevel] || (GameConfig.Levels as any)[1];
 
-    this.levelManager = new LevelManager(
-      this,
-      levelPhases,
-      () => this.gameController.handleBossPhase(width)
+    this.levelManager = new LevelManager(this, levelPhases, () =>
+      this.gameController.handleBossPhase(width),
     );
     this.levelManager.setupBackgrounds();
 
@@ -135,7 +139,7 @@ export class GameScene extends Phaser.Scene {
       scaleX: 1,
       alpha: { start: 0.3, end: 0 },
       quantity: 2,
-      blendMode: 'ADD'
+      blendMode: 'ADD',
     });
 
     this.gameController.setIsPlaying(true);
@@ -148,7 +152,7 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.postFX.addVignette(0.5, 0.5, 0.7);
       this.cameras.main.postFX.addBloom(0xffffff, 1, 1, 0.6, 1.2);
     } catch (e) {
-      console.warn("PostFX not supported on this device/browser");
+      console.warn('PostFX not supported on this device/browser');
     }
 
     this.togglePauseHandler = () => this.togglePause();
@@ -171,7 +175,7 @@ export class GameScene extends Phaser.Scene {
       this.physics.world.setBounds(0, 0, width, height);
       this.cameras.main.setViewport(0, 0, width, height);
     };
-    
+
     this.scale.on('resize', resizeHandler, this);
 
     this.events.once('shutdown', () => {
@@ -180,6 +184,8 @@ export class GameScene extends Phaser.Scene {
       document.removeEventListener('visibilitychange', this.visibilityHandler);
       this.playerActionManager.destroy();
       this.levelManager.destroy();
+      this.gameController.destroy();
+      this.hudManager.destroy();
       this.scale.off('resize', resizeHandler, this);
     });
   }
@@ -206,27 +212,35 @@ export class GameScene extends Phaser.Scene {
     if (this.player.canFire(time)) {
       this.player.fire(this.entityManager);
     }
-    
+
     if (this.player.canFireSwarm(time)) {
       this.player.fireSwarm(this.entityManager);
     }
-    
+
     this.player.updateMelee(this.entityManager, time);
     this.gameController.updateBossHUD();
 
     const levelProgress = this.levelManager.getLevelProgress(time);
     this.entitySpawner.spawnAAGun(time, levelProgress);
-    
+
     const currentPhaseKey = this.levelManager.getCurrentPhaseKey();
     this.entitySpawner.spawnAlienAAGun(time, currentPhaseKey);
 
     const baseModifier = this.levelManager.getCurrentSpawnModifier();
     // Decrease modifier (increase spawn rate) by 5% per 1000 points, capped at 0.3 (30% of original time)
-    const scoreModifier = Math.max(0.3, 1 - Math.floor(this.gameController.getScore() / 1000) * 0.05);
+    const scoreModifier = Math.max(
+      0.3,
+      1 - Math.floor(this.gameController.getScore() / 1000) * 0.05,
+    );
     const ddaModifier = this.gameController.getDDAModifier(time);
-    
+
     const finalModifier = baseModifier * scoreModifier * ddaModifier;
 
-    this.entitySpawner.update(time, this.gameController.getIsPlaying(), finalModifier, currentPhaseKey);
+    this.entitySpawner.update(
+      time,
+      this.gameController.getIsPlaying(),
+      finalModifier,
+      currentPhaseKey,
+    );
   }
 }

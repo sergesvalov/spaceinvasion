@@ -12,8 +12,18 @@ export class GameState {
   private _equippedWeapon: 'plasma' | 'ion' | 'wave' = 'plasma';
   private _hasDrone: boolean = false;
 
+  private saveTimeout: number | null = null;
+
   private constructor() {
     this.loadState();
+
+    // Ensure we save immediately if the player leaves or minimizes the game
+    window.addEventListener('beforeunload', () => this.forceSaveState());
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.forceSaveState();
+      }
+    });
   }
 
   public static getInstance(): GameState {
@@ -60,6 +70,24 @@ export class GameState {
   }
 
   private saveState() {
+    if (this.saveTimeout !== null) {
+      return;
+    }
+
+    // Batch rapid consecutive saves (e.g., collecting multiple antimatter drops)
+    this.saveTimeout = window.setTimeout(() => {
+      this.forceSaveState();
+      this.saveTimeout = null;
+    }, 500);
+  }
+
+  private forceSaveState() {
+    // Clear any pending timeout since we're saving right now
+    if (this.saveTimeout !== null) {
+      window.clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
+
     localStorage.setItem('si_credits', this._credits.toString());
     localStorage.setItem('si_hp', this._currentHp.toString());
     localStorage.setItem('si_max_hp', this._maxHp.toString());
@@ -164,7 +192,7 @@ export class GameState {
   public get currentHp(): number {
     return this._currentHp;
   }
-  
+
   public get maxHp(): number {
     return this._maxHp;
   }

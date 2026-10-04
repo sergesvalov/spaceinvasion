@@ -29,11 +29,19 @@ export const GameConfig = {
     1: [
       { textureKey: 'bg_city', duration: 18000, spawnRateModifier: 1.0 },
       { textureKey: 'bg_suburbs', duration: 18000, spawnRateModifier: 0.8 },
-      { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.5 }
+      { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.5 },
     ],
     2: [
       { textureKey: 'bg_night_city', duration: 36000, spawnRateModifier: 0.7 },
-      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.4 }
-    ]
-  }
+      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.4 },
+    ],
+  },
+  Runtime: {
+    get isE2ETestMode() {
+      return !!(window as any).__E2E_TEST_MODE__;
+    },
+    get isAIDemoMode() {
+      return !!(window as any).__AI_DEMO_MODE__;
+    },
+  },
 };

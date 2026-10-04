@@ -3,7 +3,7 @@ import { GameState } from '../../services/GameState';
 
 export class GarageScene extends Phaser.Scene {
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
-  
+
   private REPAIR_COST = 1000;
   private SHIELD_COST = 5; // Antimatter
   private BOMB_COST = 2500; // Credits
@@ -44,7 +44,7 @@ export class GarageScene extends Phaser.Scene {
       gravityY: 400,
       lifespan: 800,
       tint: [0xffffff, 0xffff00, 0xff0000],
-      frequency: 50
+      frequency: 50,
     });
 
     const uiContainer = document.getElementById('ui-container');
@@ -80,20 +80,28 @@ export class GarageScene extends Phaser.Scene {
       uiContainer.appendChild(garageDiv);
       this.domElements.push(garageDiv);
 
-      document.getElementById('btn-gar-back')?.addEventListener('click', () => {
+      const bindButton = (id: string, handler: () => void) => {
+        document.getElementById(id)?.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          handler();
+        });
+      };
+
+      bindButton('btn-gar-back', () => {
         this.triggerHaptic('light');
         this.scene.start('MenuScene');
       });
 
-      document.getElementById('btn-sw-wp')?.addEventListener('click', () => this.handleSwitchWeapon());
-      document.getElementById('btn-buy-bm')?.addEventListener('click', () => this.handleBuyBomb());
-      document.getElementById('btn-buy-sh')?.addEventListener('click', () => this.handleBuyShield());
-      document.getElementById('btn-buy-dr')?.addEventListener('click', () => this.handleBuyDrone());
-      document.getElementById('btn-repair')?.addEventListener('click', () => this.handleRepair());
+      bindButton('btn-sw-wp', () => this.handleSwitchWeapon());
+      bindButton('btn-buy-bm', () => this.handleBuyBomb());
+      bindButton('btn-buy-sh', () => this.handleBuyShield());
+      bindButton('btn-buy-dr', () => this.handleBuyDrone());
+      bindButton('btn-repair', () => this.handleRepair());
     }
 
     this.events.once('shutdown', () => {
-      this.domElements.forEach(el => el.remove());
+      this.domElements.forEach((el) => el.remove());
       this.domElements = [];
     });
 
@@ -180,11 +188,16 @@ export class GarageScene extends Phaser.Scene {
       if (el) el.textContent = content;
     };
 
-    const updateBtn = (id: string, text: string, canAfford: boolean, isMaxedOut: boolean = false) => {
+    const updateBtn = (
+      id: string,
+      text: string,
+      canAfford: boolean,
+      isMaxedOut: boolean = false,
+    ) => {
       const btn = document.getElementById(id) as HTMLButtonElement;
       if (!btn) return;
       btn.textContent = text;
-      
+
       if (isMaxedOut) {
         btn.disabled = true;
         btn.className = 'btn-primary btn-garage-action disabled maxed';
@@ -196,7 +209,7 @@ export class GarageScene extends Phaser.Scene {
         btn.className = 'btn-primary btn-garage-action';
       }
     };
-    
+
     setContent('gar-am', state.antimatter.toString());
     setContent('gar-cr', state.credits.toString());
     setContent('gar-hp', `${state.currentHp} / ${state.maxHp}`);
@@ -207,11 +220,25 @@ export class GarageScene extends Phaser.Scene {
 
     updateBtn('btn-sw-wp', `SWITCH WEAPON: ${state.equippedWeapon.toUpperCase()}`, true);
     updateBtn('btn-buy-bm', `BUY BOMB (${this.BOMB_COST} CR)`, state.credits >= this.BOMB_COST);
-    updateBtn('btn-buy-sh', `BUY SHIELD (${this.SHIELD_COST} AM)`, state.antimatter >= this.SHIELD_COST);
-    updateBtn('btn-buy-dr', state.hasDrone ? 'DRONE EQUIPPED' : `BUY DRONE (${this.DRONE_COST} AM)`, state.antimatter >= this.DRONE_COST, state.hasDrone);
-    
+    updateBtn(
+      'btn-buy-sh',
+      `BUY SHIELD (${this.SHIELD_COST} AM)`,
+      state.antimatter >= this.SHIELD_COST,
+    );
+    updateBtn(
+      'btn-buy-dr',
+      state.hasDrone ? 'DRONE EQUIPPED' : `BUY DRONE (${this.DRONE_COST} AM)`,
+      state.antimatter >= this.DRONE_COST,
+      state.hasDrone,
+    );
+
     const needsRepair = state.currentHp < state.maxHp;
-    updateBtn('btn-repair', needsRepair ? `REPAIR (${this.REPAIR_COST} CR)` : 'FULLY REPAIRED', state.credits >= this.REPAIR_COST, !needsRepair);
+    updateBtn(
+      'btn-repair',
+      needsRepair ? `REPAIR (${this.REPAIR_COST} CR)` : 'FULLY REPAIRED',
+      state.credits >= this.REPAIR_COST,
+      !needsRepair,
+    );
 
     if (!needsRepair) {
       this.sparksEmitter?.stop();

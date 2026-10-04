@@ -14,7 +14,7 @@ export class StoryManager {
   private currentFullText = '';
   private typeInterval?: number;
   private resolveBriefing?: () => void;
-  
+
   private currentSlides: StorySlide[] = [];
   private currentSlideIndex = 0;
 
@@ -35,19 +35,19 @@ export class StoryManager {
 
     this.overlayEl = document.createElement('div');
     this.overlayEl.className = 'story-overlay';
-    
+
     const panelEl = document.createElement('div');
     panelEl.className = 'story-panel ui-panel';
-    
+
     this.imageEl = document.createElement('img');
     this.imageEl.className = 'story-image';
-    
+
     this.titleEl = document.createElement('div');
     this.titleEl.className = 'story-title';
-    
+
     this.textEl = document.createElement('div');
     this.textEl.className = 'story-text';
-    
+
     this.hintEl = document.createElement('div');
     this.hintEl.className = 'story-hint';
     this.hintEl.textContent = 'НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ...';
@@ -56,7 +56,7 @@ export class StoryManager {
     panelEl.appendChild(this.titleEl);
     panelEl.appendChild(this.textEl);
     panelEl.appendChild(this.hintEl);
-    
+
     this.overlayEl.appendChild(panelEl);
     uiContainer.appendChild(this.overlayEl);
 
@@ -70,69 +70,68 @@ export class StoryManager {
   public showBriefing(levelId: string, onComplete: () => void): void {
     console.log(`[StoryManager] Showing briefing for level: ${levelId}`);
     AnalyticsService.getInstance().logEvent('story_briefing_shown', { levelId });
-    
+
     // Skip in E2E or AI Demo
-    const w = window as any;
-    if (w.__E2E_TEST_MODE__ || w.__AI_DEMO_MODE__) {
+    if (GameConfig.Runtime.isE2ETestMode || GameConfig.Runtime.isAIDemoMode) {
       if (onComplete) onComplete();
       return;
     }
-    
+
     this.currentSlides = LORE_DATA[levelId] || [{ title: 'UNKNOWN', text: 'No data.' }];
     this.currentSlideIndex = 0;
     this.resolveBriefing = onComplete;
-    
+
     this.overlayEl.classList.add('active');
     this.showCurrentSlide();
   }
-  
+
   private showCurrentSlide() {
     const slide = this.currentSlides[this.currentSlideIndex];
-    
+
     this.titleEl.textContent = slide.title;
     this.textEl.textContent = '';
     this.currentFullText = slide.text;
-    
+
     if (slide.image) {
       this.imageEl.src = slide.image;
       this.imageEl.style.display = 'block';
     } else {
       this.imageEl.style.display = 'none';
     }
-    
+
     this.startTyping();
   }
 
   private startTyping() {
     this.isTyping = true;
     let charIndex = 0;
-    
+
     if (this.typeInterval) clearTimeout(this.typeInterval);
-    
+
     const typeNextChar = () => {
       if (!this.isTyping) return;
       if (charIndex < this.currentFullText.length) {
         const char = this.currentFullText.charAt(charIndex);
         charIndex++;
-        
+
         let delay = 30; // base speed
-        
+
         if (char === '|') {
           // It's a dramatic pause, don't append it to text
           delay = 500;
         } else {
           this.textEl.textContent += char;
-          
+
           if (char === '.' || char === '!' || char === '?') delay = 300;
           else if (char === ',') delay = 150;
         }
-        
+
         this.typeInterval = window.setTimeout(typeNextChar, delay);
       } else {
         this.completeTyping();
       }
     };
-    
+
     typeNextChar();
   }
 
