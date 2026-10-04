@@ -7,7 +7,8 @@ import { AnalyticsService } from './services/AnalyticsService';
 AnalyticsService.getInstance().sessionStart();
 
 // Инициализация игрового движка
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+(window as any).__PHASER_GAME__ = game;
 
 // Завершение сессии при закрытии вкладки
 window.addEventListener('beforeunload', () => {

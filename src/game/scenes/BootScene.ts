@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { TextureGenerator } from '../utils/TextureGenerator';
-import { TileGenerator } from '../utils/TileGenerator';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -10,7 +9,7 @@ export class BootScene extends Phaser.Scene {
   preload() {
     // Generate placeholder assets here
     const graphics = this.add.graphics();
-    
+
     // Star for background
     graphics.fillStyle(0xffffff, 1);
     graphics.fillRect(0, 0, 2, 2);
@@ -61,7 +60,7 @@ export class BootScene extends Phaser.Scene {
 
     // Load main game atlas
     this.load.atlas('game_atlas', 'game_atlas.png', 'game_atlas.json');
-    
+
     // Load story textures
     this.load.image('story_1', 'story/story_1.png');
     this.load.image('story_2', 'story/story_2.png');
@@ -77,57 +76,74 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bg_suburbs', 'bg/suburbs.png');
     this.load.image('bg_mountains', 'bg/mountains.png');
     this.load.image('bg_night_city', 'bg/anime_city.png');
+    this.load.image('bg_ocean', 'bg/bg_ocean.png');
+
+    this.load.image('aagun', 'entities/aagun.png');
+    this.load.image('ocean_enemy', 'entities/ocean_enemy.png');
+    this.load.image('alien_aagun', 'entities/alien_aagun.png');
+
+    this.load.image('starfield', 'misc/starfield.png');
+    this.load.image('procedural_tileset', 'misc/procedural_tileset.png');
   }
 
   create() {
-    const { width, height } = this.scale;
-    if (!this.textures.exists('starfield')) {
-      TextureGenerator.generateStarfield(this, width, height);
-    }
-    
-    // Generate procedural backgrounds
-    if (!this.textures.exists('procedural_tileset')) {
-      TileGenerator.generateTileset(this);
-    }
-    
+    // Procedural generation removed in favor of pre-baked assets
+
     // Daytime Anime City Colors
     const dayBuildings = [0xe0e6ed, 0xc6d0dc, 0xd0d5da];
     const dayRoofs = [0x489ad8, 0xd8587b, 0x58c078];
-    
+
     // Legacy backgrounds (keep for MapScene/Garage if needed)
     // We loaded real images in preload, so these won't run.
     if (!this.textures.exists('bg_city')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_city', 800, 1200, 200, dayBuildings, dayRoofs, 60, 150);
+      TextureGenerator.generateAnimeCity(
+        this,
+        'bg_city',
+        800,
+        1200,
+        200,
+        dayBuildings,
+        dayRoofs,
+        60,
+        150,
+      );
     }
     if (!this.textures.exists('bg_suburbs')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_suburbs', 800, 1200, 100, dayBuildings, dayRoofs, 10, 40);
+      TextureGenerator.generateAnimeCity(
+        this,
+        'bg_suburbs',
+        800,
+        1200,
+        100,
+        dayBuildings,
+        dayRoofs,
+        10,
+        40,
+      );
     }
     if (!this.textures.exists('bg_mountains')) {
       TextureGenerator.generateAnimeMountains(this, 'bg_mountains', 800, 1200);
     }
-    
+
     // Night Anime City Colors
     const nightBuildings = [0x1a253a, 0x223555, 0x2e4266];
     const nightRoofs = [0x0d1424, 0x15223b, 0x1f2a42];
 
     if (!this.textures.exists('bg_night_city')) {
-      TextureGenerator.generateAnimeCity(this, 'bg_night_city', 800, 1200, 250, nightBuildings, nightRoofs, 60, 200, true);
-    }
-    if (!this.textures.exists('bg_ocean')) {
-      TextureGenerator.generateAnimeOcean(this, 'bg_ocean', 800, 1200);
-    }
-    if (!this.textures.exists('aagun')) {
-      TextureGenerator.generateAAGun(this, 'aagun');
-    }
-    if (!this.textures.exists('ocean_enemy')) {
-      TextureGenerator.generateOceanEnemy(this, 'ocean_enemy');
-    }
-    if (!this.textures.exists('alien_aagun')) {
-      TextureGenerator.generateAlienAAGun(this, 'alien_aagun');
+      TextureGenerator.generateAnimeCity(
+        this,
+        'bg_night_city',
+        800,
+        1200,
+        250,
+        nightBuildings,
+        nightRoofs,
+        60,
+        200,
+        true,
+      );
     }
 
     this.scene.start('MenuScene');
   }
 }
-    
-

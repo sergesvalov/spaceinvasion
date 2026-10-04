@@ -1,15 +1,15 @@
 import Phaser from 'phaser';
 import { GameState } from '../../services/GameState';
+import { GarageUI } from '../../ui/GarageUI';
 
 export class GarageScene extends Phaser.Scene {
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+  private ui!: GarageUI;
 
   private REPAIR_COST = 1000;
   private SHIELD_COST = 5; // Antimatter
   private BOMB_COST = 2500; // Credits
   private DRONE_COST = 15; // Antimatter
-
-  private domElements: HTMLElement[] = [];
 
   constructor() {
     super({ key: 'GarageScene' });
@@ -47,62 +47,22 @@ export class GarageScene extends Phaser.Scene {
       frequency: 50,
     });
 
-    const uiContainer = document.getElementById('ui-container');
-    if (uiContainer) {
-      const garageDiv = document.createElement('div');
-      garageDiv.className = 'garage-overlay';
-      garageDiv.innerHTML = `
-        <div class="ui-panel garage-panel">
-          <h1 class="garage-title">GARAGE</h1>
-          <div class="garage-layout">
-            <div class="garage-stats">
-              <div class="stat-item"><span class="stat-label">ANTIMATTER</span> <span id="gar-am" class="stat-value text-am">0</span></div>
-              <div class="stat-item"><span class="stat-label">CREDITS</span> <span id="gar-cr" class="stat-value text-cr">0</span></div>
-              <div class="stat-item"><span class="stat-label">SHIP HP</span> <span id="gar-hp" class="stat-value text-hp">0</span></div>
-              <div class="stat-item"><span class="stat-label">SHIELDS</span> <span id="gar-sh" class="stat-value text-sh">0</span></div>
-              <div class="stat-item"><span class="stat-label">BOMBS</span> <span id="gar-bm" class="stat-value text-bm">0</span></div>
-              <div class="stat-item"><span class="stat-label">WEAPON</span> <span id="gar-wp" class="stat-value text-wp">NONE</span></div>
-              <div class="stat-item"><span class="stat-label">DRONE</span> <span id="gar-dr" class="stat-value text-dr">NONE</span></div>
-            </div>
-            <div class="garage-actions">
-              <button id="btn-sw-wp" class="btn-primary btn-garage-action">SWITCH WEAPON</button>
-              <button id="btn-buy-bm" class="btn-primary btn-garage-action">BUY BOMB</button>
-              <button id="btn-buy-sh" class="btn-primary btn-garage-action">BUY SHIELD</button>
-              <button id="btn-buy-dr" class="btn-primary btn-garage-action">BUY DRONE</button>
-              <button id="btn-repair" class="btn-primary btn-garage-action btn-repair">REPAIR</button>
-            </div>
-          </div>
-          <div class="garage-footer">
-             <button id="btn-gar-back" class="btn-secondary">BACK TO MENU</button>
-          </div>
-        </div>
-      `;
-      uiContainer.appendChild(garageDiv);
-      this.domElements.push(garageDiv);
-
-      const bindButton = (id: string, handler: () => void) => {
-        document.getElementById(id)?.addEventListener('pointerdown', (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          handler();
-        });
-      };
-
-      bindButton('btn-gar-back', () => {
+    this.ui = new GarageUI({
+      onBack: () => {
         this.triggerHaptic('light');
         this.scene.start('MenuScene');
-      });
+      },
+      onRepair: () => this.handleRepair(),
+      onBuyBomb: () => this.handleBuyBomb(),
+      onBuyShield: () => this.handleBuyShield(),
+      onBuyDrone: () => this.handleBuyDrone(),
+      onSwitchWeapon: () => this.handleSwitchWeapon(),
+    });
 
-      bindButton('btn-sw-wp', () => this.handleSwitchWeapon());
-      bindButton('btn-buy-bm', () => this.handleBuyBomb());
-      bindButton('btn-buy-sh', () => this.handleBuyShield());
-      bindButton('btn-buy-dr', () => this.handleBuyDrone());
-      bindButton('btn-repair', () => this.handleRepair());
-    }
+    this.ui.mount();
 
     this.events.once('shutdown', () => {
-      this.domElements.forEach((el) => el.remove());
-      this.domElements = [];
+      this.ui.unmount();
     });
 
     this.updateUI();
@@ -183,63 +143,11 @@ export class GarageScene extends Phaser.Scene {
   private updateUI() {
     const state = GameState.getInstance();
 
-    const setContent = (id: string, content: string) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = content;
-    };
-
-    const updateBtn = (
-      id: string,
-      text: string,
-      canAfford: boolean,
-      isMaxedOut: boolean = false,
-    ) => {
-      const btn = document.getElementById(id) as HTMLButtonElement;
-      if (!btn) return;
-      btn.textContent = text;
-
-      if (isMaxedOut) {
-        btn.disabled = true;
-        btn.className = 'btn-primary btn-garage-action disabled maxed';
-      } else if (!canAfford) {
-        btn.disabled = false;
-        btn.className = 'btn-primary btn-garage-action cant-afford';
-      } else {
-        btn.disabled = false;
-        btn.className = 'btn-primary btn-garage-action';
-      }
-    };
-
-    setContent('gar-am', state.antimatter.toString());
-    setContent('gar-cr', state.credits.toString());
-    setContent('gar-hp', `${state.currentHp} / ${state.maxHp}`);
-    setContent('gar-sh', state.shields.toString());
-    setContent('gar-bm', state.bombs.toString());
-    setContent('gar-wp', state.equippedWeapon.toUpperCase());
-    setContent('gar-dr', state.hasDrone ? 'EQUIPPED' : 'NONE');
-
-    updateBtn('btn-sw-wp', `SWITCH WEAPON: ${state.equippedWeapon.toUpperCase()}`, true);
-    updateBtn('btn-buy-bm', `BUY BOMB (${this.BOMB_COST} CR)`, state.credits >= this.BOMB_COST);
-    updateBtn(
-      'btn-buy-sh',
-      `BUY SHIELD (${this.SHIELD_COST} AM)`,
-      state.antimatter >= this.SHIELD_COST,
-    );
-    updateBtn(
-      'btn-buy-dr',
-      state.hasDrone ? 'DRONE EQUIPPED' : `BUY DRONE (${this.DRONE_COST} AM)`,
-      state.antimatter >= this.DRONE_COST,
-      state.hasDrone,
-    );
+    if (this.ui) {
+      this.ui.update();
+    }
 
     const needsRepair = state.currentHp < state.maxHp;
-    updateBtn(
-      'btn-repair',
-      needsRepair ? `REPAIR (${this.REPAIR_COST} CR)` : 'FULLY REPAIRED',
-      state.credits >= this.REPAIR_COST,
-      !needsRepair,
-    );
-
     if (!needsRepair) {
       this.sparksEmitter?.stop();
     } else {
