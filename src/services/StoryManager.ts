@@ -1,6 +1,7 @@
 import { AnalyticsService } from './AnalyticsService';
 
 import { StorySlide, LORE_DATA } from '../data/StoryData';
+import { GameConfig } from '../game/config/GameConfig';
 
 export class StoryManager {
   private static instance: StoryManager;
