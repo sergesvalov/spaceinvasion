@@ -76,7 +76,8 @@ export class MapScene extends Phaser.Scene {
       { id: 3, name: 'SECTOR 3: ORBITAL TETHER', x: width * 0.4, y: height * 0.8 },
     ];
 
-    const activeMarker = markers.find((m) => m.id === this.levelData.level) || markers[0];
+    const mapLevel = ((this.levelData.level - 1) % 3) + 1;
+    const activeMarker = markers.find((m) => m.id === mapLevel) || markers[0];
 
     // Draw inactive markers
     markers.forEach((m) => {

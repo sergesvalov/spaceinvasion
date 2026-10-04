@@ -101,15 +101,13 @@ export class ResultScene extends Phaser.Scene {
     // Show button to proceed
     this.time.delayedCall(stats.length * 400 + 1200, () => {
       Button.create(this, width / 2, height - 50, 'CONTINUE', () => {
-        if (data.level < 3) {
-          StoryManager.getInstance().showBriefing(`level_${data.level}_victory`, () => {
+        StoryManager.getInstance().showBriefing(`level_${data.level}_victory`, () => {
+          if (data.level % 3 === 0) {
+            this.scene.start('CreditsScene', { nextLevel: data.level + 1 });
+          } else {
             this.scene.start('MapScene', { level: data.level + 1 });
-          });
-        } else {
-          StoryManager.getInstance().showBriefing(`level_3_victory`, () => {
-            this.scene.start('MenuScene'); // End of game
-          });
-        }
+          }
+        });
       });
     });
   }

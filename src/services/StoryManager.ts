@@ -78,7 +78,18 @@ export class StoryManager {
       return;
     }
 
-    this.currentSlides = LORE_DATA[levelId] || [{ title: 'UNKNOWN', text: 'No data.' }];
+    let finalLevelId = levelId;
+    if (levelId.startsWith('level_')) {
+      const parts = levelId.split('_');
+      const num = parseInt(parts[1], 10);
+      if (!isNaN(num) && num > 3) {
+        const mappedNum = ((num - 1) % 3) + 1;
+        parts[1] = mappedNum.toString();
+        finalLevelId = parts.join('_');
+      }
+    }
+
+    this.currentSlides = LORE_DATA[finalLevelId] || [{ title: 'UNKNOWN', text: 'No data.' }];
     this.currentSlideIndex = 0;
     this.resolveBriefing = onComplete;
 

@@ -14,7 +14,7 @@ export class GameState {
   private _hiScore: number = 0;
   private _unlockedLevel: number = 1;
 
-  public static readonly MAX_LEVEL = 3;
+  public static readonly MAX_LEVEL = 999;
 
   private saveTimeout: number | null = null;
 

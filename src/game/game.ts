@@ -6,6 +6,7 @@ import { GameScene } from './scenes/GameScene';
 import { GarageScene } from './scenes/GarageScene';
 import { DefeatScene } from './scenes/DefeatScene';
 import { ResultScene } from './scenes/ResultScene';
+import { CreditsScene } from './scenes/CreditsScene';
 
 export const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -23,7 +24,16 @@ export const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, MenuScene, MapScene, GameScene, GarageScene, DefeatScene, ResultScene],
+  scene: [
+    BootScene,
+    MenuScene,
+    MapScene,
+    GameScene,
+    GarageScene,
+    DefeatScene,
+    ResultScene,
+    CreditsScene,
+  ],
   pixelArt: true,
   roundPixels: true,
 };
