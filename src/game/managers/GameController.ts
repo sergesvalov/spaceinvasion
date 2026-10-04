@@ -279,37 +279,102 @@ export class GameController {
 
     const state = GameState.getInstance();
     state.addCredits(this.scoreManager.score + 5000);
+    state.updateHiScore(this.scoreManager.score);
+
+    const score = this.scoreManager.score;
+    let rank = 'C';
+    if (score >= 15000) rank = 'S';
+    else if (score >= 10000) rank = 'A';
+    else if (score >= 5000) rank = 'B';
 
     const { width, height } = this.scene.scale;
+
+    // Dim background
+    const bg = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
+    bg.setDepth(999);
+
     this.scene.add
-      .text(width / 2, height / 2 - 50, 'MISSION ACCOMPLISHED', {
+      .text(width / 2, height / 2 - 80, 'MISSION CLEARED', {
         fontFamily: StyleConfig.Fonts.Main,
-        fontSize: '28px',
+        fontSize: '24px',
         color: StyleConfig.Colors.NeonCyan,
         fontStyle: 'bold',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(1000);
 
     this.scene.add
-      .text(width / 2, height / 2 + 10, '+5000 CREDITS', {
+      .text(width / 2, height / 2 - 20, `SCORE: ${score}`, {
         fontFamily: StyleConfig.Fonts.Main,
-        fontSize: '20px',
-        color: StyleConfig.Colors.NeonOrange,
+        fontSize: '16px',
+        color: '#ffffff',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(1000);
 
-    this.scene.time.delayedCall(4000, () => {
-      this.hudManager.destroy();
-      this.destroy();
-      if (this.currentLevel === 1) {
-        StoryManager.getInstance().showBriefing('level_1_victory', () => {
-          this.scene.cameras.main.fadeOut(1000, 0, 0, 0);
-          this.scene.cameras.main.once('camerafadeoutcomplete', () => {
-            this.scene.scene.start('MapScene', { level: 2 });
+    this.scene.add
+      .text(width / 2, height / 2 + 10, `HI-SCORE: ${state.hiScore}`, {
+        fontFamily: StyleConfig.Fonts.Main,
+        fontSize: '16px',
+        color: '#aaaaaa',
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
+
+    this.scene.add
+      .text(width / 2, height / 2 + 50, `RANK: ${rank}`, {
+        fontFamily: StyleConfig.Fonts.Main,
+        fontSize: '32px',
+        color: rank === 'S' ? StyleConfig.Colors.NeonPink : StyleConfig.Colors.NeonOrange,
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
+
+    // Blinking "CLICK TO CONTINUE"
+    const continueText = this.scene.add
+      .text(width / 2, height - 50, 'TAP TO CONTINUE', {
+        fontFamily: StyleConfig.Fonts.Main,
+        fontSize: '12px',
+        color: '#ffffff',
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
+
+    this.scene.tweens.add({
+      targets: continueText,
+      alpha: 0,
+      yoyo: true,
+      repeat: -1,
+      duration: 500,
+    });
+
+    this.scene.time.delayedCall(1000, () => {
+      const proceed = () => {
+        this.hudManager.destroy();
+        this.destroy();
+        if (this.currentLevel < 3) {
+          StoryManager.getInstance().showBriefing(`level_${this.currentLevel}_victory`, () => {
+            this.scene.cameras.main.fadeOut(1000, 0, 0, 0);
+            this.scene.cameras.main.once('camerafadeoutcomplete', () => {
+              this.scene.scene.start('MapScene', { level: this.currentLevel + 1 });
+            });
           });
-        });
+        } else {
+          StoryManager.getInstance().showBriefing(`level_3_victory`, () => {
+            this.scene.cameras.main.fadeOut(1000, 0, 0, 0);
+            this.scene.cameras.main.once('camerafadeoutcomplete', () => {
+              this.scene.scene.start('MenuScene'); // End of game
+            });
+          });
+        }
+      };
+
+      const w = window as any;
+      if (w.__E2E_TEST_MODE__ || w.__AI_DEMO_MODE__) {
+        this.scene.time.delayedCall(500, proceed);
       } else {
-        this.scene.scene.start('MenuScene');
+        this.scene.input.once('pointerdown', proceed);
       }
     });
   }

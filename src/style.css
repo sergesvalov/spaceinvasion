@@ -113,6 +113,13 @@ html, body {
   line-height: 1.4;
 }
 
+.main-menu-subtitle {
+  color: #ffce00;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 .main-menu-buttons {
   display: flex;
   flex-direction: column;

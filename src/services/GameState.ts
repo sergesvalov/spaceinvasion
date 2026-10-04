@@ -11,6 +11,7 @@ export class GameState {
   private _bombs: number = 0;
   private _equippedWeapon: 'plasma' | 'ion' | 'wave' = 'plasma';
   private _hasDrone: boolean = false;
+  private _hiScore: number = 0;
 
   private saveTimeout: number | null = null;
 
@@ -67,6 +68,9 @@ export class GameState {
 
     const savedDrone = localStorage.getItem('si_has_drone');
     if (savedDrone === 'true') this._hasDrone = true;
+
+    const savedHiScore = localStorage.getItem('si_hi_score');
+    if (savedHiScore) this._hiScore = parseInt(savedHiScore, 10);
   }
 
   private saveState() {
@@ -97,6 +101,7 @@ export class GameState {
     localStorage.setItem('si_bombs', this._bombs.toString());
     localStorage.setItem('si_equipped_weapon', this._equippedWeapon);
     localStorage.setItem('si_has_drone', this._hasDrone.toString());
+    localStorage.setItem('si_hi_score', this._hiScore.toString());
   }
 
   public get credits(): number {
@@ -224,5 +229,16 @@ export class GameState {
 
   public resetWeaponLevel() {
     this._weaponLevel = this._baseWeaponLevel;
+  }
+
+  public get hiScore(): number {
+    return this._hiScore;
+  }
+
+  public updateHiScore(score: number) {
+    if (score > this._hiScore) {
+      this._hiScore = score;
+      this.saveState();
+    }
   }
 }

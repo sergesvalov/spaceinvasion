@@ -29,12 +29,9 @@ export const GameConfig = {
     1: [
       { textureKey: 'bg_city', duration: 18000, spawnRateModifier: 0.8 },
       { textureKey: 'bg_suburbs', duration: 18000, spawnRateModifier: 0.6 },
-      { textureKey: 'bg_mountains', duration: 24000, spawnRateModifier: 0.4 },
     ],
-    2: [
-      { textureKey: 'bg_night_city', duration: 36000, spawnRateModifier: 0.5 },
-      { textureKey: 'bg_ocean', duration: 24000, spawnRateModifier: 0.3 },
-    ],
+    2: [{ textureKey: 'bg_ocean', duration: 36000, spawnRateModifier: 0.6 }],
+    3: [{ textureKey: 'starfield', duration: 40000, spawnRateModifier: 0.5 }],
   },
   Runtime: {
     get isE2ETestMode() {

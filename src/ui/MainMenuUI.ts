@@ -1,5 +1,6 @@
 import { UIComponent } from './UIComponent';
 import { AudioManager } from '../services/AudioManager';
+import { GameState } from '../services/GameState';
 
 export interface MainMenuCallbacks {
   onPlay: () => void;
@@ -18,6 +19,7 @@ export class MainMenuUI extends UIComponent {
     return `
       <div class="main-menu-panel ui-panel">
         <h1 class="main-menu-title">SPACE INVASION</h1>
+        <div class="main-menu-subtitle">HI-SCORE: ${GameState.getInstance().hiScore}</div>
         <div class="main-menu-buttons">
           <button id="btn-play" class="btn-primary">START MISSION</button>
           <button id="btn-garage" class="btn-primary">GARAGE</button>

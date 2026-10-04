@@ -24,6 +24,7 @@ export class HUDManager {
         
         <div class="hud-stats-module ui-panel">
           <div id="hud-score" class="hud-stat">SCORE: 0</div>
+          <div id="hud-hi-score" class="hud-stat">HI-SCORE: 0</div>
           <div id="hud-antimatter" class="hud-stat">ANTIMATTER: 0</div>
         </div>
         

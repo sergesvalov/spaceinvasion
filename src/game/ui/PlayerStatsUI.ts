@@ -4,6 +4,7 @@ import { EventBus } from '../../services/EventBus';
 
 export class PlayerStatsUI {
   private scoreEl: HTMLElement;
+  private hiScoreEl: HTMLElement;
   private currentDisplayedScore: number = 0;
   private antimatterEl: HTMLElement;
   private healthContainerEl: HTMLElement;
@@ -12,6 +13,7 @@ export class PlayerStatsUI {
 
   constructor(hudEl: HTMLElement) {
     this.scoreEl = hudEl.querySelector('#hud-score') as HTMLElement;
+    this.hiScoreEl = hudEl.querySelector('#hud-hi-score') as HTMLElement;
     this.antimatterEl = hudEl.querySelector('#hud-antimatter') as HTMLElement;
     this.healthContainerEl = hudEl.querySelector('#hud-health-container') as HTMLElement;
     this.shieldBtnEl = hudEl.querySelector('#hud-shield-btn') as HTMLElement;
@@ -60,6 +62,10 @@ export class PlayerStatsUI {
           }
         }, 100);
       }
+    }
+
+    if (this.hiScoreEl) {
+      this.hiScoreEl.textContent = `HI-SCORE: ${GameState.getInstance().hiScore}`;
     }
 
     if (this.antimatterEl) {
