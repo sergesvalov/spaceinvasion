@@ -15,13 +15,13 @@ export class Boss extends BaseEntity {
     x: number,
     y: number,
     enemyProjectiles: Phaser.Physics.Arcade.Group,
-    onSpawnKamikaze: (x: number, y: number) => void
+    onSpawnKamikaze: (x: number, y: number) => void,
   ) {
     super(scene, x, y, 'game_atlas', 'boss');
-    
+
     // Scale down the large generated image to an appropriate boss size
     this.setScale(0.66);
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.setSize(108, 78);
@@ -33,14 +33,14 @@ export class Boss extends BaseEntity {
       speedX: { min: -20, max: 20 },
       scale: { start: 0.8, end: 0 },
       alpha: { start: 0.6, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 600,
       tint: [0xff0000, 0xff5500],
-      frequency: 30
+      frequency: 30,
     });
     this.exhaustEmitter.startFollow(this, 0, -30);
     this.exhaustEmitter.stop(); // default stopped until spawned
-    
+
     this.movementComponent = new BossMovementComponent(this);
     this.attackComponent = new BossAttackComponent(this, enemyProjectiles, onSpawnKamikaze);
   }
@@ -51,7 +51,7 @@ export class Boss extends BaseEntity {
     this.setVisible(true);
     this.hp = GameConfig.Boss.HP;
     this.clearTint();
-    
+
     this.movementComponent.spawn(x, y);
     this.exhaustEmitter.start();
   }
@@ -59,7 +59,7 @@ export class Boss extends BaseEntity {
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
     if (!this.active) return;
-    
+
     this.movementComponent.update(time);
     this.attackComponent.update(time);
   }
@@ -83,7 +83,13 @@ export class Boss extends BaseEntity {
   protected die() {
     super.die();
     for (let i = 0; i < GameConfig.Boss.AntimatterDrops; i++) {
-      EventBus.emit('spawn_antimatter', this.x, this.y, Phaser.Math.Between(-100, 100), Phaser.Math.Between(-50, 50));
+      EventBus.emit(
+        'spawn_antimatter',
+        this.x,
+        this.y,
+        Phaser.Math.Between(-100, 100),
+        Phaser.Math.Between(-50, 50),
+      );
     }
     EventBus.emit('boss_destroyed');
   }

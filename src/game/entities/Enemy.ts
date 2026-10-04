@@ -26,7 +26,7 @@ export class Enemy extends BaseEntity {
       speedX: { min: -15, max: 15 },
       scale: { start: 1.5, end: 0 },
       alpha: { start: 1, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 300,
       tint: [0xff0000, 0xff5500],
       frequency: 20,

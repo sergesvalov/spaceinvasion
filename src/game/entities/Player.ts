@@ -4,7 +4,12 @@ import { EntityManager } from '../managers/EntityManager';
 import { burst } from '../effects/burst';
 
 import { GameState } from '../../services/GameState';
-import { PlayerContext, PlayerStateComponent, FighterState, MechaState } from './components/PlayerStateComponent';
+import {
+  PlayerContext,
+  PlayerStateComponent,
+  FighterState,
+  MechaState,
+} from './components/PlayerStateComponent';
 import { WeaponComponent } from './components/WeaponComponent';
 import { MovementComponent } from './components/MovementComponent';
 import { ShieldComponent } from './components/ShieldComponent';
@@ -17,11 +22,11 @@ export class Player extends Phaser.GameObjects.Container {
   private sprite: Phaser.GameObjects.Sprite;
   private shieldGraphics: Phaser.GameObjects.Graphics;
   private exhaustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-  
+
   private currentStateComponent: PlayerStateComponent;
   private fighterState: FighterState;
   private mechaState: MechaState;
-  
+
   private weaponComponent: WeaponComponent;
   private movementComponent: MovementComponent;
   private shieldComponent: ShieldComponent;
@@ -29,7 +34,7 @@ export class Player extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     scene.add.existing(this);
-    
+
     this.weaponLevel = GameState.getInstance().weaponLevel;
 
     // We add an arcade physics body to the container
@@ -47,30 +52,28 @@ export class Player extends Phaser.GameObjects.Container {
     this.add(this.sprite);
 
     this.shieldGraphics = scene.add.graphics();
-    this.shieldGraphics.lineStyle(4, 0x00ffcc, 0.8);
-    this.shieldGraphics.fillStyle(0x00ffcc, 0.2);
-    this.shieldGraphics.strokeCircle(0, 0, 50);
-    this.shieldGraphics.fillCircle(0, 0, 50);
+    this.shieldGraphics.lineStyle(6, 0x0038ce, 1); // Thick blue NES border
+    this.shieldGraphics.strokeRect(-40, -40, 80, 80);
+    this.shieldGraphics.lineStyle(2, 0xffffffff, 1); // Inner white highlight
+    this.shieldGraphics.strokeRect(-36, -36, 72, 72);
     this.shieldGraphics.setVisible(false);
     this.add(this.shieldGraphics);
-
-
 
     this.exhaustEmitter = scene.add.particles(0, 0, 'particle', {
       speedY: { min: 200, max: 400 },
       speedX: { min: -20, max: 20 },
       scale: { start: 1.5, end: 0 },
       alpha: { start: 1, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 300,
       tint: [0x00aaff, 0x0044ff],
-      frequency: 20
+      frequency: 20,
     });
     this.exhaustEmitter.startFollow(this, 0, 40);
-    
+
     this.fighterState = new FighterState();
     this.mechaState = new MechaState();
-    
+
     this.currentStateComponent = this.fighterState;
     this.currentStateComponent.enter(this.getPlayerContext());
 
@@ -95,7 +98,7 @@ export class Player extends Phaser.GameObjects.Container {
       body: this.body as Phaser.Physics.Arcade.Body,
       exhaustEmitter: this.exhaustEmitter,
       shieldGraphics: this.shieldGraphics,
-      scene: this.scene
+      scene: this.scene,
     };
   }
 
@@ -130,7 +133,7 @@ export class Player extends Phaser.GameObjects.Container {
   public dash(dx: number, dy: number, time: number) {
     this.movementComponent.dash(dx, dy, time);
   }
-  
+
   public activatePurchasedShield() {
     this.shieldComponent.activatePurchasedShield();
   }
@@ -138,7 +141,7 @@ export class Player extends Phaser.GameObjects.Container {
   public isShielded(): boolean {
     return this.shieldComponent.isShielded();
   }
-  
+
   public setTempWeapon(type: 'spread' | 'homing', duration: number) {
     this.weaponComponent.setTempWeapon(type, duration);
   }
@@ -162,7 +165,7 @@ export class Player extends Phaser.GameObjects.Container {
   public explode() {
     this.setVisible(false);
     this.exhaustEmitter.stop();
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.setEnable(false);
@@ -173,9 +176,9 @@ export class Player extends Phaser.GameObjects.Container {
       speed: { min: 100, max: 500 },
       angle: { min: 0, max: 360 },
       scale: { start: 3, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 800,
-      tint: [0xffaa00, 0xff0000, 0xffff00, 0xffffff]
+      tint: [0xffaa00, 0xff0000, 0xffff00, 0xffffff],
     });
 
     // Shockwave ring
@@ -183,9 +186,9 @@ export class Player extends Phaser.GameObjects.Container {
       speed: 600,
       scale: { start: 0, end: 15 },
       alpha: { start: 0.8, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 400,
-      tint: 0xffdd00
+      tint: 0xffdd00,
     });
 
     // Debris
@@ -194,7 +197,7 @@ export class Player extends Phaser.GameObjects.Container {
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
       lifespan: 1500,
-      tint: 0x555555
+      tint: 0x555555,
     });
   }
 

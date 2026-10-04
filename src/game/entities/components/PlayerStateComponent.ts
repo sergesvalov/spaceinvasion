@@ -27,17 +27,17 @@ export class FighterState implements PlayerStateComponent {
     context.sprite.setTexture('game_atlas', 'ship');
     context.sprite.setTint(0xffffff); // Normal color
     context.sprite.setScale(0.5488);
-    
+
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
         speedY: { min: 200, max: 400 },
         speedX: { min: -20, max: 20 },
         scale: { start: 1.5, end: 0 },
-        tint: [0x00aaff, 0x0044ff]
+        tint: [0x00aaff, 0x0044ff],
       });
       context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 40);
     }
-    
+
     if (context.body) {
       context.body.setSize(40, 46);
       context.body.setOffset(-20, -26);
@@ -64,31 +64,31 @@ export class MechaState implements PlayerStateComponent {
     context.sprite.setTexture('game_atlas', 'mecha');
     context.sprite.setTint(0xffffff);
     context.sprite.setScale(0.528); // 10% larger than the old 0.12 baseline
-    
+
     if (context.exhaustEmitter) {
       context.exhaustEmitter.setConfig({
         speedY: { min: 100, max: 200 },
         speedX: { min: -30, max: 30 },
         scale: { start: 2.5, end: 0 },
-        tint: [0xffaa00, 0xff4400]
+        tint: [0xffaa00, 0xff4400],
       });
       context.exhaustEmitter.startFollow(context.sprite.parentContainer, 0, 53);
     }
-    
+
     if (context.body) {
       context.body.setSize(53, 53);
       context.body.setOffset(-26, -26);
     }
 
     context.shieldGraphics.setVisible(true);
-    
+
     // Pulse animation for shield
     context.scene.tweens.add({
       targets: context.shieldGraphics,
       alpha: 0.5,
       duration: 500,
       yoyo: true,
-      repeat: -1
+      repeat: -1,
     });
 
     // Shockwave visual & event
@@ -96,9 +96,9 @@ export class MechaState implements PlayerStateComponent {
       speed: 600,
       scale: { start: 0, end: 15 },
       alpha: { start: 0.8, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 400,
-      tint: 0xffaa00
+      tint: 0xffaa00,
     });
 
     EventBus.emit('mecha_shockwave', { x: context.x, y: context.y, radius: 400 });
@@ -135,7 +135,14 @@ export class MechaState implements PlayerStateComponent {
     const slash = context.scene.add.graphics();
     slash.lineStyle(8, 0x00ffff, 1);
     slash.beginPath();
-    slash.arc(context.x, context.y - 20, 100, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(360), false);
+    slash.arc(
+      context.x,
+      context.y - 20,
+      100,
+      Phaser.Math.DegToRad(180),
+      Phaser.Math.DegToRad(360),
+      false,
+    );
     slash.strokePath();
 
     context.scene.tweens.add({
@@ -144,7 +151,7 @@ export class MechaState implements PlayerStateComponent {
       scaleY: 1.5,
       alpha: 0,
       duration: 300,
-      onComplete: () => slash.destroy()
+      onComplete: () => slash.destroy(),
     });
 
     entityManager.enemies.children.iterate((c) => {
@@ -152,7 +159,7 @@ export class MechaState implements PlayerStateComponent {
       if (e.active) {
         const dist = Phaser.Math.Distance.Between(context.x, context.y - 20, e.x, e.y);
         if (dist < 150 && e.y < context.y) {
-          e.takeDamage(GameConfig.Player.DamageMecha * 5); 
+          e.takeDamage(GameConfig.Player.DamageMecha * 5);
         }
       }
       return true;

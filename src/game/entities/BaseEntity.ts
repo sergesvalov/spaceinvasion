@@ -3,7 +3,7 @@ import { burst } from '../effects/burst';
 
 export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
   public hp: number = 0;
-  
+
   // Callbacks for events
   protected onDestroyed?: (entity: BaseEntity) => void;
 
@@ -19,9 +19,9 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
 
   public takeDamage(amount: number): boolean {
     if (!this.active) return false;
-    
+
     this.hp -= amount;
-    
+
     // Flash white when taking damage
     this.setTintFill(0xffffff);
     this.scene.time.delayedCall(80, () => {
@@ -39,7 +39,7 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
     this.createExplosion();
     this.setActive(false);
     this.setVisible(false);
-    
+
     if (this.onDestroyed) {
       this.onDestroyed(this);
     }
@@ -50,8 +50,8 @@ export abstract class BaseEntity extends Phaser.Physics.Arcade.Sprite {
       speed: { min: 50, max: 200 },
       angle: { min: 0, max: 360 },
       scale: { start: 1, end: 0 },
-      blendMode: 'ADD',
-      lifespan: 300
+      blendMode: 'NORMAL',
+      lifespan: 300,
     });
   }
 }

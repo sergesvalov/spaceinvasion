@@ -12,10 +12,10 @@ export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
     this.trailEmitter = scene.add.particles(0, 0, 'particle', {
       scale: { start: 0.6, end: 0 },
       alpha: { start: 0.6, end: 0 },
-      blendMode: 'ADD',
+      blendMode: 'NORMAL',
       lifespan: 150,
       tint: 0x00ffff,
-      frequency: 20
+      frequency: 20,
     });
     this.trailEmitter.startFollow(this);
     this.trailEmitter.stop();
@@ -28,13 +28,13 @@ export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
     if (damage !== undefined) {
       this.damage = damage;
     }
-    
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
       body.reset(x, y);
       body.setVelocityY(velocityY);
     }
-    
+
     if (this.trailEmitter) {
       this.trailEmitter.start();
     }
@@ -55,7 +55,7 @@ export class BaseProjectile extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time: number, delta: number) {
     super.preUpdate(time, delta);
-    
+
     if (this.isOutOfBounds()) {
       this.setActive(false);
       this.setVisible(false);
