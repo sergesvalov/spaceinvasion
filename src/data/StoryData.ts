@@ -60,21 +60,35 @@ export const LORE_DATA: Record<string, StorySlide[]> = {
     {
       title: 'THREAT ELIMINATED',
       text: 'Океанская база врага разрушена.| Вода кипит от обломков их флота.',
-      image: 'story/victory_1.png',
+      image: 'story/story_ocean_victory.jpg',
     },
   ],
   level_3: [
     {
       title: 'FINAL STAND',
       text: 'Враг отступает к своей орбитальной станции.| Если мы не уничтожим ее сейчас, они вернутся с новыми силами.| Это твой последний полет.',
-      image: 'story/story_2.png',
+      image: 'story/story_orbit_chase.jpg',
     },
   ],
   level_3_victory: [
     {
-      title: 'WAR IS OVER',
-      text: 'Орбитальная станция взорвалась на тысячи осколков.| Земля наконец-то в безопасности.| Ты герой, пилот.',
+      title: 'BREACH SUCCESSFUL',
+      text: 'Орбитальная флотилия уничтожена.| Мы прорвали внешний периметр их обороны.| Теперь путь внутрь свободен.',
       image: 'story/victory_3.png',
+    },
+  ],
+  level_4: [
+    {
+      title: 'INFILTRATION',
+      text: 'Добро пожаловать внутрь орбитальной станции врага.| Это сердце их армады.| Уничтожь главного защитника и покончи с этим раз и навсегда.',
+      image: 'story/story_station.jpg',
+    },
+  ],
+  level_4_victory: [
+    {
+      title: 'WAR IS OVER',
+      text: 'Огромный мех повержен, а станция разваливается на куски!| Земля наконец-то в безопасности.| Ты настоящий герой, пилот!',
+      image: 'story/story_victory_mech.jpg',
     },
   ],
 };

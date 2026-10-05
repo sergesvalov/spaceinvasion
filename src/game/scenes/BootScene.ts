@@ -68,6 +68,10 @@ export class BootScene extends Phaser.Scene {
     this.load.image('victory_1', 'story/victory_1.png');
     this.load.image('victory_2', 'story/victory_2.png');
     this.load.image('victory_3', 'story/victory_3.png');
+    this.load.image('story_ocean_victory', 'story/story_ocean_victory.jpg');
+    this.load.image('story_orbit_chase', 'story/story_orbit_chase.jpg');
+    this.load.image('story_station', 'story/story_station.jpg');
+    this.load.image('story_victory_mech', 'story/story_victory_mech.jpg');
 
     // Load Earth backgrounds (now generated procedurally)
     // Removed static loads for bg_suburbs and bg_mountains

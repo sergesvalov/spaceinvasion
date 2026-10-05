@@ -84,8 +84,8 @@ export class StoryManager {
     if (levelId.startsWith('level_')) {
       const parts = levelId.split('_');
       const num = parseInt(parts[1], 10);
-      if (!isNaN(num) && num > 3) {
-        const mappedNum = ((num - 1) % 3) + 1;
+      if (!isNaN(num) && num > 4) {
+        const mappedNum = ((num - 1) % 4) + 1;
         parts[1] = mappedNum.toString();
         finalLevelId = parts.join('_');
       }
