@@ -39,6 +39,7 @@ export const GameConfig = {
     ],
     2: [{ textureKey: 'bg_ocean', duration: 36000, spawnRateModifier: 0.6 }],
     3: [{ textureKey: 'starfield', duration: 40000, spawnRateModifier: 0.5 }],
+    4: [{ textureKey: 'bg_spacestation', duration: 45000, spawnRateModifier: 0.4 }],
   },
   Spawns: {
     AAGunDelay: 3000,

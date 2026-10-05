@@ -102,7 +102,7 @@ export class ResultScene extends Phaser.Scene {
     this.time.delayedCall(stats.length * 400 + 1200, () => {
       Button.create(this, width / 2, height - 50, 'CONTINUE', () => {
         StoryManager.getInstance().showBriefing(`level_${data.level}_victory`, () => {
-          if (data.level % 3 === 0) {
+          if (data.level % 4 === 0) {
             this.scene.start('CreditsScene', { nextLevel: data.level + 1 });
           } else {
             this.scene.start('MapScene', { level: data.level + 1 });

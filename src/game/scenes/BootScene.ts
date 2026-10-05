@@ -76,10 +76,12 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bg_mountains', 'bg/mountains.png');
     this.load.image('bg_night_city', 'bg/anime_city.png');
     this.load.image('bg_ocean', 'bg/bg_ocean.png');
+    this.load.image('bg_spacestation', 'bg/spacestation.jpg');
 
     this.load.image('aagun', 'entities/aagun.png');
     this.load.image('ocean_enemy', 'entities/ocean_enemy.png');
     this.load.image('alien_aagun', 'entities/alien_aagun.png');
+    this.load.image('boss_mech', 'entities/boss_mech.jpg');
 
     this.load.image('starfield', 'misc/starfield.png');
     this.load.image('procedural_tileset', 'misc/procedural_tileset.png');

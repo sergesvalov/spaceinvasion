@@ -33,12 +33,15 @@ export class BossMovementComponent {
       let speedMultiplier = isPhase2 ? 0.002125 : 0.00085;
       let widthMultiplier = isPhase2 ? 120 : 80;
 
-      if (this.boss.level === 2) {
-        speedMultiplier *= 1.3;
+      if (this.boss.level === 4) {
+        speedMultiplier *= 0.4; // Very slow and bulky
         widthMultiplier *= 1.2;
-      } else if (this.boss.level >= 3) {
+      } else if (this.boss.level === 3) {
         speedMultiplier *= 1.6;
         widthMultiplier *= 1.5;
+      } else if (this.boss.level === 2) {
+        speedMultiplier *= 1.3;
+        widthMultiplier *= 1.2;
       }
 
       this.boss.x =

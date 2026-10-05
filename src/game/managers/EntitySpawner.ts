@@ -6,6 +6,7 @@ import { PowerUpType } from '../entities/PowerUp';
 import { EnemyType } from '../entities/Enemy';
 import { GameConfig } from '../config/GameConfig';
 import { EntityConfig } from '../config/EntityConfig';
+import { AdStadium } from '../entities/AdStadium';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -88,5 +89,10 @@ export class EntitySpawner {
         gun.spawn(x, -100, EntityConfig.Background.scrollSpeed * 1000, time);
       }
     }
+  }
+
+  public spawnStadium() {
+    const stadium = new AdStadium(this.scene, this.scene.scale.width / 2, -150);
+    stadium.spawn(this.scene.scale.width / 2, -150, EntityConfig.Background.scrollSpeed * 1000);
   }
 }

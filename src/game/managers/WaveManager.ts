@@ -16,6 +16,8 @@ interface Wave {
 export class WaveManager {
   private waves: Wave[] = [];
   private levelStartTime: number = 0;
+  private stadium1Fired: boolean = false;
+  private stadium2Fired: boolean = false;
 
   constructor(
     private levelManager: LevelManager,
@@ -180,6 +182,17 @@ export class WaveManager {
       if (!wave.fired && timeSinceStart >= wave.triggerTime) {
         wave.fired = true;
         this.spawnWave(wave);
+      }
+    }
+
+    if (currentPhaseKey === 'bg_city' || currentPhaseKey === 'bg_suburbs') {
+      if (!this.stadium1Fired && timeSinceStart >= 8000) {
+        this.stadium1Fired = true;
+        this.entitySpawner.spawnStadium();
+      }
+      if (!this.stadium2Fired && timeSinceStart >= 26000) {
+        this.stadium2Fired = true;
+        this.entitySpawner.spawnStadium();
       }
     }
 

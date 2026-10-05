@@ -74,9 +74,10 @@ export class MapScene extends Phaser.Scene {
       { id: 1, name: 'SECTOR 1: NEO-TOKYO', x: width * 0.25, y: height * 0.3 },
       { id: 2, name: 'SECTOR 2: OPEN OCEAN', x: width * 0.65, y: height * 0.45 },
       { id: 3, name: 'SECTOR 3: ORBITAL TETHER', x: width * 0.4, y: height * 0.8 },
+      { id: 4, name: 'SECTOR 4: SPACE STATION', x: width * 0.8, y: height * 0.9 },
     ];
 
-    const mapLevel = ((this.levelData.level - 1) % 3) + 1;
+    const mapLevel = ((this.levelData.level - 1) % 4) + 1;
     const activeMarker = markers.find((m) => m.id === mapLevel) || markers[0];
 
     // Draw inactive markers

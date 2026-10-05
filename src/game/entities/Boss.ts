@@ -21,10 +21,16 @@ export class Boss extends BaseEntity {
     public level: number,
     onSpawnKamikaze: (x: number, y: number) => void,
   ) {
-    super(scene, x, y, 'boss');
+    const texture = level === 4 ? 'boss_mech' : 'boss';
+    super(scene, x, y, texture);
 
-    // Scale down the large generated image to an appropriate boss size
-    this.setScale(3.3);
+    // Adjust scale depending on the texture
+    if (level === 4) {
+      this.setScale(0.25); // the mech image is high-res, scale it down
+      this.setAngle(180); // Rotate to face downwards towards the player
+    } else {
+      this.setScale(3.3);
+    }
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {
@@ -56,7 +62,7 @@ export class Boss extends BaseEntity {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
-    this.hp = GameConfig.Boss.HP;
+    this.hp = this.level === 4 ? GameConfig.Boss.HP * 2.5 : GameConfig.Boss.HP;
     this.clearTint();
 
     this.movementComponent.spawn(x, y);
