@@ -1,6 +1,6 @@
 export const EntityConfig = {
   Background: {
-    scrollSpeed: 1.05, // reduced by 30% from 1.5
+    scrollSpeed: 0.05,
   },
   Player: {
     scale: 2.2,

@@ -5,6 +5,7 @@ import { Player } from '../entities/Player';
 import { PowerUpType } from '../entities/PowerUp';
 import { EnemyType } from '../entities/Enemy';
 import { GameConfig } from '../config/GameConfig';
+import { EntityConfig } from '../config/EntityConfig';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -64,7 +65,7 @@ export class EntitySpawner {
       if (gun) {
         gun.setReferences(this.entityManager, this.boss);
         const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
-        gun.spawn(x, -100, 1500, time);
+        gun.spawn(x, -100, EntityConfig.Background.scrollSpeed * 1000, time);
       }
     }
   }
@@ -84,7 +85,7 @@ export class EntitySpawner {
       if (gun) {
         gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
-        gun.spawn(x, -100, 1500, time);
+        gun.spawn(x, -100, EntityConfig.Background.scrollSpeed * 1000, time);
       }
     }
   }
