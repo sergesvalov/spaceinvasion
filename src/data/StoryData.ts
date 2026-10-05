@@ -9,29 +9,29 @@ export const LORE_DATA: Record<string, StorySlide[]> = {
     {
       title: 'INCOMING TRANSMISSION',
       text: '2084 год.| Земля наслаждалась миром.| Безмятежные побережья и мирные города даже не подозревали об угрозе,| таящейся в глубинах космоса.',
-      image: 'story/story_1.png',
+      image: 'story/story_1.jpg',
     },
     {
       title: 'INCOMING TRANSMISSION',
       text: 'Они пришли без предупреждения.| Безжалостный инопланетный флот обрушился на наши орбитальные рубежи,| стирая в пыль передовые линии обороны.',
-      image: 'story/story_2.png',
+      image: 'story/story_2.jpg',
     },
     {
       title: 'INCOMING TRANSMISSION',
       text: 'База "Омега" — наш последний оплот.| Твой экспериментальный истребитель-трансформер заряжен и ждет на полосе.| Это технологическое чудо —| наша единственная надежда.',
-      image: 'story/story_3.png',
+      image: 'story/story_3.jpg',
     },
     {
       title: 'INCOMING TRANSMISSION',
       text: 'Небеса пылают!| Враг прорвал атмосферу и атакует базу!| Пилот,| судьба человечества в твоих руках.| Взлетай и заставь их поплатиться!',
-      image: 'story/story_4.png',
+      image: 'story/story_4.jpg',
     },
   ],
   level_1_victory: [
     {
       title: 'VICTORY... OR SO WE THOUGHT',
       text: 'Вражеский флагман уничтожен.| Обломки гигантского материнского корабля пылают в верхних слоях атмосферы,| озаряя небо.',
-      image: 'story/victory_1.png',
+      image: 'story/victory_1.jpg',
     },
     {
       title: 'INCOMING TRANSMISSION',

@@ -61,11 +61,11 @@ export class BootScene extends Phaser.Scene {
     this.load.atlas('game_atlas', 'game_atlas.png', 'game_atlas.json');
 
     // Load story textures
-    this.load.image('story_1', 'story/story_1.png');
-    this.load.image('story_2', 'story/story_2.png');
-    this.load.image('story_3', 'story/story_3.png');
-    this.load.image('story_4', 'story/story_4.png');
-    this.load.image('victory_1', 'story/victory_1.png');
+    this.load.image('story_1', 'story/story_1.jpg');
+    this.load.image('story_2', 'story/story_2.jpg');
+    this.load.image('story_3', 'story/story_3.jpg');
+    this.load.image('story_4', 'story/story_4.jpg');
+    this.load.image('victory_1', 'story/victory_1.jpg');
     this.load.image('victory_2', 'story/victory_2.png');
     this.load.image('victory_3', 'story/victory_3.png');
     this.load.image('story_ocean_victory', 'story/story_ocean_victory.jpg');
