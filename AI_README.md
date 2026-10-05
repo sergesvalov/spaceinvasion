@@ -52,7 +52,7 @@ This document is designed to help any AI agent (or developer) quickly understand
   - `_equippedWeapon`: Base weapon class ('plasma', 'ion', 'wave').
   - `_hasDrone`: Boolean flag for the companion drone.
 - **`EventBus`**: Phaser Event Emitter used to decouple Collision/Input logic from the GameController (e.g., `enemy_destroyed`, `shield_request`).
-- **`StoryManager`**: Handles the narrative briefings via a DOM overlay. Reads data from `src/data/StoryData.ts`.
+- **`StoryManager`**: Handles the narrative briefings via a DOM overlay. Reads data from `src/data/StoryData.ts`. *Note: The story text is rendered programmatically. When generating new story art, do not include text in the images.*
 - **`AnalyticsService`**: Mock analytics tracker.
 
 ### 6. UI Components (`src/ui/`)
