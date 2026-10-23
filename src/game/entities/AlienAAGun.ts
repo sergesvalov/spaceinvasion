@@ -3,6 +3,7 @@ import { BaseEntity } from './BaseEntity';
 import { Player } from './Player';
 import { EntityManager } from '../managers/EntityManager';
 import { GameConfig } from '../config/GameConfig';
+import { EventBus } from '../../services/EventBus';
 
 export class AlienAAGun extends BaseEntity {
   private lastFired: number = 0;
@@ -27,12 +28,12 @@ export class AlienAAGun extends BaseEntity {
     this.player = player;
   }
 
-  spawn(x: number, y: number, scrollSpeed: number, time: number) {
+  spawn(x: number, y: number, scrollSpeed: number, time: number, hpMultiplier: number = 1) {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
     this.lastFired = time;
-    this.hp = GameConfig.Enemy.HP * 5; // Very tanky building!
+    this.hp = GameConfig.Enemy.HP * 5 * hpMultiplier; // Very tanky building!
     this.clearTint();
 
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -54,6 +55,15 @@ export class AlienAAGun extends BaseEntity {
 
     if (this.y > 0 && time > this.lastFired + this.fireRateMs) {
       this.fireAtPlayer(time);
+    }
+  }
+
+  protected die() {
+    super.die();
+    this.scene.cameras.main.shake(150, 0.008);
+    EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points * 3, this.x, this.y);
+    if (Phaser.Math.FloatBetween(0, 1) <= GameConfig.Enemy.AntimatterDropChance * 2) {
+      EventBus.emit('spawn_antimatter', this.x, this.y, Phaser.Math.Between(-20, 20), 50);
     }
   }
 

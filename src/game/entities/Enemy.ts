@@ -43,7 +43,7 @@ export class Enemy extends BaseEntity {
     this.target = target;
   }
 
-  spawn(x: number, y: number, type: EnemyType = 'scout_0') {
+  spawn(x: number, y: number, type: EnemyType = 'scout_0', hpMultiplier: number = 1) {
     this.enemyType = type;
     if (type === 'scout_0') {
       this.setTexture('enemy_scout_0');
@@ -71,6 +71,7 @@ export class Enemy extends BaseEntity {
       this.hp = GameConfig.Enemy.HP;
       this.setTint(0xff00ff);
     }
+    this.hp *= hpMultiplier;
 
     this.setPosition(x, y);
     this.setActive(true);

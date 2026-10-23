@@ -113,13 +113,13 @@ export class GameController {
       if (!this.isPlaying) return;
       this.boss.spawn(width / 2, -100);
       this.hudManager.showBossBar();
-      this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+      this.hudManager.updateBossBar(this.boss.hp, this.boss.maxHp);
     });
   }
 
   public updateBossHUD() {
     if (this.boss.active) {
-      this.hudManager.updateBossBar(this.boss.hp, GameConfig.Boss.HP);
+      this.hudManager.updateBossBar(this.boss.hp, this.boss.maxHp);
     }
   }
 

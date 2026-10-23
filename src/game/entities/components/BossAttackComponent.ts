@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { Boss } from '../Boss';
 import { EnemyProjectile } from '../EnemyProjectile';
-import { GameConfig } from '../../config/GameConfig';
 
 export class BossAttackComponent {
   private state: 'SPREAD' | 'LASER' | 'KAMIKAZE' = 'SPREAD';
@@ -15,7 +14,7 @@ export class BossAttackComponent {
   ) {}
 
   public update(time: number) {
-    const isPhase2 = this.boss.hp <= GameConfig.Boss.HP / 2;
+    const isPhase2 = this.boss.hp <= this.boss.maxHp / 2;
 
     if (isPhase2 && !this.boss.getData('phase2')) {
       this.boss.setData('phase2', true);
@@ -29,8 +28,8 @@ export class BossAttackComponent {
 
     if (this.state === 'SPREAD') {
       let fireRate = isPhase2 ? 400 : 700;
-      if (this.boss.level === 2) fireRate *= 0.8;
-      if (this.boss.level >= 3) fireRate *= 0.6;
+      if (this.boss.stage === 2) fireRate *= 0.8;
+      if (this.boss.stage >= 3) fireRate *= 0.6;
 
       if (time > this.lastFired + fireRate) {
         this.lastFired = time;
@@ -38,8 +37,8 @@ export class BossAttackComponent {
       }
     } else if (this.state === 'KAMIKAZE') {
       let spawnRate = isPhase2 ? 800 : 1500;
-      if (this.boss.level === 2) spawnRate *= 0.8;
-      if (this.boss.level >= 3) spawnRate *= 0.6;
+      if (this.boss.stage === 2) spawnRate *= 0.8;
+      if (this.boss.stage >= 3) spawnRate *= 0.6;
 
       if (time > this.lastFired + spawnRate) {
         this.lastFired = time;
@@ -113,9 +112,9 @@ export class BossAttackComponent {
   private fireBulletHell(isPhase2: boolean) {
     let angles = isPhase2 ? [-45, -30, -15, 0, 15, 30, 45] : [-30, -15, 0, 15, 30];
 
-    if (this.boss.level === 2) {
+    if (this.boss.stage === 2) {
       angles = isPhase2 ? [-60, -40, -20, 0, 20, 40, 60] : [-45, -20, 0, 20, 45];
-    } else if (this.boss.level >= 3) {
+    } else if (this.boss.stage >= 3) {
       angles = isPhase2 ? [-75, -50, -25, 0, 25, 50, 75, -15, 15] : [-60, -30, 0, 30, 60, -10, 10];
     }
 

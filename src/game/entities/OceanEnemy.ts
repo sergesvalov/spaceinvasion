@@ -13,13 +13,13 @@ export class OceanEnemy extends BaseEntity {
     this.setScale(1.1);
   }
 
-  spawn(x: number, y: number) {
+  spawn(x: number, y: number, hpMultiplier: number = 1) {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
     this.startX = x;
     this.timeOffset = Phaser.Math.Between(0, 1000);
-    this.hp = GameConfig.Enemy.HP * 2; // Tougher than normal enemies
+    this.hp = GameConfig.Enemy.HP * 2 * hpMultiplier; // Tougher than normal enemies
     this.clearTint();
 
     const body = this.body as Phaser.Physics.Arcade.Body;

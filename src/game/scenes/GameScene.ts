@@ -17,6 +17,7 @@ import { GameController } from '../managers/GameController';
 import { PlayerActionManager } from '../managers/PlayerActionManager';
 import { Autopilot } from '../managers/Autopilot';
 import { WaveManager } from '../managers/WaveManager';
+import { getHpMultiplier, getStage, Stages } from '../config/WaveConfig';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -74,10 +75,9 @@ export class GameScene extends Phaser.Scene {
     this.inputManager = new InputManager(this, this.player);
     this.inputManager.setupInput();
 
-    this.boss = new Boss(this, width / 2, -200, this.entityManager, this.currentLevel, (x, y) => {
-      const enemy = this.entityManager.getEnemy();
-      if (enemy) enemy.spawn(x, y);
-    });
+    this.boss = new Boss(this, width / 2, -200, this.entityManager, this.currentLevel, (x, y) =>
+      this.entitySpawner.spawnSpecificEnemy(x, y, 'kamikaze'),
+    );
     this.boss.setActive(false).setVisible(false);
 
     this.gameController = new GameController(
@@ -99,7 +99,13 @@ export class GameScene extends Phaser.Scene {
     );
     this.playerActionManager.setupEvents();
 
-    this.entitySpawner = new EntitySpawner(this, this.entityManager, this.boss, this.player);
+    this.entitySpawner = new EntitySpawner(
+      this,
+      this.entityManager,
+      this.boss,
+      this.player,
+      getHpMultiplier(this.currentLevel),
+    );
 
     this.autopilot = new Autopilot(this, this.player, this.entityManager, this.boss);
     if (GameConfig.Runtime.isE2ETestMode || GameConfig.Runtime.isAIDemoMode) {
@@ -117,15 +123,20 @@ export class GameScene extends Phaser.Scene {
 
     this.gameController.setupEvents();
 
-    const levelPhases =
-      (GameConfig.Levels as any)[this.currentLevel] || (GameConfig.Levels as any)[1];
+    const stage = getStage(this.currentLevel);
+    const levelPhases = GameConfig.Levels[stage as keyof typeof GameConfig.Levels];
 
     this.levelManager = new LevelManager(this, levelPhases, () =>
       this.gameController.handleBossPhase(width),
     );
     this.levelManager.setupBackgrounds();
 
-    this.waveManager = new WaveManager(this.levelManager, this.entitySpawner, this.gameController);
+    this.waveManager = new WaveManager(
+      this.levelManager,
+      this.entitySpawner,
+      this.gameController,
+      Stages[stage],
+    );
 
     // Speed lines effect
     this.add.particles(0, 0, 'star', {

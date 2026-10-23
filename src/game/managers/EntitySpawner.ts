@@ -7,6 +7,7 @@ import { EnemyType } from '../entities/Enemy';
 import { GameConfig } from '../config/GameConfig';
 import { EntityConfig } from '../config/EntityConfig';
 import { AdStadium } from '../entities/AdStadium';
+import { WaveEnemy } from '../config/WaveConfig';
 
 export class EntitySpawner {
   private scene: Phaser.Scene;
@@ -19,7 +20,13 @@ export class EntitySpawner {
   private lastPowerUpSpawn: number = 0;
   private alienAAGunCount: number = 0;
 
-  constructor(scene: Phaser.Scene, entityManager: EntityManager, boss: Boss, player: Player) {
+  constructor(
+    scene: Phaser.Scene,
+    entityManager: EntityManager,
+    boss: Boss,
+    player: Player,
+    private hpMultiplier: number = 1,
+  ) {
     this.scene = scene;
     this.entityManager = entityManager;
     this.boss = boss;
@@ -46,11 +53,26 @@ export class EntitySpawner {
     }
   }
 
+  public spawnWaveEnemy(x: number, y: number, type: WaveEnemy) {
+    if (type === 'ocean') {
+      this.spawnOceanEnemy(x, y);
+    } else {
+      this.spawnSpecificEnemy(x, y, type);
+    }
+  }
+
   public spawnSpecificEnemy(x: number, y: number, type: EnemyType) {
     const enemy = this.entityManager.getEnemy();
     if (enemy) {
       enemy.setTarget(this.player);
-      enemy.spawn(x, y, type);
+      enemy.spawn(x, y, type, this.hpMultiplier);
+    }
+  }
+
+  public spawnOceanEnemy(x: number, y: number) {
+    const enemy = this.entityManager.getOceanEnemy();
+    if (enemy) {
+      enemy.spawn(x, y, this.hpMultiplier);
     }
   }
 
@@ -71,12 +93,7 @@ export class EntitySpawner {
     }
   }
 
-  public spawnAlienAAGun(time: number, currentPhaseKey: string | null) {
-    if (currentPhaseKey !== 'bg_night_city') {
-      this.alienAAGunCount = 0;
-      return;
-    }
-
+  public spawnAlienAAGun(time: number) {
     if (this.alienAAGunCount >= GameConfig.AlienAAGun.MaxCount) return;
 
     if (time > this.lastAlienAAGunSpawn + GameConfig.Spawns.AlienAAGunDelay) {
@@ -86,7 +103,7 @@ export class EntitySpawner {
       if (gun) {
         gun.setReferences(this.entityManager, this.player);
         const x = Phaser.Math.Between(50, this.scene.scale.width - 50);
-        gun.spawn(x, -100, EntityConfig.Background.scrollSpeed * 1000, time);
+        gun.spawn(x, -100, EntityConfig.Background.scrollSpeed * 1000, time, this.hpMultiplier);
       }
     }
   }

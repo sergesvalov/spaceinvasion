@@ -29,7 +29,7 @@ This document is designed to help any AI agent (or developer) quickly understand
 
 ### 3. Managers (`src/game/managers/` & `src/ui/`)
 - **`GameController`**: The central state machine of a game session. Listens to `EventBus` and orchestrates win/loss conditions.
-- **`WaveManager`**: Handles spawning logic, level phases, and computes Dynamic Difficulty Adjustment (DDA) modifiers.
+- **`WaveManager`**: Plays the scripted waves of the current stage. Each stage's waves, ground turrets (friendly `AAGun` / hostile `AlienAAGun`) and stadiums live in `src/game/config/WaveConfig.ts`. Levels 5+ are New Game+: `getStage(level)` maps them back onto stages 1-4 and `getHpMultiplier(level)` adds +50% enemy/boss HP per loop.
 - **`ScoreManager` & `DamageManager`**: Handle pure business logic for points, antimatter, and HP.
 - **`EntityManager`**: Holds Phaser Physics Groups for pooling (projectiles, enemies, drops). *Note: Player projectile pool is set to 150 to support high fire rates.*
 - **`EntitySpawner`**: Handles spawning enemies, powerups, and AAGuns based on timers and modifiers.

@@ -6,26 +6,33 @@ import { BossAttackComponent } from './components/BossAttackComponent';
 import { EventBus } from '../../services/EventBus';
 import { EntityManager } from '../managers/EntityManager';
 import { BossPart } from './BossPart';
+import { getHpMultiplier, getStage } from '../config/WaveConfig';
 
 export class Boss extends BaseEntity {
   private exhaustEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
   private movementComponent: BossMovementComponent;
   private attackComponent: BossAttackComponent;
   public parts: BossPart[] = [];
+  /** Stage 1..4 that picks the boss's look and attack patterns (New Game+ loops it). */
+  public readonly stage: number;
+  public readonly maxHp: number;
 
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     private entityManager: EntityManager,
-    public level: number,
+    level: number,
     onSpawnKamikaze: (x: number, y: number) => void,
   ) {
-    const texture = level === 4 ? 'boss_mech' : 'boss';
+    const stage = getStage(level);
+    const texture = stage === 4 ? 'boss_mech' : 'boss';
     super(scene, x, y, texture);
+    this.stage = stage;
+    this.maxHp = GameConfig.Boss.HP * (stage === 4 ? 2.5 : 1) * getHpMultiplier(level);
 
     // Adjust scale depending on the texture
-    if (level === 4) {
+    if (stage === 4) {
       this.setScale(0.25); // the mech image is high-res, scale it down
       this.setAngle(180); // Rotate to face downwards towards the player
     } else {
@@ -62,7 +69,7 @@ export class Boss extends BaseEntity {
     this.setPosition(x, y);
     this.setActive(true);
     this.setVisible(true);
-    this.hp = this.level === 4 ? GameConfig.Boss.HP * 2.5 : GameConfig.Boss.HP;
+    this.hp = this.maxHp;
     this.clearTint();
 
     this.movementComponent.spawn(x, y);
