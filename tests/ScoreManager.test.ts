@@ -3,6 +3,9 @@ import { ScoreManager } from '../src/game/managers/ScoreManager';
 import { GameState } from '../src/services/GameState';
 import { AudioManager } from '../src/services/AudioManager';
 
+// zzfx creates an AudioContext at import time, which jsdom does not provide.
+vi.mock('zzfx', () => ({ zzfx: vi.fn(), ZZFX: {} }));
+
 describe('ScoreManager', () => {
   let mockScene: any;
   let mockUpdateHUD: any;

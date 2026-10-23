@@ -11,14 +11,14 @@ export class BossBarUI {
 
   public show() {
     if (this.bossBarContainer) this.bossBarContainer.style.display = 'block';
-    
+
     if (this.warningOverlayEl) {
       this.warningOverlayEl.classList.add('active');
       const warningText = document.createElement('div');
       warningText.className = 'warning-text';
       warningText.textContent = 'WARNING: BOSS APPROACHING';
       this.warningOverlayEl.appendChild(warningText);
-      
+
       setTimeout(() => {
         if (this.warningOverlayEl) {
           this.warningOverlayEl.classList.remove('active');

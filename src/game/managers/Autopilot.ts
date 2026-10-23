@@ -34,23 +34,29 @@ export class Autopilot {
     }
 
     // Determine target position based on threats
-    let threats: {x: number, y: number, danger: number}[] = [];
+    const threats: { x: number; y: number; danger: number }[] = [];
 
     // Add projectiles as threats
-    this.entityManager.enemyProjectiles.getGroup().getChildren().forEach((child) => {
-      const p = child as EnemyProjectile;
-      if (p.active) {
-        threats.push({ x: p.x, y: p.y, danger: 1000 });
-      }
-    });
+    this.entityManager.enemyProjectiles
+      .getGroup()
+      .getChildren()
+      .forEach((child) => {
+        const p = child as EnemyProjectile;
+        if (p.active) {
+          threats.push({ x: p.x, y: p.y, danger: 1000 });
+        }
+      });
 
     // Add enemies as threats
-    this.entityManager.enemies.getGroup().getChildren().forEach((child) => {
-      const e = child as Enemy;
-      if (e.active) {
-        threats.push({ x: e.x, y: e.y, danger: 500 });
-      }
-    });
+    this.entityManager.enemies
+      .getGroup()
+      .getChildren()
+      .forEach((child) => {
+        const e = child as Enemy;
+        if (e.active) {
+          threats.push({ x: e.x, y: e.y, danger: 500 });
+        }
+      });
 
     // Move logic: Find a safe spot
     let desiredX = this.scene.scale.width / 2;
@@ -68,7 +74,7 @@ export class Autopilot {
       }
     } else {
       // Repulsion from threats
-      threats.forEach(t => {
+      threats.forEach((t) => {
         const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, t.x, t.y);
         if (dist < 150) {
           // Run away!

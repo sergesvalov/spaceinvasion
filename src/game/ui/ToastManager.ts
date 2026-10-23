@@ -13,7 +13,7 @@ export class ToastManager {
     achEl.style.alignItems = 'center';
     achEl.style.background = 'rgba(0, 50, 20, 0.8)';
     achEl.style.border = '1px solid #00ff00';
-    
+
     achEl.innerHTML = `
       <div style="color: #00ff00; font-weight: bold; font-size: 14px; margin-bottom: 4px;">🏆 ACHIEVEMENT UNLOCKED</div>
       <div style="color: #ffffff; font-weight: bold; font-size: 18px;">${title}</div>

@@ -123,7 +123,7 @@ describe('GameState', () => {
     state.unlockLevel(1); // replaying an earlier level must not lose progress
     expect(state.unlockedLevel).toBe(2);
 
-    state.unlockLevel(99);
+    state.unlockLevel(GameState.MAX_LEVEL + 100);
     expect(state.unlockedLevel).toBe(GameState.MAX_LEVEL);
 
     vi.advanceTimersByTime(500);
@@ -134,7 +134,7 @@ describe('GameState', () => {
     localStorage.setItem('si_unlocked_level', 'garbage');
     expect(GameState.getInstance().unlockedLevel).toBe(1);
 
-    localStorage.setItem('si_unlocked_level', '42');
+    localStorage.setItem('si_unlocked_level', String(GameState.MAX_LEVEL + 100));
     // @ts-ignore
     GameState.instance = undefined;
     expect(GameState.getInstance().unlockedLevel).toBe(GameState.MAX_LEVEL);

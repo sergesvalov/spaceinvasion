@@ -37,7 +37,7 @@ export class AchievementManager {
   }
 
   public offAchievementUnlocked(callback: (title: string, desc: string) => void) {
-    this.listeners = this.listeners.filter(l => l !== callback);
+    this.listeners = this.listeners.filter((l) => l !== callback);
   }
 
   public checkScoreAchievements(score: number) {
@@ -73,6 +73,6 @@ export class AchievementManager {
   private unlock(id: string, title: string, desc: string) {
     this.unlocked.add(id);
     this.saveState();
-    this.listeners.forEach(l => l(title, desc));
+    this.listeners.forEach((l) => l(title, desc));
   }
 }

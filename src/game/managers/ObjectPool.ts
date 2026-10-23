@@ -3,11 +3,11 @@ import Phaser from 'phaser';
 export class ObjectPool<T extends Phaser.Physics.Arcade.Sprite> {
   private group: Phaser.Physics.Arcade.Group;
 
-  constructor(scene: Phaser.Scene, classType: Function, maxSize: number) {
+  constructor(scene: Phaser.Scene, classType: new (...args: never[]) => T, maxSize: number) {
     this.group = scene.physics.add.group({
       classType,
       maxSize,
-      runChildUpdate: true
+      runChildUpdate: true,
     });
   }
 
