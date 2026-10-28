@@ -110,17 +110,19 @@ This document is designed to help any AI agent (or developer) quickly understand
 - **Baking Textures**: `scripts/bake_textures.cjs` leverages Playwright to extract procedural textures into static PNGs.
 - **Optimizing Assets**: `scripts/optimize-assets.cjs` shrinks story art to 960px JPEGs (~130KB each) and keys the stage-4 boss render into `entities/boss_mech.png`. Story images are loaded on demand by the briefing overlay, not preloaded in `BootScene`.
 
-### 🎨 Asset Generation Workflow (Skins & Sprites)
-When the user asks to create a new skin, enemy, weapon, or other sprite, follow this exact workflow:
-1. **Use `generate_image` Tool**: When prompting the image generation tool, *always* append instructions for a solid white background (e.g., `"The background must be pure solid white, NO checkerboard patterns, NO grids, completely solid white background."`). The tool often bakes fake transparency checkerboards if you just ask for a "transparent background".
-2. **Process the Image**: Once generated, the image will be in the `.gemini` artifacts directory. Use the included `c:\wndr\repo\spaceinvasion\scripts\remove_bg.mjs` Node script to strip the white background and save it to the `public/` directory. 
-   - Run: `node scripts/remove_bg.mjs <input_path_from_artifact> <output_path_in_public>`
-   - This script uses `Jimp` to identify white pixels and make them transparent.
-3. **Resize It — do NOT ship a 1024x1024 sprite**: generated images are 1024x1024 and ~1MB each, which is unusable on mobile. Downscale to roughly **2x the size the sprite is actually drawn at** with `scripts/optimize_asset.mjs`:
-   - Run: `node scripts/optimize_asset.mjs public/foo.png public/foo.png --size 128 --format png`
-   - Sprites that need transparency must stay `png`. Full-frame art (backgrounds, story panels) should be `jpeg --quality 78` — those keep a `.png` filename purely so no code has to change.
-4. **Load and Scale**: In `BootScene.ts`, load the new asset. In the respective entity class, apply `.setScale()` so the sprite ends up at its intended on-screen size (e.g. a 128px texture drawn at ~70px uses `0.5488`).
-   - **Careful**: `body.setSize()` / `body.setOffset()` are expressed in *texture* pixels and Arcade multiplies them by the sprite scale. If you change a texture's dimensions by a factor `k`, you must also multiply the scale by `1/k` and the body size/offset by `k` — otherwise the hitbox silently changes size.
+### 🎨 Asset Generation Workflow (Skins, Sprites, Story Art)
+**Read `ART_PLAN.md` first.** It holds the art direction (16-bit pixel art for gameplay, anime key visuals for the story), the character bible, the prompt suffixes, the full asset list with final sizes and the acceptance criteria.
+
+1. **Use `generate_image` Tool**: For sprites, *always* append the `SPRITE_STYLE` suffix from `ART_PLAN.md`, which asks for a pure solid white background. The tool often bakes fake transparency checkerboards if you just ask for a "transparent background". Story frames use `STORY_STYLE` (9:16, no text of any kind).
+2. **Process the Image** with `scripts/process-art.mjs` (the generated file lands in the `.gemini` artifacts directory):
+   - Sprite: `node scripts/process-art.mjs sprite <in> public/sprites/foo.png --size 40x40 [--colors 16]` - keys out the white background (flood fill from the edges, so white details inside survive), trims, downsamples to the exact on-screen size and hardens alpha.
+   - Background: `node scripts/process-art.mjs bg <in> public/bg/foo.png --size 270x960 --preview` - reports the top/bottom seam mismatch and writes a stacked preview (do not commit the preview).
+   - Story: `node scripts/process-art.mjs story <in> public/story/foo.jpg` - 720x1280 JPEG.
+   - The script warns when a file exceeds the size budget.
+3. **Final size = on-screen size**: the game canvas is only 270x480 game pixels, so a texture larger than its on-screen size adds nothing. Sprites are drawn at `scale = 1`; the sizes in `ART_PLAN.md` match the current texture x scale, so hitboxes stay the same.
+4. **Load It**: In `BootScene.ts`, load the new asset under the texture key the entity already uses and remove the matching entry from `SpriteBaker.Sprites`.
+   - **Careful**: `body.setSize()` / `body.setOffset()` are expressed in *texture* pixels and Arcade multiplies them by the sprite scale. If you change a texture's dimensions by a factor `k`, you must also multiply the scale by `1/k` and the body size/offset by `k` - otherwise the hitbox silently changes size.
+5. **Track progress** by updating the status column in `ART_PLAN.md`.
 
 ### ⚙️ General Best Practices
 - **File Edits**: When making edits to complex Phaser configurations or logic, prefer targeted `multi_replace_file_content` to preserve existing behaviors.
