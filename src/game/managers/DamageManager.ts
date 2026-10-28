@@ -3,6 +3,7 @@ import { Player } from '../entities/Player';
 import { GameState } from '../../services/GameState';
 import { AudioManager } from '../../services/AudioManager';
 import { GameConfig } from '../config/GameConfig';
+import { Haptics } from '../../services/Haptics';
 
 export class DamageManager {
   private isInvulnerable: boolean = false;
@@ -44,13 +45,11 @@ export class DamageManager {
     state.setHp(this.health);
     this.onHealthChanged(this.health);
 
+    // The red edge vignette in the HUD (PlayerStatsUI) replaces the old
+    // full-screen red flash, which hid bullets right when the player needed them.
     this.scene.cameras.main.shake(200, 0.01);
-    this.scene.cameras.main.flash(200, 255, 0, 0);
     AudioManager.getInstance().playDamageSound(this.scene);
-
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-    }
+    Haptics.notify('error');
 
     if (this.health <= 0) {
       this.onDeath();

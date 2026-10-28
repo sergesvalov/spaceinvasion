@@ -33,7 +33,7 @@ export class Boss extends BaseEntity {
 
     // Adjust scale depending on the texture
     if (stage === 4) {
-      this.setScale(0.25); // the mech image is high-res, scale it down
+      this.setScale(1); // boss_mech.png is pre-scaled to 256px by scripts/optimize-assets.cjs
       this.setAngle(180); // Rotate to face downwards towards the player
     } else {
       this.setScale(3.3);

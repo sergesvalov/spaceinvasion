@@ -13,6 +13,7 @@ import {
 } from './components/PlayerStateComponent';
 import { WeaponComponent } from './components/WeaponComponent';
 import { MovementComponent } from './components/MovementComponent';
+import { Haptics } from '../../services/Haptics';
 import { ShieldComponent } from './components/ShieldComponent';
 
 export type PlayerForm = 'fighter' | 'mecha';
@@ -114,9 +115,7 @@ export class Player extends Phaser.GameObjects.Container {
     this.form = 'mecha';
     AnalyticsService.getInstance().formSwitch('mecha');
 
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-    }
+    Haptics.impact('heavy');
 
     this.currentStateComponent.exit(this.getPlayerContext());
     this.currentStateComponent = this.mechaState;

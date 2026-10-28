@@ -1,36 +1,59 @@
+import { t } from '../../services/i18n';
+
+const SHOW_MS = 3500;
+const MAX_VISIBLE = 2;
+
+/**
+ * Achievement toasts: queued, stacked under the HUD top bar and drawn below
+ * the story overlay, so they never cover a title, the briefing or each other.
+ */
 export class ToastManager {
+  private static queue: { title: string; desc: string }[] = [];
+  private static visible = 0;
+
   public static showAchievement(title: string, desc: string) {
-    const achEl = document.createElement('div');
-    achEl.className = 'achievement-toast ui-panel';
-    achEl.style.position = 'absolute';
-    achEl.style.top = '20px';
-    achEl.style.left = '50%';
-    achEl.style.transform = 'translateX(-50%) translateY(-100px)';
-    achEl.style.zIndex = '1000';
-    achEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    achEl.style.display = 'flex';
-    achEl.style.flexDirection = 'column';
-    achEl.style.alignItems = 'center';
-    achEl.style.background = 'rgba(0, 50, 20, 0.8)';
-    achEl.style.border = '1px solid #00ff00';
+    this.queue.push({ title, desc });
+    this.pump();
+  }
 
-    achEl.innerHTML = `
-      <div style="color: #00ff00; font-weight: bold; font-size: 14px; margin-bottom: 4px;">🏆 ACHIEVEMENT UNLOCKED</div>
-      <div style="color: #ffffff; font-weight: bold; font-size: 18px;">${title}</div>
-      <div style="color: #cccccc; font-size: 12px; text-align: center;">${desc}</div>
-    `;
+  private static stack(): HTMLElement | null {
+    const ui = document.getElementById('ui-container');
+    if (!ui) return null;
+    let stack = ui.querySelector('.toast-stack') as HTMLElement | null;
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.className = 'toast-stack';
+      ui.appendChild(stack);
+    }
+    return stack;
+  }
 
-    document.getElementById('ui-container')?.appendChild(achEl);
+  private static pump() {
+    const stack = this.stack();
+    while (stack && this.visible < MAX_VISIBLE && this.queue.length) {
+      const { title, desc } = this.queue.shift()!;
+      this.visible++;
 
-    // Slide in
-    setTimeout(() => {
-      achEl.style.transform = 'translateX(-50%) translateY(0)';
-    }, 50);
+      const el = document.createElement('div');
+      el.className = 'achievement-toast';
+      el.innerHTML = `
+        <div class="toast-kicker">★ ${t('toast.achievement')}</div>
+        <div class="toast-title"></div>
+        <div class="toast-desc"></div>
+      `;
+      (el.querySelector('.toast-title') as HTMLElement).textContent = title;
+      (el.querySelector('.toast-desc') as HTMLElement).textContent = desc;
+      stack.appendChild(el);
 
-    // Slide out and remove
-    setTimeout(() => {
-      achEl.style.transform = 'translateX(-50%) translateY(-150px)';
-      setTimeout(() => achEl.remove(), 500);
-    }, 4000);
+      requestAnimationFrame(() => el.classList.add('in'));
+      setTimeout(() => {
+        el.classList.remove('in');
+        setTimeout(() => {
+          el.remove();
+          this.visible--;
+          this.pump();
+        }, 300);
+      }, SHOW_MS);
+    }
   }
 }

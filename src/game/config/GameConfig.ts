@@ -6,8 +6,16 @@ export const GameConfig = {
     DamageMecha: 3,
     MechaCost: 3, // Antimatter spent per transformation
     MechaDuration: 12000,
+    ShieldDuration: 15000, // purchased shield
     MeleeCooldown: 1000,
     MeleeRange: 150,
+  },
+  // Garage prices (AM = antimatter, CR = credits)
+  Shop: {
+    RepairCost: 1000, // CR per hull point
+    ShieldCost: 5, // AM
+    BombCost: 2500, // CR
+    DroneCost: 15, // AM
   },
   Enemy: {
     HP: 1,

@@ -6,6 +6,7 @@ import { AudioManager } from '../../services/AudioManager';
 import { GameConfig } from '../config/GameConfig';
 import { EventBus } from '../../services/EventBus';
 import { AchievementManager } from '../../services/AchievementManager';
+import { Haptics } from '../../services/Haptics';
 
 export class PlayerActionManager {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,10 +46,9 @@ export class PlayerActionManager {
       this.player.activatePurchasedShield();
       this.updateHUDCallback();
       AudioManager.getInstance().playShieldSound(this.scene);
+      EventBus.emit('shield_started', GameConfig.Player.ShieldDuration);
     } else if (state.shields === 0) {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
+      Haptics.notify('error');
     }
   }
 
@@ -61,18 +61,14 @@ export class PlayerActionManager {
       this.scene.cameras.main.shake(300, 0.02);
       AudioManager.getInstance().playBombSound(this.scene);
 
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-      }
+      Haptics.impact('heavy');
 
       this.entityManager.applyDamageToAllEnemies(100);
       this.entityManager.clearEnemyProjectiles();
 
       this.updateHUDCallback();
     } else {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
+      Haptics.notify('error');
     }
   }
 
@@ -100,17 +96,21 @@ export class PlayerActionManager {
 
     const state = GameState.getInstance();
     if (state.spendAntimatter(GameConfig.Player.MechaCost)) {
-      this.updateHUDCallback();
-
       this.player.transformToMecha();
+      this.updateHUDCallback();
       AudioManager.getInstance().playTransformSound(this.scene);
       AchievementManager.getInstance().checkMechaTransform();
+      EventBus.emit('mecha_started', GameConfig.Player.MechaDuration);
 
       this.scene.time.delayedCall(GameConfig.Player.MechaDuration, () => {
         if (this.isPlayingGetter()) {
           this.player.revertToFighter();
+          EventBus.emit('mecha_ended');
+          this.updateHUDCallback();
         }
       });
+    } else {
+      Haptics.notify('error');
     }
   }
 }

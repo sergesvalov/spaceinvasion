@@ -57,6 +57,27 @@ export class AudioManager {
     zzfx(v, 0.1, 100, 0.05, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0.7, 0, 0);
   }
 
+  // UI feedback: short synth blips that don't need a Phaser scene
+  public playUiClick() {
+    if (!this.isSoundEnabled()) return;
+    zzfx(ZZFX.volume * 0.5, 0, 1400, 0, 0.01, 0.03, 2);
+  }
+
+  public playUiConfirm() {
+    if (!this.isSoundEnabled()) return;
+    zzfx(ZZFX.volume * 0.6, 0, 660, 0, 0.04, 0.12, 0, 1, 0, 0, 330, 0.04);
+  }
+
+  public playUiDeny() {
+    if (!this.isSoundEnabled()) return;
+    zzfx(ZZFX.volume * 0.6, 0, 140, 0, 0.06, 0.1, 2);
+  }
+
+  public playUiTick() {
+    if (!this.isSoundEnabled()) return;
+    zzfx(ZZFX.volume * 0.25, 0, 2200, 0, 0, 0.02);
+  }
+
   // High-level semantic methods
   public playShieldSound(scene: Phaser.Scene) {
     this.playPew(scene, { volume: 0.5, rate: 0.8 });

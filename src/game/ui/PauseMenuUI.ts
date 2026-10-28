@@ -1,4 +1,5 @@
 import { EventBus } from '../../services/EventBus';
+import { AudioManager } from '../../services/AudioManager';
 
 export class PauseMenuUI {
   private pauseBtnEl: HTMLElement;
@@ -19,6 +20,7 @@ export class PauseMenuUI {
     const preventDefaultAndStop = (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
+      AudioManager.getInstance().playUiClick();
     };
 
     if (this.pauseBtnEl) {
@@ -50,6 +52,6 @@ export class PauseMenuUI {
 
   public hideOverlay() {
     if (this.pauseOverlayEl) this.pauseOverlayEl.style.display = 'none';
-    if (this.pauseBtnEl) this.pauseBtnEl.style.display = 'block';
+    if (this.pauseBtnEl) this.pauseBtnEl.style.display = '';
   }
 }

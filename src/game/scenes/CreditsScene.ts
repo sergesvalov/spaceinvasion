@@ -1,9 +1,15 @@
 import Phaser from 'phaser';
 import { StyleConfig } from '../config/StyleConfig';
 import { Button } from '../ui/Button';
+import { t } from '../../services/i18n';
+import { fadeIn, fadeToScene } from '../utils/transition';
+
+const TITLE_Y = 56;
+const BODY_Y = 100;
 
 export class CreditsScene extends Phaser.Scene {
   private nextLevel: number = 1;
+  private buttonsShown = false;
 
   constructor() {
     super({ key: 'CreditsScene' });
@@ -11,7 +17,9 @@ export class CreditsScene extends Phaser.Scene {
 
   create(data: { nextLevel: number }) {
     this.nextLevel = data.nextLevel || 4;
+    this.buttonsShown = false;
     const { width, height } = this.scale;
+    fadeIn(this);
 
     // Background
     this.add.rectangle(0, 0, width, height, StyleConfig.ColorsHex.Black, 1).setOrigin(0);
@@ -24,60 +32,56 @@ export class CreditsScene extends Phaser.Scene {
     }
 
     const title = this.add
-      .text(width / 2, height, 'MISSION ACCOMPLISHED', {
+      .text(width / 2, height + 20, t('credits.title'), {
         fontFamily: StyleConfig.Fonts.Main,
-        fontSize: '16px',
+        fontSize: '14px',
         color: StyleConfig.Colors.NeonCyan,
+        align: 'center',
+        lineSpacing: 6,
       })
       .setOrigin(0.5);
 
     const creditsText = this.add
-      .text(
-        width / 2,
-        height + 150,
-        'SPACE INVASION\n\n' +
-          'A Game by AI\n\n' +
-          'DESIGN\nAntigravity\n\n' +
-          'PROGRAMMING\nAntigravity\n\n' +
-          'ART\nProcedural\n\n' +
-          'AUDIO\nZzFX\n\n\n' +
-          'THANKS FOR PLAYING!',
-        {
-          fontFamily: StyleConfig.Fonts.Main,
-          fontSize: '10px',
-          color: StyleConfig.Colors.White,
-          align: 'center',
-          lineSpacing: 10,
-        },
-      )
-      .setOrigin(0.5);
+      .text(width / 2, height + 70, t('credits.body'), {
+        fontFamily: StyleConfig.Fonts.Main,
+        fontSize: '8px',
+        color: StyleConfig.Colors.White,
+        align: 'center',
+        lineSpacing: 8,
+      })
+      .setOrigin(0.5, 0);
 
-    // Scroll up animation
+    // Roll up into the final layout (title on top, credits below, buttons at the bottom)
+    this.tweens.add({ targets: title, y: TITLE_Y, duration: 8000 });
     this.tweens.add({
-      targets: [title, creditsText],
-      y: '-= 600',
-      duration: 10000,
-      onComplete: () => {
-        this.showContinueButton(width, height);
-      },
+      targets: creditsText,
+      y: BODY_Y,
+      duration: 8000,
+      onComplete: () => this.showContinueButton(width, height),
     });
 
     // Skip on click
     this.input.once('pointerdown', () => {
       this.tweens.killAll();
-      title.y = 100;
-      creditsText.y = 250;
+      title.y = TITLE_Y;
+      creditsText.y = BODY_Y;
       this.showContinueButton(width, height);
     });
   }
 
   private showContinueButton(width: number, height: number) {
-    Button.create(this, width / 2, height - 50, 'NEW GAME+', () => {
-      this.scene.start('MapScene', { level: this.nextLevel });
-    });
-
-    Button.create(this, width / 2, height - 100, 'MAIN MENU', () => {
-      this.scene.start('MenuScene');
-    });
+    if (this.buttonsShown) return;
+    this.buttonsShown = true;
+    Button.create(
+      this,
+      width / 2,
+      height - 84,
+      t('credits.ngplus'),
+      () => fadeToScene(this, 'MapScene', { level: this.nextLevel }),
+      { primary: true },
+    );
+    Button.create(this, width / 2, height - 40, t('credits.menu'), () =>
+      fadeToScene(this, 'MenuScene'),
+    );
   }
 }

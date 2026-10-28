@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Player } from '../Player';
+import { GameConfig } from '../../config/GameConfig';
 
 export class ShieldComponent {
   private purchasedShieldActive: boolean = false;
@@ -34,7 +35,7 @@ export class ShieldComponent {
       repeat: -1,
     });
 
-    this.scene.time.delayedCall(15000, () => {
+    this.scene.time.delayedCall(GameConfig.Player.ShieldDuration, () => {
       this.purchasedShieldActive = false;
       this.scene.tweens.killTweensOf(this.purchasedShieldGraphics);
       this.purchasedShieldGraphics.setVisible(false);

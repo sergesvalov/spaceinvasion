@@ -26,22 +26,30 @@ export class AdStadium extends Phaser.GameObjects.Container {
     standsGraphics.fillStyle(0x006600, 1);
     standsGraphics.fillRect(-width / 2 + 20, -height / 2 + 20, width - 40, height - 40);
 
+    // Mowing stripes and centre line so the field reads as a pitch from above
+    standsGraphics.fillStyle(0x007a00, 1);
+    for (let x = -width / 2 + 20; x < width / 2 - 20; x += 40) {
+      standsGraphics.fillRect(x, -height / 2 + 20, 20, height - 40);
+    }
+    standsGraphics.lineStyle(1, 0xffffff, 0.6);
+    standsGraphics.strokeRect(-width / 2 + 28, -height / 2 + 28, width - 56, height - 56);
+    standsGraphics.strokeCircle(0, 0, 18);
+
     this.add(standsGraphics);
 
-    // Banner placeholder (can be swapped)
-    // We can use a Text object or an Image. The prompt says "рекламый плакат".
+    // In-world billboard (was an "AD BANNER [PLACEHOLDER]" debug label)
+    const board = scene.add.rectangle(0, 0, 150, 30, 0x000000, 0.85).setStrokeStyle(1, 0xffce00);
     const bannerText = scene.add
-      .text(0, 0, 'AD BANNER\n[ PLACEHOLDER ]', {
-        fontSize: '24px',
-        color: '#ffff00',
-        fontStyle: 'bold',
+      .text(0, 0, 'NEO-TOKYO\nDEFENSE FORCE', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '8px',
+        color: '#ffce00',
         align: 'center',
-        backgroundColor: '#00000088',
-        padding: { x: 10, y: 10 },
+        lineSpacing: 4,
       })
       .setOrigin(0.5);
 
-    this.add(bannerText);
+    this.add([board, bannerText]);
 
     scene.events.on('update', this.onUpdate, this);
     this.on('destroy', () => {

@@ -61,7 +61,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.hudManager = new HUDManager();
-    this.hudManager.createHUD(state.currentHp);
+    this.hudManager.createHUD(state.currentHp, this.currentLevel);
 
     const { width, height } = this.scale;
 

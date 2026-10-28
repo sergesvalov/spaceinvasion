@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GameState } from '../../services/GameState';
 import { StyleConfig } from '../config/StyleConfig';
+import { t } from '../../services/i18n';
 import { AudioManager } from '../../services/AudioManager';
 
 export class ScoreManager {
@@ -42,7 +43,7 @@ export class ScoreManager {
 
     if (showFloatingText && this.chainCount > 1) {
       if (this.chainCount % 5 === 0) {
-        showFloatingText(`CHAIN x${this.chainCount}!`, '#00ffff');
+        showFloatingText(t('float.chain', { n: this.chainCount }), StyleConfig.Colors.NeonCyan);
       }
     }
   }
@@ -55,6 +56,6 @@ export class ScoreManager {
     GameState.getInstance().addAntimatter(amount);
     this.antimatter = GameState.getInstance().antimatter;
     this.onUpdateHUD(this.score, health, this.antimatter);
-    showFloatingText('+1 AM', StyleConfig.Colors.NeonPink);
+    showFloatingText(`+1 ${t('cur.am')}`, StyleConfig.Colors.Antimatter);
   }
 }

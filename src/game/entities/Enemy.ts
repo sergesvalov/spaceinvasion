@@ -138,7 +138,8 @@ export class Enemy extends BaseEntity {
 
   protected die() {
     super.die();
-    this.scene.cameras.main.shake(100, 0.005);
+    // Shake only for elites: shaking on every grunt kill was tiring
+    if (this.enemyType === 'carrier') this.scene.cameras.main.shake(100, 0.005);
     EventBus.emit('enemy_destroyed', GameConfig.Enemy.Points, this.x, this.y);
 
     if (this.enemyType === 'carrier') {

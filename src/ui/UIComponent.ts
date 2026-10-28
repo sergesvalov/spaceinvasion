@@ -1,3 +1,6 @@
+import { Haptics } from '../services/Haptics';
+import { AudioManager } from '../services/AudioManager';
+
 export abstract class UIComponent {
   protected container: HTMLElement;
   protected isMounted: boolean = false;
@@ -46,11 +49,10 @@ export abstract class UIComponent {
       el.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
         e.preventDefault();
+        if ((el as HTMLButtonElement).disabled) return;
 
-        // Try haptic feedback
-        if ((window as any).Telegram?.WebApp?.HapticFeedback) {
-          (window as any).Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        }
+        Haptics.impact('light');
+        AudioManager.getInstance().playUiClick();
 
         handler(e);
       });

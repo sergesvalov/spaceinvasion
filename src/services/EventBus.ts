@@ -19,6 +19,10 @@ export interface GameEvents {
     type: import('../game/entities/PowerUp').PowerUpType,
   ) => void;
   mecha_shockwave: (data: { x: number; y: number; radius: number }) => void;
+  // HUD notifications for timed abilities (drive the draining timer bars)
+  mecha_started: (durationMs: number) => void;
+  mecha_ended: () => void;
+  shield_started: (durationMs: number) => void;
   boss_destroyed: () => void;
 }
 

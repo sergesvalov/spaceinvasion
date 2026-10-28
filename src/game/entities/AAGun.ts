@@ -17,6 +17,8 @@ export class AAGun extends BaseEntity {
     // Scale down the generated asset if needed
     this.setScale(1.1);
     this.setDepth(-10); // Sit on top of buildings but below flying ships
+    // Friendly ground fire is scenery: muted so it never out-shines enemies
+    this.setTint(0x8899aa).setAlpha(0.85);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     if (body) {

@@ -1,7 +1,9 @@
 import { AnalyticsService } from './AnalyticsService';
 
-import { StorySlide, LORE_DATA } from '../data/StoryData';
+import { StorySlide, LORE_DATA, localizeSlide } from '../data/StoryData';
 import { GameConfig } from '../game/config/GameConfig';
+import { AudioManager } from './AudioManager';
+import { t } from './i18n';
 
 export class StoryManager {
   private static instance: StoryManager;
@@ -10,6 +12,8 @@ export class StoryManager {
   private textEl!: HTMLDivElement;
   private hintEl!: HTMLDivElement;
   private imageEl!: HTMLImageElement;
+  private skipEl!: HTMLButtonElement;
+  private progressEl!: HTMLDivElement;
 
   private isTyping = false;
   private currentFullText = '';
@@ -37,11 +41,29 @@ export class StoryManager {
     this.overlayEl = document.createElement('div');
     this.overlayEl.className = 'story-overlay';
 
-    const panelEl = document.createElement('div');
-    panelEl.className = 'story-panel ui-panel';
-
+    // Full-bleed art behind a bottom text panel, so a slide reads like a comic
+    // frame on a portrait phone and the art never pushes the text off-screen.
     this.imageEl = document.createElement('img');
     this.imageEl.className = 'story-image';
+    this.imageEl.alt = '';
+
+    const shadeEl = document.createElement('div');
+    shadeEl.className = 'story-shade';
+
+    this.skipEl = document.createElement('button');
+    this.skipEl.className = 'story-skip';
+    this.skipEl.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      AudioManager.getInstance().playUiClick();
+      this.finish();
+    });
+
+    const panelEl = document.createElement('div');
+    panelEl.className = 'story-panel';
+
+    this.progressEl = document.createElement('div');
+    this.progressEl.className = 'story-progress';
 
     this.titleEl = document.createElement('div');
     this.titleEl.className = 'story-title';
@@ -51,13 +73,16 @@ export class StoryManager {
 
     this.hintEl = document.createElement('div');
     this.hintEl.className = 'story-hint';
-    this.hintEl.textContent = 'НАЖМИТЕ ДЛЯ ПРОДОЛЖЕНИЯ...';
+    this.hintEl.textContent = '▶';
 
-    panelEl.appendChild(this.imageEl);
+    panelEl.appendChild(this.progressEl);
     panelEl.appendChild(this.titleEl);
     panelEl.appendChild(this.textEl);
     panelEl.appendChild(this.hintEl);
 
+    this.overlayEl.appendChild(this.imageEl);
+    this.overlayEl.appendChild(shadeEl);
+    this.overlayEl.appendChild(this.skipEl);
     this.overlayEl.appendChild(panelEl);
     uiContainer.appendChild(this.overlayEl);
 
@@ -91,9 +116,12 @@ export class StoryManager {
       }
     }
 
-    this.currentSlides = LORE_DATA[finalLevelId] || [{ title: 'UNKNOWN', text: 'No data.' }];
+    this.currentSlides = LORE_DATA[finalLevelId] || [
+      { title: '...', text: '...', en: { title: '...', text: '...' } },
+    ];
     this.currentSlideIndex = 0;
     this.resolveBriefing = onComplete;
+    this.skipEl.textContent = `${t('story.skip')} ▶▶`;
 
     this.overlayEl.classList.add('active');
     this.showCurrentSlide();
@@ -101,10 +129,13 @@ export class StoryManager {
 
   private showCurrentSlide() {
     const slide = this.currentSlides[this.currentSlideIndex];
+    const { title, text } = localizeSlide(slide);
 
-    this.titleEl.textContent = slide.title;
+    this.titleEl.textContent = title;
     this.textEl.textContent = '';
-    this.currentFullText = slide.text;
+    this.currentFullText = text;
+    this.hintEl.classList.remove('ready');
+    this.renderProgress();
 
     if (slide.image) {
       this.imageEl.src = slide.image;
@@ -113,7 +144,21 @@ export class StoryManager {
       this.imageEl.style.display = 'none';
     }
 
+    // Warm the cache for the next frame so it doesn't pop in mid-transition.
+    const next = this.currentSlides[this.currentSlideIndex + 1];
+    if (next?.image) new Image().src = next.image;
+
     this.startTyping();
+  }
+
+  private renderProgress() {
+    if (this.currentSlides.length < 2) {
+      this.progressEl.innerHTML = '';
+      return;
+    }
+    this.progressEl.innerHTML = this.currentSlides
+      .map((_, i) => `<span class="${i === this.currentSlideIndex ? 'on' : ''}"></span>`)
+      .join('');
   }
 
   private startTyping() {
@@ -153,6 +198,7 @@ export class StoryManager {
     if (this.typeInterval) clearTimeout(this.typeInterval);
     this.isTyping = false;
     this.textEl.textContent = this.currentFullText.replace(/\|/g, '');
+    this.hintEl.classList.add('ready');
   }
 
   private handleTap() {
@@ -165,16 +211,21 @@ export class StoryManager {
       if (this.currentSlideIndex < this.currentSlides.length) {
         this.showCurrentSlide();
       } else {
-        // Close briefing
-        this.overlayEl.classList.remove('active');
-        // Wait for CSS transition (0.5s) to complete before resolving
-        setTimeout(() => {
-          if (this.resolveBriefing) {
-            this.resolveBriefing();
-            this.resolveBriefing = undefined;
-          }
-        }, 500);
+        this.finish();
       }
     }
+  }
+
+  private finish() {
+    if (this.typeInterval) clearTimeout(this.typeInterval);
+    this.isTyping = false;
+    this.overlayEl.classList.remove('active');
+    // Wait for CSS transition (0.5s) to complete before resolving
+    setTimeout(() => {
+      if (this.resolveBriefing) {
+        this.resolveBriefing();
+        this.resolveBriefing = undefined;
+      }
+    }, 500);
   }
 }

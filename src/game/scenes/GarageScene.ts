@@ -1,157 +1,159 @@
 import Phaser from 'phaser';
 import { GameState } from '../../services/GameState';
 import { GarageUI } from '../../ui/GarageUI';
+import { GameConfig } from '../config/GameConfig';
+import { EntityConfig } from '../config/EntityConfig';
+import { fadeIn, fadeToScene } from '../utils/transition';
 
 export class GarageScene extends Phaser.Scene {
   private sparksEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   private ui!: GarageUI;
-
-  private REPAIR_COST = 1000;
-  private SHIELD_COST = 5; // Antimatter
-  private BOMB_COST = 2500; // Credits
-  private DRONE_COST = 15; // Antimatter
+  private drone?: Phaser.GameObjects.Image;
+  private shipPos = { x: 0, y: 0 };
 
   constructor() {
     super({ key: 'GarageScene' });
   }
 
   create() {
-    this.cameras.main.fadeIn(1000, 0, 0, 0);
+    fadeIn(this);
     const { width, height } = this.scale;
 
-    // Hologram Background
-    const bg = this.add.image(width / 2, height / 2, 'hangar_bg');
-    const scaleX = width / bg.width;
-    const scaleY = height / bg.height;
-    const scale = Math.max(scaleX, scaleY);
-    bg.setScale(scale).setScrollFactor(0);
-    bg.setTint(0x004488); // Blueish holographic tint
-    bg.setAlpha(0.6);
+    // Hangar art, dimmed so the ship and the UI stay the brightest things
+    const artKey = this.textures.exists('hangar_art') ? 'hangar_art' : 'hangar_bg';
+    const bg = this.add.image(width / 2, height * 0.3, artKey);
+    bg.setScale(Math.max(width / bg.width, (height * 0.75) / bg.height));
+    bg.setTint(0x6677aa).setAlpha(0.55);
 
-    // Scanlines
     const scanlines = this.add.graphics();
-    scanlines.fillStyle(0x000000, 0.4);
-    for (let i = 0; i < height; i += 4) {
-      scanlines.fillRect(0, i, width, 1);
-    }
-
-    // Sparks Emitter for damage
-    this.sparksEmitter = this.add.particles(width / 2, height / 2, 'particle', {
-      speed: { min: 100, max: 300 },
-      angle: { min: 200, max: 340 },
-      scale: { start: 1, end: 0 },
-      blendMode: 'ADD',
-      gravityY: 400,
-      lifespan: 800,
-      tint: [0xffffff, 0xffff00, 0xff0000],
-      frequency: 50,
-    });
+    scanlines.fillStyle(0x000000, 0.35);
+    for (let i = 0; i < height; i += 3) scanlines.fillRect(0, i, width, 1);
 
     this.ui = new GarageUI({
-      onBack: () => {
-        this.triggerHaptic('light');
-        this.scene.start('MenuScene');
-      },
+      onBack: () => fadeToScene(this, 'MenuScene'),
       onRepair: () => this.handleRepair(),
       onBuyBomb: () => this.handleBuyBomb(),
       onBuyShield: () => this.handleBuyShield(),
       onBuyDrone: () => this.handleBuyDrone(),
-      onSwitchWeapon: () => this.handleSwitchWeapon(),
+      onSelectWeapon: (w) => {
+        GameState.getInstance().setEquippedWeapon(w);
+        this.updateUI();
+      },
     });
-
     this.ui.mount();
 
     this.events.once('shutdown', () => {
       this.ui.unmount();
     });
 
+    this.shipPos = this.stageCenter();
+    this.addShip();
     this.updateUI();
   }
 
-  private handleRepair() {
-    const state = GameState.getInstance();
-    if (state.currentHp < state.maxHp && state.credits >= this.REPAIR_COST) {
-      state.spendCredits(this.REPAIR_COST);
-      state.repair(1);
-      this.triggerHaptic('light');
-      this.updateUI();
-    } else {
-      this.triggerHaptic('error');
-      if (state.credits < this.REPAIR_COST) this.cameras.main.flash(200, 255, 0, 0);
-    }
+  /** Centre of the transparent .garage-stage window in game coordinates. */
+  private stageCenter(): { x: number; y: number } {
+    const { width, height } = this.scale;
+    const ui = document.getElementById('ui-container')?.getBoundingClientRect();
+    const stage = document.querySelector('.garage-stage')?.getBoundingClientRect();
+    if (!ui || !stage || ui.width === 0) return { x: width / 2, y: height * 0.27 };
+    const k = width / ui.width;
+    return {
+      x: width / 2,
+      y: Phaser.Math.Clamp((stage.top - ui.top + stage.height * 0.45) * k, 60, height * 0.5),
+    };
   }
 
-  private handleBuyBomb() {
-    const state = GameState.getInstance();
-    if (state.credits >= this.BOMB_COST) {
-      state.spendCredits(this.BOMB_COST);
-      state.addBomb(1);
-      this.triggerHaptic('light');
-      this.updateUI();
-    } else {
-      this.triggerHaptic('error');
-      this.cameras.main.flash(200, 255, 0, 0);
-    }
+  private addShip() {
+    const { x, y } = this.shipPos;
+
+    // Holographic pad under the ship
+    const pad = this.add
+      .ellipse(x, y + 34, 110, 18, 0x00c0ff, 0.15)
+      .setStrokeStyle(1, 0x00c0ff, 0.6);
+    this.tweens.add({ targets: pad, alpha: 0.5, duration: 900, yoyo: true, repeat: -1 });
+
+    const ship = this.add.image(x, y, 'player_fighter').setScale(EntityConfig.Player.scale * 1.6);
+    this.tweens.add({
+      targets: ship,
+      y: y - 4,
+      duration: 1300,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.drone = this.add
+      .image(x + 62, y - 6, 'player_fighter')
+      .setScale(EntityConfig.Player.scale * 0.6)
+      .setVisible(false);
+    this.tweens.add({
+      targets: this.drone,
+      y: y - 12,
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    // Sparks while the hull is damaged
+    this.sparksEmitter = this.add.particles(x, y, 'particle', {
+      speed: { min: 60, max: 180 },
+      angle: { min: 200, max: 340 },
+      scale: { start: 1, end: 0 },
+      blendMode: 'ADD',
+      gravityY: 400,
+      lifespan: 700,
+      tint: [0xffffff, 0xffff00, 0xff0000],
+      frequency: 50,
+    });
   }
 
-  private handleBuyDrone() {
+  private handleRepair(): boolean {
     const state = GameState.getInstance();
-    if (!state.hasDrone && state.antimatter >= this.DRONE_COST) {
-      state.spendAntimatter(this.DRONE_COST);
-      state.setHasDrone(true);
-      this.triggerHaptic('light');
-      this.updateUI();
-    } else {
-      this.triggerHaptic('error');
-      this.cameras.main.flash(200, 255, 0, 0);
-    }
-  }
-
-  private handleSwitchWeapon() {
-    const state = GameState.getInstance();
-    const weapons: Array<'plasma' | 'ion' | 'wave'> = ['plasma', 'ion', 'wave'];
-    const currentIndex = weapons.indexOf(state.equippedWeapon);
-    const nextIndex = (currentIndex + 1) % weapons.length;
-    state.setEquippedWeapon(weapons[nextIndex]);
-    this.triggerHaptic('light');
+    const cost = GameConfig.Shop.RepairCost;
+    if (state.currentHp >= state.maxHp || state.credits < cost) return false;
+    state.spendCredits(cost);
+    state.repair(1);
     this.updateUI();
+    return true;
   }
 
-  private triggerHaptic(type: 'light' | 'error') {
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      if (type === 'light') {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      } else {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-      }
-    }
-  }
-
-  private handleBuyShield() {
+  private handleBuyBomb(): boolean {
     const state = GameState.getInstance();
-    if (state.antimatter >= this.SHIELD_COST) {
-      state.spendAntimatter(this.SHIELD_COST);
-      state.addShield(1);
-      this.triggerHaptic('light');
-      this.updateUI();
-    } else {
-      this.triggerHaptic('error');
-      this.cameras.main.flash(200, 255, 0, 0);
-    }
+    if (!state.spendCredits(GameConfig.Shop.BombCost)) return false;
+    state.addBomb(1);
+    this.updateUI();
+    return true;
+  }
+
+  private handleBuyDrone(): boolean {
+    const state = GameState.getInstance();
+    if (state.hasDrone || !state.spendAntimatter(GameConfig.Shop.DroneCost)) return false;
+    state.setHasDrone(true);
+    this.updateUI();
+    return true;
+  }
+
+  private handleBuyShield(): boolean {
+    const state = GameState.getInstance();
+    if (!state.spendAntimatter(GameConfig.Shop.ShieldCost)) return false;
+    state.addShield(1);
+    this.updateUI();
+    return true;
   }
 
   private updateUI() {
     const state = GameState.getInstance();
 
-    if (this.ui) {
-      this.ui.update();
-    }
+    this.ui?.update();
+    this.drone?.setVisible(state.hasDrone);
 
     const needsRepair = state.currentHp < state.maxHp;
     if (!needsRepair) {
       this.sparksEmitter?.stop();
     } else {
-      if (!this.sparksEmitter?.on) this.sparksEmitter?.start();
+      if (!this.sparksEmitter?.emitting) this.sparksEmitter?.start();
       const damage = state.maxHp - state.currentHp;
       this.sparksEmitter?.setFrequency(150 / damage);
     }

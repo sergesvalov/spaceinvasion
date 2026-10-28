@@ -27,6 +27,9 @@ test.describe('Mobile touch controls', () => {
       );
       if (overlayActive) {
         await page.tap('.story-overlay');
+      } else if (await page.isVisible('#btn-launch')) {
+        // Campaign map: the sector card waits for LAUNCH
+        await page.tap('#btn-launch');
       }
       await page.waitForTimeout(250);
     }

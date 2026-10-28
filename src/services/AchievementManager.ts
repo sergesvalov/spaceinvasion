@@ -1,3 +1,5 @@
+import { pick } from './i18n';
+
 export class AchievementManager {
   private static instance: AchievementManager;
   private unlocked: Set<string> = new Set();
@@ -42,37 +44,56 @@ export class AchievementManager {
 
   public checkScoreAchievements(score: number) {
     if (score >= 1000 && !this.unlocked.has('score_1000')) {
-      this.unlock('score_1000', 'Первая кровь', 'Набери 1,000 очков в одном забеге');
+      this.unlock('score_1000', {
+        ru: ['Первая кровь', 'Набери 1 000 очков за один забег'],
+        en: ['First Blood', 'Score 1,000 points in one run'],
+      });
     }
     if (score >= 5000 && !this.unlocked.has('score_5000')) {
-      this.unlock('score_5000', 'Ас космоса', 'Набери 5,000 очков в одном забеге');
+      this.unlock('score_5000', {
+        ru: ['Ас космоса', 'Набери 5 000 очков за один забег'],
+        en: ['Space Ace', 'Score 5,000 points in one run'],
+      });
     }
     if (score >= 10000 && !this.unlocked.has('score_10000')) {
-      this.unlock('score_10000', 'Неудержимый', 'Набери 10,000 очков в одном забеге');
+      this.unlock('score_10000', {
+        ru: ['Неудержимый', 'Набери 10 000 очков за один забег'],
+        en: ['Unstoppable', 'Score 10,000 points in one run'],
+      });
     }
   }
 
   public checkKamikazeKill() {
     if (!this.unlocked.has('kamikaze_kill')) {
-      this.unlock('kamikaze_kill', 'Мухобойка', 'Уничтожь камикадзе-дрон босса');
+      this.unlock('kamikaze_kill', {
+        ru: ['Мухобойка', 'Уничтожь камикадзе-дрон босса'],
+        en: ['Fly Swatter', 'Destroy a boss kamikaze drone'],
+      });
     }
   }
 
   public checkBossDefeat() {
     if (!this.unlocked.has('boss_kill')) {
-      this.unlock('boss_kill', 'Защитник Земли', 'Уничтожь крейсер пришельцев');
+      this.unlock('boss_kill', {
+        ru: ['Защитник Земли', 'Уничтожь крейсер пришельцев'],
+        en: ['Earth Defender', 'Destroy the alien cruiser'],
+      });
     }
   }
 
   public checkMechaTransform() {
     if (!this.unlocked.has('mecha_transform')) {
-      this.unlock('mecha_transform', 'Время героев', 'Трансформируйся в Меху');
+      this.unlock('mecha_transform', {
+        ru: ['Время героев', 'Трансформируйся в меха'],
+        en: ['Hero Time', 'Transform into the mecha'],
+      });
     }
   }
 
-  private unlock(id: string, title: string, desc: string) {
+  private unlock(id: string, text: { ru: [string, string]; en: [string, string] }) {
     this.unlocked.add(id);
     this.saveState();
+    const [title, desc] = pick(text);
     this.listeners.forEach((l) => l(title, desc));
   }
 }

@@ -90,19 +90,44 @@ export class BossAttackComponent {
         const ep = this.enemyProjectiles.get() as EnemyProjectile;
         if (ep) {
           ep.fire(this.boss.x, this.boss.y + 250, 0);
-          // Enemy projectile texture is around 12px. Scale it to be a beam.
+          // The pooled projectile is only the hitbox: scaled into a 30x400 column
+          // and hidden. The visible beam is a separate additive glow sprite.
           ep.setScale(3, 40);
-          ep.setTint(0x00ffff);
+          ep.setAlpha(0);
 
           const body = ep.body as Phaser.Physics.Arcade.Body;
           if (body) {
             body.setVelocity(0, 0);
           }
 
+          const beam = scene.add
+            .image(this.boss.x, this.boss.y + 250, 'boss_laser')
+            .setDisplaySize(4, 400)
+            .setBlendMode(Phaser.BlendModes.ADD)
+            .setTint(0x66ffff);
+          scene.tweens.add({ targets: beam, displayWidth: 34, duration: 80, ease: 'Quad.easeOut' });
+          scene.tweens.add({
+            targets: beam,
+            displayWidth: { from: 34, to: 26 },
+            duration: 60,
+            yoyo: true,
+            repeat: -1,
+            delay: 80,
+          });
+          scene.cameras.main.shake(800, 0.003);
+
           scene.time.delayedCall(800, () => {
             ep.setActive(false).setVisible(false);
             ep.setScale(1);
-            ep.clearTint();
+            ep.setAlpha(1);
+            scene.tweens.killTweensOf(beam);
+            scene.tweens.add({
+              targets: beam,
+              displayWidth: 0,
+              alpha: 0,
+              duration: 120,
+              onComplete: () => beam.destroy(),
+            });
           });
         }
       },

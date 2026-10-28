@@ -7,6 +7,8 @@ export interface LevelPhase {
   spawnRateModifier: number;
 }
 
+// Dim and cool the backdrop so ships and bullets are the brightest thing on screen
+const BG_TINT = 0x8a8a9a;
 export class LevelManager {
   private scene: Phaser.Scene;
   private phases: LevelPhase[];
@@ -40,12 +42,12 @@ export class LevelManager {
     this.nextBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.nextBg.setDepth(-101);
     this.nextBg.setAlpha(0);
-    this.nextBg.setTint(0xbbbbbb);
+    this.nextBg.setTint(BG_TINT);
 
     this.activeBg = this.scene.add.tileSprite(width / 2, height / 2, width, height, initialKey);
     this.activeBg.setDepth(-100);
     this.activeBg.setAlpha(1.0);
-    this.activeBg.setTint(0xbbbbbb);
+    this.activeBg.setTint(BG_TINT);
 
     // Handle resize events
     this.resizeHandler = (gameSize: Phaser.Structs.Size) => {

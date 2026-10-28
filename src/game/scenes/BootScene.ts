@@ -37,6 +37,21 @@ export class BootScene extends Phaser.Scene {
     partGraphics.generateTexture('particle', 4, 4);
     partGraphics.destroy();
 
+    // Boss laser: soft cyan edges around a white-hot core, stretched vertically at runtime
+    const laserGraphics = this.add.graphics();
+    const laserBands: [number, number, number][] = [
+      [0, 16, 0.15],
+      [3, 10, 0.35],
+      [5, 6, 0.7],
+      [7, 2, 1],
+    ];
+    for (const [x, w, a] of laserBands) {
+      laserGraphics.fillStyle(x === 7 ? 0xffffff : 0x00ffff, a);
+      laserGraphics.fillRect(x, 0, w, 8);
+    }
+    laserGraphics.generateTexture('boss_laser', 16, 8);
+    laserGraphics.destroy();
+
     // Cloud particle texture (circle)
     const cloudGraphics = this.add.graphics();
     cloudGraphics.fillStyle(0xffffff, 1);
@@ -60,18 +75,8 @@ export class BootScene extends Phaser.Scene {
     // Load main game atlas
     this.load.atlas('game_atlas', 'game_atlas.png', 'game_atlas.json');
 
-    // Load story textures
-    this.load.image('story_1', 'story/story_1.jpg');
-    this.load.image('story_2', 'story/story_2.jpg');
-    this.load.image('story_3', 'story/story_3.jpg');
-    this.load.image('story_4', 'story/story_4.jpg');
-    this.load.image('victory_1', 'story/victory_1.jpg');
-    this.load.image('victory_2', 'story/victory_2.png');
-    this.load.image('victory_3', 'story/victory_3.png');
-    this.load.image('story_ocean_victory', 'story/story_ocean_victory.jpg');
-    this.load.image('story_orbit_chase', 'story/story_orbit_chase.jpg');
-    this.load.image('story_station', 'story/story_station.jpg');
-    this.load.image('story_victory_mech', 'story/story_victory_mech.jpg');
+    // Story art is shown by the DOM briefing overlay (StoryManager), which loads
+    // each image on demand - no need to pull it all through Phaser up front.
 
     // Load Earth backgrounds (now generated procedurally)
     // Removed static loads for bg_suburbs and bg_mountains
@@ -85,8 +90,9 @@ export class BootScene extends Phaser.Scene {
     this.load.image('aagun', 'entities/aagun.png');
     this.load.image('ocean_enemy', 'entities/ocean_enemy.png');
     this.load.image('alien_aagun', 'entities/alien_aagun.png');
-    this.load.image('boss_mech', 'entities/boss_mech.jpg');
+    this.load.image('boss_mech', 'entities/boss_mech.png');
 
+    this.load.image('hangar_art', 'hangar.png');
     this.load.image('starfield', 'misc/starfield.png');
     this.load.image('procedural_tileset', 'misc/procedural_tileset.png');
   }

@@ -14,6 +14,7 @@ import { StyleConfig } from '../config/StyleConfig';
 import { burst } from '../effects/burst';
 import { AudioManager } from '../../services/AudioManager';
 import { AchievementManager } from '../../services/AchievementManager';
+import { t } from '../../services/i18n';
 
 import { DamageManager } from './DamageManager';
 import { ScoreManager } from './ScoreManager';
@@ -98,16 +99,9 @@ export class GameController {
 
   public handleBossPhase(width: number) {
     console.log('[GameController] Boss phase started!');
-    this.hudManager.showFloatingText(
-      this.scene,
-      width / 2,
-      this.scene.scale.height / 2 - 50,
-      'WARNING\nBOSS APPROACHING',
-      '#ff0000',
-      3000,
-      1.5,
-    );
-    this.scene.cameras.main.flash(500, 255, 0, 0);
+    this.hudManager.showBossWarning(3000);
+    this.scene.cameras.main.shake(400, 0.004);
+    AudioManager.getInstance().playUiDeny();
 
     this.scene.time.delayedCall(3000, () => {
       if (!this.isPlaying) return;
@@ -202,7 +196,7 @@ export class GameController {
         this.scene,
         this.player.x,
         this.player.y,
-        'W UP',
+        t('float.weaponUp'),
         StyleConfig.Colors.NeonYellow,
       );
     } else if (type === 'spread' || type === 'homing') {
@@ -255,6 +249,7 @@ export class GameController {
       this.scene.scene.start('DefeatScene', {
         score: this.scoreManager.score,
         level: this.currentLevel,
+        credits: this.scoreManager.score,
       });
     });
   }
@@ -286,7 +281,8 @@ export class GameController {
     });
 
     const state = GameState.getInstance();
-    state.addCredits(this.scoreManager.score + 5000);
+    const reward = this.scoreManager.score + 5000;
+    state.addCredits(reward);
     state.updateHiScore(this.scoreManager.score);
     state.unlockLevel(this.currentLevel + 1);
 
@@ -300,6 +296,7 @@ export class GameController {
         kills: this.scoreManager.kills,
         maxChain: this.scoreManager.maxChain,
         health: this.damageManager.health,
+        credits: reward,
       });
     });
   }
